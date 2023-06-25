@@ -1,9 +1,7 @@
-import { ApolloProvider } from "@apollo/client";
 import { useEffect } from "react";
 import { Provider } from "react-redux";
 import { ThemeProvider } from "styled-components";
 import "./App.css";
-import { client } from "./api/client";
 import { ClassListWrapper } from "./components/list/ClassListWrapper";
 import { store } from "./constants/store";
 import { theme } from "./constants/theme";
@@ -26,13 +24,11 @@ const ProvidedApp = () => {
 
 function App() {
   return (
-    <ApolloProvider client={client}>
-      <ThemeProvider theme={theme}>
-        <Provider store={store}>
-          <ProvidedApp />
-        </Provider>
-      </ThemeProvider>
-    </ApolloProvider>
+    <ThemeProvider theme={theme}>
+      <Provider store={store}>
+        <ProvidedApp />
+      </Provider>
+    </ThemeProvider>
   );
 }
 
