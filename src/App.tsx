@@ -1,25 +1,46 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { ApolloProvider } from "@apollo/client";
+import { Provider } from "react-redux";
+import { DefaultTheme, ThemeProvider } from "styled-components";
+import "./App.css";
+import { client } from "./api/client";
+import { ClassListWrapper } from "./components/list/ClassListWrapper";
+import { store } from "./constants/store";
+import { ClassesProvider } from "./providers/ClassesProvider";
+import { Location } from "./types/Location";
+import { useEffect } from "react";
+import { fetchClassList } from "./slices/classListSlice";
+import { useAppDispatch } from "./hooks/useStore";
+
+const CLASS_IDS: { [key in Location]: string } = {
+  "New York": "25900000001",
+  London: "927437471153653374",
+};
+
+const ProvidedApp = () => {
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    dispatch(fetchClassList(CLASS_IDS["New York"]));
+  }, [dispatch]);
+  return <ClassListWrapper />;
+};
+
+const theme: DefaultTheme = {
+  borderRadius: "4px",
+  borderColor: "#d1d1d1",
+  colors: { main: "#494f59", secondary: "" },
+};
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ApolloProvider client={client}>
+      <ThemeProvider theme={theme}>
+        <Provider store={store}>
+          <ClassesProvider classId={CLASS_IDS["New York"]}>
+            <ProvidedApp />
+          </ClassesProvider>
+        </Provider>
+      </ThemeProvider>
+    </ApolloProvider>
   );
 }
 
