@@ -1,14 +1,15 @@
 import { ApolloProvider } from "@apollo/client";
+import { useEffect } from "react";
 import { Provider } from "react-redux";
-import { DefaultTheme, ThemeProvider } from "styled-components";
+import { ThemeProvider } from "styled-components";
 import "./App.css";
 import { client } from "./api/client";
 import { ClassListWrapper } from "./components/list/ClassListWrapper";
 import { store } from "./constants/store";
-import { Location } from "./types/Location";
-import { useEffect } from "react";
-import { fetchClassList } from "./slices/classListSlice";
+import { theme } from "./constants/theme";
 import { useAppDispatch } from "./hooks/useStore";
+import { fetchClassList } from "./slices/classListSlice";
+import { Location } from "./types/Location";
 
 const CLASS_IDS: { [key in Location]: string } = {
   "New York": "25900000001",
@@ -21,12 +22,6 @@ const ProvidedApp = () => {
     dispatch(fetchClassList(CLASS_IDS["New York"]));
   }, [dispatch]);
   return <ClassListWrapper />;
-};
-
-const theme: DefaultTheme = {
-  borderRadius: "4px",
-  borderColor: "#d1d1d1",
-  colors: { main: "#494f59", secondary: "" },
 };
 
 function App() {
