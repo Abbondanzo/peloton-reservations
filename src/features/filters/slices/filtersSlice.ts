@@ -1,18 +1,15 @@
-import {
-  setShouldShowWaitlist,
-  shouldShowWaitlist,
-} from "../operators/queryParameters";
 import { createSlice } from "@reduxjs/toolkit";
 import { PayloadAction } from "@reduxjs/toolkit/src/createAction";
+import { getBookableStatusSearchParams } from "../operators/bookableStatusSearchParams";
+import { setBookableStatusSearchParams } from "./../operators/bookableStatusSearchParams";
+import { BookableStatus } from "./../types/BookableStatus";
 
 export interface FilterState {
-  showWaitlist: boolean;
-  showFull: boolean;
+  showBookableStatus: BookableStatus;
 }
 
 const initialState: FilterState = {
-  showWaitlist: shouldShowWaitlist(true),
-  showFull: false,
+  showBookableStatus: getBookableStatusSearchParams("waitlist"),
 };
 
 export const filtersSlice = createSlice({
@@ -20,16 +17,13 @@ export const filtersSlice = createSlice({
   initialState,
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
-    toggleWaitlist(state, action: PayloadAction<boolean>) {
-      state.showWaitlist = action.payload;
-      setShouldShowWaitlist(action.payload);
-    },
-    toggleFull(state, action: PayloadAction<boolean>) {
-      state.showFull = action.payload;
+    setBookableStatus(state, action: PayloadAction<BookableStatus>) {
+      state.showBookableStatus = action.payload;
+      setBookableStatusSearchParams(action.payload);
     },
   },
 });
 
-export const { toggleWaitlist, toggleFull } = filtersSlice.actions;
+export const { setBookableStatus } = filtersSlice.actions;
 
 export default filtersSlice.reducer;

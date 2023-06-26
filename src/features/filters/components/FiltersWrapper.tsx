@@ -1,12 +1,9 @@
-import { useWaitlist } from "../hooks/useWaitlist";
+import { BookableStatusGroup } from "./BookableStatusGroup";
 
 export const FiltersWrapper = () => {
-  const [waitlist, setWaitlist] = useWaitlist();
   return (
-    <input
-      type="checkbox"
-      checked={waitlist}
-      onChange={(event) => setWaitlist(event.currentTarget.checked)}
-    />
+    <div>
+      <BookableStatusGroup />
+    </div>
   );
 };
