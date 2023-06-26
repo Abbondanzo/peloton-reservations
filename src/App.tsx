@@ -21,6 +21,7 @@ const Sidebar = styled.div`
 
 const MainContent = styled.div`
   flex: 1;
+  overflow: auto;
 `;
 
 const ProvidedApp = () => {
