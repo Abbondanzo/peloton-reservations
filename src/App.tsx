@@ -1,19 +1,27 @@
 import { useEffect } from "react";
 import { Provider } from "react-redux";
-import { ThemeProvider } from "styled-components";
-import "./App.css";
+import styled, { ThemeProvider } from "styled-components";
 import { ClassListWrapper } from "./features/class-list/components/ClassListWrapper";
+import { CLASS_IDS } from "./features/class-list/constants/classIds";
 import { fetchClassList } from "./features/class-list/slices/classListSlice";
-import { Location } from "./features/class-list/types/Location";
 import { FiltersWrapper } from "./features/filters/components/FiltersWrapper";
 import { store } from "./features/store/constants/store";
 import { theme } from "./features/store/constants/theme";
 import { useAppDispatch } from "./features/store/hooks/useStore";
 
-const CLASS_IDS: { [key in Location]: string } = {
-  "New York": "25900000001",
-  London: "927437471153653374",
-};
+const AppWrapper = styled.div`
+  display: flex;
+  height: 100%;
+`;
+
+const Sidebar = styled.div`
+  width: 320px;
+  overflow: auto;
+`;
+
+const MainContent = styled.div`
+  flex: 1;
+`;
 
 const ProvidedApp = () => {
   const dispatch = useAppDispatch();
@@ -21,10 +29,14 @@ const ProvidedApp = () => {
     dispatch(fetchClassList(CLASS_IDS["New York"]));
   }, [dispatch]);
   return (
-    <div>
-      <FiltersWrapper />
-      <ClassListWrapper />
-    </div>
+    <AppWrapper>
+      <Sidebar>
+        <FiltersWrapper />
+      </Sidebar>
+      <MainContent>
+        <ClassListWrapper />
+      </MainContent>
+    </AppWrapper>
   );
 };
 

@@ -16,6 +16,9 @@ export const BookableStatusGroup = () => {
 
   return (
     <fieldset>
+      <legend>
+        <h2>Status</h2>
+      </legend>
       <div>
         <input
           type="radio"
