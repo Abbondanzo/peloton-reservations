@@ -1,9 +1,11 @@
 import { Action, ThunkAction, configureStore } from "@reduxjs/toolkit";
-import classListReducer from "../slices/classListSlice";
+import classListReducer from "../../class-list/slices/classListSlice";
+import filtersReducer from "../../filters/slices/filtersSlice";
 
 export const store = configureStore({
   reducer: {
     classList: classListReducer,
+    filters: filtersReducer,
   },
 });
 

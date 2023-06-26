@@ -2,12 +2,13 @@ import { useEffect } from "react";
 import { Provider } from "react-redux";
 import { ThemeProvider } from "styled-components";
 import "./App.css";
-import { ClassListWrapper } from "./components/list/ClassListWrapper";
-import { store } from "./constants/store";
-import { theme } from "./constants/theme";
-import { useAppDispatch } from "./hooks/useStore";
-import { fetchClassList } from "./slices/classListSlice";
-import { Location } from "./types/Location";
+import { ClassListWrapper } from "./features/class-list/components/ClassListWrapper";
+import { fetchClassList } from "./features/class-list/slices/classListSlice";
+import { Location } from "./features/class-list/types/Location";
+import { FiltersWrapper } from "./features/filters/components/FiltersWrapper";
+import { store } from "./features/store/constants/store";
+import { theme } from "./features/store/constants/theme";
+import { useAppDispatch } from "./features/store/hooks/useStore";
 
 const CLASS_IDS: { [key in Location]: string } = {
   "New York": "25900000001",
@@ -19,7 +20,12 @@ const ProvidedApp = () => {
   useEffect(() => {
     dispatch(fetchClassList(CLASS_IDS["New York"]));
   }, [dispatch]);
-  return <ClassListWrapper />;
+  return (
+    <div>
+      <FiltersWrapper />
+      <ClassListWrapper />
+    </div>
+  );
 };
 
 function App() {

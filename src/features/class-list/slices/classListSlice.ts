@@ -1,8 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getClasses } from "../api/getClasses";
 import { Class } from "../types/Class";
-import { Instructor } from "../types/Instructor";
 import { Discipline } from "../types/Discipline";
+import { Instructor } from "../types/Instructor";
 
 interface FulfilledState {
   status: "fulfilled";

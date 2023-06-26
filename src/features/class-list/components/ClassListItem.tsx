@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Class } from "../../types/Class";
+import { Class } from "../types/Class";
 
 const Wrapper = styled.div`
   border: 1px solid ${(props) => props.theme.borderColor};

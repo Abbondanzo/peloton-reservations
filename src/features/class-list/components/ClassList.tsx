@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Class } from "../../types/Class";
+import { Class } from "../types/Class";
 import { ClassListItem } from "./ClassListItem";
 
 const Wrapper = styled.div`

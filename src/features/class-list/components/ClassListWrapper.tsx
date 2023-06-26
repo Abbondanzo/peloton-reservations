@@ -1,4 +1,4 @@
-import { useAppSelector } from "../../hooks/useStore";
+import { useAppSelector } from "../../store/hooks/useStore";
 import { ClassList } from "./ClassList";
 
 export const ClassListWrapper = () => {
