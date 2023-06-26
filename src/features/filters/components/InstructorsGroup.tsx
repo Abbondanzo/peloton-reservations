@@ -34,7 +34,7 @@ const InstructorsGroupItem = ({
 }: InstructorsGroupItemProps) => {
   return (
     <InstructorRow onClick={onClick}>
-      <input type="checkbox" value={instructor.id} checked={checked} />
+      <input type="checkbox" value={instructor.id} checked={checked} readOnly />
       <InstructorImage
         src={instructor.imageUrl}
         alt={`Profile of ${instructor.name}`}

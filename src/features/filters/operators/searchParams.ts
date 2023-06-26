@@ -1,6 +1,7 @@
 export const getSearchParams = (key: string): string | null => {
   const searchParameters = new URLSearchParams(window.location.search);
-  return searchParameters.get(key);
+  const maybeValue = searchParameters.get(key);
+  return maybeValue === null ? maybeValue : decodeURIComponent(maybeValue);
 };
 
 export const setSearchParams = (key: string, value: string) => {

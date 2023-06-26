@@ -1,3 +1,7 @@
+import {
+  getInstructorsSearchParams,
+  setInstructorsSearchParams,
+} from "./../operators/instructorSearchParams";
 import { createSlice } from "@reduxjs/toolkit";
 import { PayloadAction } from "@reduxjs/toolkit/src/createAction";
 import { getBookableStatusSearchParams } from "../operators/bookableStatusSearchParams";
@@ -11,7 +15,7 @@ export interface FilterState {
 
 const initialState: FilterState = {
   showBookableStatus: getBookableStatusSearchParams("waitlist"),
-  selectedInstructors: [],
+  selectedInstructors: getInstructorsSearchParams([]),
 };
 
 export const filtersSlice = createSlice({
@@ -34,6 +38,7 @@ export const filtersSlice = createSlice({
           action.payload,
         ];
       }
+      setInstructorsSearchParams(state.selectedInstructors);
     },
     resetInstructors(state) {
       state.selectedInstructors = [];
