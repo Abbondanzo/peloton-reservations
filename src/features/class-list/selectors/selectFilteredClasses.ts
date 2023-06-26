@@ -13,11 +13,11 @@ const selectClasses = (_: RootState, classes: Class[]) => classes;
 export const selectFilteredClasses = createSelector(
   [selectBookableStatus, selectInstructors, selectClasses],
   (bookableStatus, selectedInstructors, classes) => {
-    if (bookableStatus === "full") return classes;
     return classes
       .filter((clazz) => {
         if (bookableStatus === "waitlist") return !clazz.waitlistFull;
         if (bookableStatus === "free") return clazz.free;
+        if (bookableStatus === "full") return !clazz.cancelled;
         return false;
       })
       .filter((clazz) => {
