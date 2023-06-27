@@ -9,6 +9,7 @@ const InstructorRow = styled.li`
   align-items: center;
   padding: 4px;
   cursor: pointer;
+  user-select: none;
 
   &:hover {
     background-color: rgba(0, 0, 0, 0.05);
@@ -19,6 +20,10 @@ const InstructorImage = styled.img`
   width: 32px;
   height: 32px;
   margin: 0 8px;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 50%;
+  color: #bbb;
 `;
 
 interface InstructorsGroupItemProps {
