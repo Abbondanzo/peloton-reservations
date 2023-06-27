@@ -9,7 +9,7 @@ export const getInstructorsSearchParams = (
   if (value === null) {
     return defaultValue;
   }
-  return value.split(";");
+  return value.split(";").filter(Boolean);
 };
 
 export const setInstructorsSearchParams = (instructorIds: string[]) => {
