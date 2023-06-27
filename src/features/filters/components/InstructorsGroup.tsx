@@ -3,11 +3,12 @@ import { Instructor } from "../../class-list/types/Instructor";
 import { useAppDispatch, useAppSelector } from "../../store/hooks/useStore";
 import { useInstructorFilters } from "../hooks/useInstructorFilters";
 import { selectSortedInstructors } from "../selectors/selectSortedInstructors";
+import { resetInstructors } from "../slices/filtersSlice";
 import { List } from "./atoms/List";
 import { ListItem } from "./atoms/ListItem";
-import { SectionTitle } from "./atoms/SectionTitle";
 import { Padding } from "./atoms/Padding";
-import { resetInstructors } from "../slices/filtersSlice";
+import { ResetButton } from "./atoms/ResetButton";
+import { SectionTitle } from "./atoms/SectionTitle";
 
 const InstructorImage = styled.img`
   width: 32px;
@@ -23,12 +24,6 @@ const SectionRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-`;
-
-const ResetButton = styled.span`
-  cursor: pointer;
-  color: ${(props) => props.theme.colors.accent};
-  font-size: 12px;
 `;
 
 interface InstructorsGroupItemProps {
@@ -59,7 +54,7 @@ const InstructorsGroupContent = () => {
   const { selectedInstructors, toggleInstructor } = useInstructorFilters();
 
   if (state.status === "loading") {
-    return <div>Loading</div>;
+    return <div>Loading...</div>;
   }
 
   if (state.status === "failed") {

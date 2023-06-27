@@ -11,11 +11,13 @@ import { BookableStatus } from "./../types/BookableStatus";
 export interface FilterState {
   showBookableStatus: BookableStatus;
   selectedInstructors: string[];
+  selectedDisciplines: string[];
 }
 
 const initialState: FilterState = {
   showBookableStatus: getBookableStatusSearchParams("waitlist"),
   selectedInstructors: getInstructorsSearchParams([]),
+  selectedDisciplines: [],
 };
 
 export const filtersSlice = createSlice({
@@ -43,10 +45,30 @@ export const filtersSlice = createSlice({
     resetInstructors(state) {
       state.selectedInstructors = [];
     },
+    toggleDiscipline(state, action: PayloadAction<string>) {
+      if (state.selectedDisciplines.includes(action.payload)) {
+        state.selectedDisciplines = state.selectedDisciplines.filter(
+          (id) => id !== action.payload
+        );
+      } else {
+        state.selectedDisciplines = [
+          ...state.selectedDisciplines,
+          action.payload,
+        ];
+      }
+    },
+    resetDisciplines(state) {
+      state.selectedDisciplines = [];
+    },
   },
 });
 
-export const { setBookableStatus, toggleInstructor, resetInstructors } =
-  filtersSlice.actions;
+export const {
+  setBookableStatus,
+  toggleInstructor,
+  resetInstructors,
+  toggleDiscipline,
+  resetDisciplines,
+} = filtersSlice.actions;
 
 export default filtersSlice.reducer;
