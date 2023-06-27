@@ -1,20 +1,13 @@
 import styled from "styled-components";
 import { Instructor } from "../../class-list/types/Instructor";
-import { useAppSelector } from "../../store/hooks/useStore";
-import { selectSortedInstructors } from "../selectors/selectSortedInstructors";
+import { useAppDispatch, useAppSelector } from "../../store/hooks/useStore";
 import { useInstructorFilters } from "../hooks/useInstructorFilters";
-
-const InstructorRow = styled.li`
-  display: flex;
-  align-items: center;
-  padding: 4px;
-  cursor: pointer;
-  user-select: none;
-
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-  }
-`;
+import { selectSortedInstructors } from "../selectors/selectSortedInstructors";
+import { List } from "./atoms/List";
+import { ListItem } from "./atoms/ListItem";
+import { SectionTitle } from "./atoms/SectionTitle";
+import { Padding } from "./atoms/Padding";
+import { resetInstructors } from "../slices/filtersSlice";
 
 const InstructorImage = styled.img`
   width: 32px;
@@ -24,6 +17,18 @@ const InstructorImage = styled.img`
   background-color: rgba(0, 0, 0, 0.05);
   border-radius: 50%;
   color: #bbb;
+`;
+
+const SectionRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const ResetButton = styled.span`
+  cursor: pointer;
+  color: ${(props) => props.theme.colors.accent};
+  font-size: 12px;
 `;
 
 interface InstructorsGroupItemProps {
@@ -38,14 +43,14 @@ const InstructorsGroupItem = ({
   onClick,
 }: InstructorsGroupItemProps) => {
   return (
-    <InstructorRow onClick={onClick}>
+    <ListItem onClick={onClick}>
       <input type="checkbox" value={instructor.id} checked={checked} readOnly />
       <InstructorImage
         src={instructor.imageUrl}
         alt={`Profile of ${instructor.name}`}
       />
       {instructor.name}
-    </InstructorRow>
+    </ListItem>
   );
 };
 
@@ -66,7 +71,7 @@ const InstructorsGroupContent = () => {
   }
 
   return (
-    <ul>
+    <List>
       {state.instructors.map((instructor, index) => {
         return (
           <InstructorsGroupItem
@@ -77,15 +82,27 @@ const InstructorsGroupContent = () => {
           />
         );
       })}
-    </ul>
+    </List>
   );
 };
 
 export const InstructorsGroup = () => {
+  const hasSelectedInstructors = useAppSelector(
+    (state) => state.filters.selectedInstructors.length > 0
+  );
+  const dispatch = useAppDispatch();
+
   return (
-    <div>
-      <h2>Instructors</h2>
+    <Padding>
+      <SectionRow>
+        <SectionTitle>Instructors</SectionTitle>
+        {hasSelectedInstructors && (
+          <ResetButton onClick={() => dispatch(resetInstructors())}>
+            Reset
+          </ResetButton>
+        )}
+      </SectionRow>
       <InstructorsGroupContent />
-    </div>
+    </Padding>
   );
 };

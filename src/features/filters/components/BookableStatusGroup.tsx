@@ -1,7 +1,10 @@
-import { ChangeEvent, useCallback } from "react";
+import styled from "styled-components";
 import { useBookableStatus } from "../hooks/useBookableStatus";
-import { isBookableStatus } from "../operators/isBookableStatus";
 import { BookableStatus } from "../types/BookableStatus";
+import { List } from "./atoms/List";
+import { ListItem } from "./atoms/ListItem";
+import { SectionTitle } from "./atoms/SectionTitle";
+import { Padding } from "./atoms/Padding";
 
 interface Option {
   label: string;
@@ -14,38 +17,36 @@ const OPTIONS: Option[] = [
   { label: "Full", status: "full" },
 ];
 
+const Label = styled.label`
+  margin-left: 4px;
+`;
+
 export const BookableStatusGroup = () => {
   const [bookableStatus, setBookableStatus] = useBookableStatus();
-  const onChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      const value = event.target.value;
-      if (isBookableStatus(value)) {
-        setBookableStatus(value);
-      }
-    },
-    [setBookableStatus]
-  );
 
   return (
-    <fieldset>
+    <Padding>
       <legend>
-        <h2>Status</h2>
+        <SectionTitle>Status</SectionTitle>
       </legend>
-      <div className="space-y-2">
+      <List>
         {OPTIONS.map((option, index) => (
-          <div key={index}>
+          <ListItem
+            key={index}
+            onClick={() => setBookableStatus(option.status)}
+          >
             <input
               type="radio"
               id={`bookable-${option.status}`}
               name="bookable-status"
               value={option.status}
               checked={bookableStatus === option.status}
-              onChange={onChange}
+              readOnly
             />
-            <label htmlFor={`bookable-${option.status}`}>{option.label}</label>
-          </div>
+            <Label htmlFor={`bookable-${option.status}`}>{option.label}</Label>
+          </ListItem>
         ))}
-      </div>
-    </fieldset>
+      </List>
+    </Padding>
   );
 };
