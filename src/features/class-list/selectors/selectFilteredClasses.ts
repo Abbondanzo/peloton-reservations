@@ -5,14 +5,17 @@ import { Class } from "../types/Class";
 const selectBookableStatus = (state: RootState) =>
   state.filters.showBookableStatus;
 
+const selectDisciplines = (state: RootState) =>
+  state.filters.selectedDisciplines;
+
 const selectInstructors = (state: RootState) =>
   state.filters.selectedInstructors;
 
 const selectClasses = (_: RootState, classes: Class[]) => classes;
 
 export const selectFilteredClasses = createSelector(
-  [selectBookableStatus, selectInstructors, selectClasses],
-  (bookableStatus, selectedInstructors, classes) => {
+  [selectBookableStatus, selectDisciplines, selectInstructors, selectClasses],
+  (bookableStatus, selectedDisciplines, selectedInstructors, classes) => {
     return classes
       .filter((clazz) => {
         if (bookableStatus === "waitlist") return !clazz.waitlistFull;
@@ -24,6 +27,15 @@ export const selectFilteredClasses = createSelector(
         if (selectedInstructors.length > 0) {
           return selectedInstructors.some(
             (instructor) => instructor === clazz.instructor.id
+          );
+        } else {
+          return true;
+        }
+      })
+      .filter((clazz) => {
+        if (selectedDisciplines.length > 0) {
+          return clazz.disciplines.some((discipline) =>
+            selectedDisciplines.includes(discipline.id)
           );
         } else {
           return true;
