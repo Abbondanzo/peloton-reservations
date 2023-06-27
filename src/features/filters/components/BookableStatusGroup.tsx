@@ -19,6 +19,7 @@ const OPTIONS: Option[] = [
 
 const Label = styled.label`
   margin-left: 4px;
+  cursor: pointer;
 `;
 
 export const BookableStatusGroup = () => {
