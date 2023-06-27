@@ -10,6 +10,9 @@ declare module "styled-components" {
     colors: {
       main: string;
       secondary: string;
+      mainSurface: string;
+      secondarySurface: string;
+      accent: string;
     };
   }
 }

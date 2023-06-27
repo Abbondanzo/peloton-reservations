@@ -3,5 +3,11 @@ import { DefaultTheme } from "styled-components";
 export const theme: DefaultTheme = {
   borderRadius: "4px",
   borderColor: "#d1d1d1",
-  colors: { main: "#494f59", secondary: "" },
+  colors: {
+    main: "#494f59",
+    secondary: "",
+    mainSurface: "#fff",
+    secondarySurface: "#ededed",
+    accent: "#cb34aa",
+  },
 };

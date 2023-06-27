@@ -6,7 +6,7 @@ import { CLASS_IDS } from "./features/class-list/constants/classIds";
 import { fetchClassList } from "./features/class-list/slices/classListSlice";
 import { FiltersWrapper } from "./features/filters/components/FiltersWrapper";
 import { store } from "./features/store/constants/store";
-import { theme } from "./features/store/constants/theme";
+import { theme } from "./features/theme/constants/theme";
 import { useAppDispatch } from "./features/store/hooks/useStore";
 
 const AppWrapper = styled.div`
@@ -17,11 +17,13 @@ const AppWrapper = styled.div`
 const Sidebar = styled.div`
   width: 320px;
   overflow: auto;
+  background-color: ${(props) => props.theme.colors.mainSurface};
 `;
 
 const MainContent = styled.div`
   flex: 1;
   overflow: auto;
+  background-color: ${(props) => props.theme.colors.secondarySurface};
 `;
 
 const ProvidedApp = () => {
