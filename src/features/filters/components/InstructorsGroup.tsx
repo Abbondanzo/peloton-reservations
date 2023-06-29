@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { InstructorIcon } from "../../class-list/components/InstructorIcon";
 import { Instructor } from "../../class-list/types/Instructor";
 import { useAppDispatch, useAppSelector } from "../../store/hooks/useStore";
 import { useInstructorFilters } from "../hooks/useInstructorFilters";
@@ -10,20 +11,14 @@ import { Padding } from "./atoms/Padding";
 import { ResetButton } from "./atoms/ResetButton";
 import { SectionTitle } from "./atoms/SectionTitle";
 
-const InstructorImage = styled.img`
-  width: 32px;
-  height: 32px;
-  margin: 0 8px;
-  overflow: hidden;
-  background-color: rgba(0, 0, 0, 0.05);
-  border-radius: 50%;
-  color: #bbb;
-`;
-
 const SectionRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+`;
+
+const InstructorImageWrapper = styled.div`
+  margin: 0 8px;
 `;
 
 interface InstructorsGroupItemProps {
@@ -40,10 +35,9 @@ const InstructorsGroupItem = ({
   return (
     <ListItem onClick={onClick}>
       <input type="checkbox" value={instructor.id} checked={checked} readOnly />
-      <InstructorImage
-        src={instructor.imageUrl}
-        alt={`Profile of ${instructor.name}`}
-      />
+      <InstructorImageWrapper>
+        <InstructorIcon instructor={instructor} />
+      </InstructorImageWrapper>
       {instructor.name}
     </ListItem>
   );
@@ -53,7 +47,7 @@ const InstructorsGroupContent = () => {
   const state = useAppSelector(selectSortedInstructors);
   const { selectedInstructors, toggleInstructor } = useInstructorFilters();
 
-  if (state.status === "loading") {
+  if (!state || state.status === "loading") {
     return <div>Loading...</div>;
   }
 

@@ -3,11 +3,13 @@ import { Class } from "../types/Class";
 import { ClassListItem } from "./ClassListItem";
 import { useAppSelector } from "../../store/hooks/useStore";
 import { selectFilteredClasses } from "../selectors/selectFilteredClasses";
+import { Card } from "./atoms/Card";
 
 const Wrapper = styled.div`
-  border: 1px solid ${(props) => props.theme.borderColor};
-  border-radius: ${(props) => props.theme.borderRadius};
-  margin: 8px;
+  & > *:not(:last-child) {
+    display: block;
+    margin-bottom: 8px;
+  }
 `;
 
 interface Props {
@@ -20,7 +22,11 @@ export const ClassList = ({ classes }: Props) => {
   );
 
   if (filteredClasses.length === 0) {
-    return <p>No classes!</p>;
+    return (
+      <Card>
+        <p>No classes!</p>
+      </Card>
+    );
   }
 
   return (

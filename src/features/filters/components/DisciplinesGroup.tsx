@@ -56,7 +56,7 @@ const DisciplinesGroupContent = () => {
   const state = useAppSelector(selectSortedDisciplines);
   const { selectedDisciplines, toggleDiscipline } = useDisciplineFilters();
 
-  if (state.status === "loading") {
+  if (!state || state.status === "loading") {
     return <div>Loading...</div>;
   }
 

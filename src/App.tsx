@@ -24,6 +24,7 @@ const MainContent = styled.div`
   flex: 1;
   overflow: auto;
   background-color: ${(props) => props.theme.colors.secondarySurface};
+  padding: 16px;
 `;
 
 const ProvidedApp = () => {

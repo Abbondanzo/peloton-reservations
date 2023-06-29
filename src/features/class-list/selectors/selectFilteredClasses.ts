@@ -34,9 +34,7 @@ export const selectFilteredClasses = createSelector(
       })
       .filter((clazz) => {
         if (selectedDisciplines.length > 0) {
-          return clazz.disciplines.some((discipline) =>
-            selectedDisciplines.includes(discipline.id)
-          );
+          return selectedDisciplines.includes(clazz.discipline.id);
         } else {
           return true;
         }

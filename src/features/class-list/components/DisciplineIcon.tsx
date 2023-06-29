@@ -49,7 +49,7 @@ const ICON_MAP: { [key: string]: IconConfig } = {
     svg: Yoga,
   },
 };
-const PADDING = 6;
+const PADDING = 0.2;
 
 interface IconWrapperProps {
   color: string;
@@ -57,11 +57,11 @@ interface IconWrapperProps {
 }
 
 const IconWrapper = styled.div<IconWrapperProps>`
-  width: ${(props) => props.size}px;
-  height: ${(props) => props.size}px;
+  width: ${(props) => props.size - props.size * PADDING * 2}px;
+  height: ${(props) => props.size - props.size * PADDING * 2}px;
   border-radius: ${(props) => props.size}px;
   background-color: ${(props) => props.color};
-  padding: ${PADDING}px;
+  padding: ${(props) => props.size * PADDING}px;
 `;
 
 interface Props {
@@ -72,8 +72,8 @@ interface Props {
 export const DisciplineIcon = ({ discipline, size = 32 }: Props) => {
   const config = ICON_MAP[discipline.id] || ICON_MAP["1065951803872380843"];
   return (
-    <IconWrapper color={config.color} size={size - PADDING}>
-      <config.svg size={size - PADDING} />
+    <IconWrapper color={config.color} size={size}>
+      <config.svg size={size - 2 * size * PADDING} />
     </IconWrapper>
   );
 };

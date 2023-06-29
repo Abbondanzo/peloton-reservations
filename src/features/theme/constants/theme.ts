@@ -1,11 +1,11 @@
 import { DefaultTheme } from "styled-components";
 
 export const theme: DefaultTheme = {
-  borderRadius: "4px",
+  borderRadius: "8px",
   borderColor: "#d1d1d1",
   colors: {
     main: "#494f59",
-    secondary: "",
+    secondary: "#514e60",
     mainSurface: "#fff",
     secondarySurface: "#ededed",
     accent: "#cb34aa",

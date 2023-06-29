@@ -1,12 +1,10 @@
-import { RootState } from "./../../store/constants/store";
 import { createSelector } from "@reduxjs/toolkit";
-
-const selectClassList = (state: RootState) => state.classList;
+import { selectActiveClassList } from "./../../class-list/selectors/selectActiveClassList";
 
 export const selectSortedDisciplines = createSelector(
-  [selectClassList],
+  [selectActiveClassList],
   (classList) => {
-    if (classList.status === "fulfilled") {
+    if (classList && classList.status === "fulfilled") {
       const sortedDisciplines = [...classList.disciplines];
       sortedDisciplines.sort((a, b) => a.name.localeCompare(b.name));
       return {

@@ -18,5 +18,5 @@ export interface Class {
   cancelled: boolean;
   waitlistFull: boolean;
   free: boolean;
-  disciplines: Discipline[];
+  discipline: Discipline;
 }

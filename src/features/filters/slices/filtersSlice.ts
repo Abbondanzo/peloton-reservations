@@ -44,6 +44,7 @@ export const filtersSlice = createSlice({
     },
     resetInstructors(state) {
       state.selectedInstructors = [];
+      setInstructorsSearchParams(state.selectedInstructors);
     },
     toggleDiscipline(state, action: PayloadAction<string>) {
       if (state.selectedDisciplines.includes(action.payload)) {
