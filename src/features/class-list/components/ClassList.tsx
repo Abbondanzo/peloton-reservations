@@ -27,6 +27,9 @@ export const ClassList = ({ classes }: Props) => {
     selectFilteredClasses(state, classes)
   );
   const hasFilters = useAppSelector(selectHasFilters);
+  const isFreeSelected = useAppSelector(
+    (state) => state.filters.showBookableStatus === "free"
+  );
 
   if (filteredClasses.length === 0) {
     return (
@@ -36,6 +39,12 @@ export const ClassList = ({ classes }: Props) => {
           <TipText>
             Tip: Try resetting your filters or selecting more options in the
             sidebar.
+          </TipText>
+        )}
+        {isFreeSelected && !hasFilters && (
+          <TipText>
+            Tip: Try checking back exactly at 12:00 pm on Mondays and Thursdays.
+            This is usually when new classes open up.
           </TipText>
         )}
       </Card>
