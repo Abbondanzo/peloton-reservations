@@ -9,6 +9,7 @@ import { ListItem } from "./atoms/ListItem";
 import { Padding } from "./atoms/Padding";
 import { ResetButton } from "./atoms/ResetButton";
 import { SectionTitle } from "./atoms/SectionTitle";
+import { DisciplineIcon } from "../../class-list/components/DisciplineIcon";
 
 const SectionRow = styled.div`
   display: flex;
@@ -16,9 +17,13 @@ const SectionRow = styled.div`
   justify-content: space-between;
 `;
 
+const Input = styled.input`
+  margin-right: 8px;
+`;
+
 const Label = styled.span`
   cursor: pointer;
-  margin-left: 4px;
+  margin-left: 8px;
 `;
 
 interface DisciplinesGroupItemProps {
@@ -34,13 +39,14 @@ const DisciplinesGroupItem = ({
 }: DisciplinesGroupItemProps) => {
   return (
     <ListItem onClick={onClick}>
-      <input
+      <Input
         id={`discipline-${discipline.id}`}
         type="checkbox"
         value={discipline.id}
         checked={checked}
         readOnly
       />
+      <DisciplineIcon discipline={discipline} />
       <Label onChange={onClick}>{discipline.name}</Label>
     </ListItem>
   );
