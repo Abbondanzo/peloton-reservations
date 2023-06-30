@@ -1,4 +1,8 @@
 import {
+  getDisciplinesSearchParams,
+  setDisciplinesSearchParams,
+} from "./../operators/disciplineSearchParams";
+import {
   getInstructorsSearchParams,
   setInstructorsSearchParams,
 } from "./../operators/instructorSearchParams";
@@ -17,7 +21,7 @@ export interface FilterState {
 const initialState: FilterState = {
   showBookableStatus: getBookableStatusSearchParams("waitlist"),
   selectedInstructors: getInstructorsSearchParams([]),
-  selectedDisciplines: [],
+  selectedDisciplines: getDisciplinesSearchParams([]),
 };
 
 export const filtersSlice = createSlice({
@@ -57,9 +61,11 @@ export const filtersSlice = createSlice({
           action.payload,
         ];
       }
+      setDisciplinesSearchParams(state.selectedDisciplines);
     },
     resetDisciplines(state) {
       state.selectedDisciplines = [];
+      setDisciplinesSearchParams(state.selectedDisciplines);
     },
   },
 });
