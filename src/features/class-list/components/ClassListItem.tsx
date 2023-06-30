@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import { useMemo } from "react";
 import styled from "styled-components";
 import { useAppSelector } from "../../store/hooks/useStore";
@@ -121,6 +122,7 @@ export const ClassListItem = ({ clazz }: Props) => {
       case "London":
         return `london/schedule/${clazz.id}/reserve`;
       default:
+        Sentry.captureMessage("Missing studio");
         return "";
     }
   }, [clazz.id, studio?.location]);

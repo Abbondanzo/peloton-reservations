@@ -1,4 +1,5 @@
-import { FC } from "react";
+import * as Sentry from "@sentry/react";
+import { FC, useEffect } from "react";
 import styled from "styled-components";
 import { Discipline } from "../types/Discipline";
 import { Cardio } from "./icons/Cardio";
@@ -71,6 +72,12 @@ interface Props {
 
 export const DisciplineIcon = ({ discipline, size = 32 }: Props) => {
   const config = ICON_MAP[discipline.id] || ICON_MAP["1065951803872380843"];
+  useEffect(() => {
+    if (!ICON_MAP[discipline.id]) {
+      Sentry.captureMessage(`Received unsupported disclipine ${discipline.id}`);
+    }
+  }, [discipline.id]);
+
   return (
     <IconWrapper color={config.color} size={size}>
       <config.svg size={size - 2 * size * PADDING} />
