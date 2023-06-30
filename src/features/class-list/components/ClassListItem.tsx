@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import styled from "styled-components";
 import { useAppSelector } from "../../store/hooks/useStore";
+import { getLocalTime } from "../operators/getLocalTime";
 import { selectStudio } from "../selectors/selectStudio";
 import { Class } from "../types/Class";
 import { DisciplineIcon } from "./DisciplineIcon";
@@ -106,19 +107,8 @@ interface Props {
   clazz: Class;
 }
 
-const formatTime = (date: Date) => {
-  const hour = ((date.getHours() - 1) % 12) + 1;
-  let minute = date.getMinutes().toString();
-  if (minute.length < 2) {
-    minute = "0" + minute;
-  }
-  const extension = date.getHours() >= 12 ? "pm" : "am";
-  return `${hour}:${minute} ${extension}`;
-};
-
 export const ClassListItem = ({ clazz }: Props) => {
   const studio = useAppSelector(selectStudio);
-  const date = useMemo(() => new Date(clazz.start * 1000), [clazz.start]);
   const interactive = clazz.free || !clazz.waitlistFull;
   const slug = useMemo(() => {
     switch (studio?.location) {
@@ -138,7 +128,7 @@ export const ClassListItem = ({ clazz }: Props) => {
     >
       <InteractiveCard interactive={interactive}>
         <ContentWrapper>
-          <Time>{formatTime(date)}</Time>
+          <Time>{getLocalTime(clazz, studio?.timezone || "")} </Time>
           <InstructorIcon instructor={clazz.instructor} size={48} />
           <Metadata>
             <ClassTitle>{clazz.name}</ClassTitle>

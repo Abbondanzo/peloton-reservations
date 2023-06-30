@@ -1,16 +1,30 @@
 import styled from "styled-components";
+import { selectHasFilters } from "../../filters/selectors/selectHasFilters";
+import { useAppSelector } from "../../store/hooks/useStore";
+import { selectFilteredClassesGroups } from "../selectors/selectFilteredClassesGroups";
 import { Class } from "../types/Class";
 import { ClassListItem } from "./ClassListItem";
-import { useAppSelector } from "../../store/hooks/useStore";
-import { selectFilteredClasses } from "../selectors/selectFilteredClasses";
 import { Card } from "./atoms/Card";
-import { selectHasFilters } from "../../filters/selectors/selectHasFilters";
 
 const Wrapper = styled.div`
   & > *:not(:last-child) {
     display: block;
     margin-bottom: 8px;
   }
+`;
+
+const GroupWrapper = styled.div`
+  & > *:not(:last-child) {
+    display: block;
+    margin-bottom: 8px;
+  }
+`;
+
+const GroupTitle = styled.div`
+  text-transform: uppercase;
+  padding: 8px;
+  padding-top: 16px;
+  font-size: 14px;
 `;
 
 const TipText = styled.i`
@@ -23,15 +37,15 @@ interface Props {
 }
 
 export const ClassList = ({ classes }: Props) => {
-  const filteredClasses = useAppSelector((state) =>
-    selectFilteredClasses(state, classes)
+  const filteredGroups = useAppSelector((state) =>
+    selectFilteredClassesGroups(state, classes)
   );
   const hasFilters = useAppSelector(selectHasFilters);
   const isFreeSelected = useAppSelector(
     (state) => state.filters.showBookableStatus === "free"
   );
 
-  if (filteredClasses.length === 0) {
+  if (filteredGroups.length === 0) {
     return (
       <Card>
         <p>No classes!</p>
@@ -53,8 +67,15 @@ export const ClassList = ({ classes }: Props) => {
 
   return (
     <Wrapper>
-      {filteredClasses.map((clazz, index) => {
-        return <ClassListItem key={index} clazz={clazz} />;
+      {filteredGroups.map((group, index) => {
+        return (
+          <GroupWrapper key={index}>
+            <GroupTitle>{group.formattedDate}</GroupTitle>
+            {group.classes.map((clazz, index) => {
+              return <ClassListItem key={index} clazz={clazz} />;
+            })}
+          </GroupWrapper>
+        );
       })}
     </Wrapper>
   );
