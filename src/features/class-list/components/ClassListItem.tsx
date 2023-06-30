@@ -28,6 +28,7 @@ const Anchor = styled.a<InteractiveProps>`
 
 const InteractiveCard = styled(Card)<InteractiveProps>`
   display: flex;
+  align-items: center;
   justify-content: space-between;
   box-shadow: rgba(0, 0, 0, 0.04) 0px 2px 4px 1px;
   min-width: 500px;
@@ -87,7 +88,8 @@ const MarginLeft = styled.div`
 const Button = styled.button<InteractiveProps>`
   border: 0;
   min-width: 180px;
-  height: 60px;
+  height: 40px;
+  line-height: 0;
   padding: 1.5em;
   font-family: "Inter";
   background-color: ${(props) => props.theme.colors.accent};
