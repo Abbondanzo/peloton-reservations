@@ -28,10 +28,12 @@ const GroupTitle = styled.div`
 const GroupTitleText = styled.span`
   text-transform: uppercase;
   font-size: 14px;
+  color: ${(props) => props.theme.colors.main};
 `;
 
 const TimeZoneTipText = styled.i`
   font-size: 12px;
+  color: ${(props) => props.theme.colors.secondary};
 `;
 
 const TipText = styled.i`

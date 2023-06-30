@@ -8,6 +8,6 @@ export const theme: DefaultTheme = {
     secondary: "#514e60",
     mainSurface: "#fff",
     secondarySurface: "#ededed",
-    accent: "#cb34aa",
+    accent: "#cb3449",
   },
 };

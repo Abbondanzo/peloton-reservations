@@ -54,6 +54,7 @@ const Time = styled.div`
   margin-right: 8px;
   width: 80px;
   font-weight: 600;
+  color: ${(props) => props.theme.colors.main};
 `;
 
 const Metadata = styled.div`
