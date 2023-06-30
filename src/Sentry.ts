@@ -9,6 +9,7 @@ export const initialize = () => {
       : 0.1;
 
   Sentry.init({
+    environment: process.env.NODE_ENV,
     dsn: "https://a9efe74598ad4f0b86604e9694d254ed@o237935.ingest.sentry.io/4505446442663936",
     integrations: [
       new Sentry.BrowserTracing({
