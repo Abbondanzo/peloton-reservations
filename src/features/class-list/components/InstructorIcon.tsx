@@ -7,6 +7,7 @@ interface InstructorImageProps {
 
 const InstructorImage = styled.img<InstructorImageProps>`
   width: ${(props) => props.size}px;
+  min-width: ${(props) => props.size}px;
   height: ${(props) => props.size}px;
   overflow: hidden;
   background-color: rgba(0, 0, 0, 0.05);

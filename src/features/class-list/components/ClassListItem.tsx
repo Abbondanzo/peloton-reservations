@@ -9,7 +9,7 @@ import { InstructorIcon } from "./InstructorIcon";
 import { Card } from "./atoms/Card";
 
 interface InteractiveProps {
-  interactive: boolean;
+  $interactive: boolean;
 }
 
 const Anchor = styled.a<InteractiveProps>`
@@ -17,7 +17,7 @@ const Anchor = styled.a<InteractiveProps>`
   color: inherit;
 
   ${(props) =>
-    !props.interactive &&
+    !props.$interactive &&
     `
     pointer-events: none;
     cursor: default;
@@ -28,9 +28,10 @@ const InteractiveCard = styled(Card)<InteractiveProps>`
   display: flex;
   justify-content: space-between;
   box-shadow: rgba(0, 0, 0, 0.04) 0px 2px 4px 1px;
+  min-width: 500px;
 
   ${(props) =>
-    props.interactive
+    props.$interactive
       ? `
         cursor: pointer;
         &:hover, &:active {
@@ -83,14 +84,17 @@ const MarginLeft = styled.div`
 
 const Button = styled.button<InteractiveProps>`
   border: 0;
-  width: 200px;
+  min-width: 180px;
+  height: 60px;
+  padding: 1.5em;
   font-family: "Inter";
   background-color: ${(props) => props.theme.colors.accent};
   border-radius: ${(props) => props.theme.borderRadius};
   text-transform: uppercase;
+  margin-left: 8px;
 
   ${(props) =>
-    props.interactive
+    props.$interactive
       ? `
         color: #fff;
         cursor: pointer;
@@ -122,11 +126,11 @@ export const ClassListItem = ({ clazz }: Props) => {
   }, [clazz.id, studio?.location]);
   return (
     <Anchor
-      interactive={interactive}
+      $interactive={interactive}
       href={`https://studio.onepeloton.com/${slug}`}
       target="_blank"
     >
-      <InteractiveCard interactive={interactive}>
+      <InteractiveCard $interactive={interactive}>
         <ContentWrapper>
           <Time>{getLocalTime(clazz, studio?.timezone || "")} </Time>
           <InstructorIcon instructor={clazz.instructor} size={48} />
@@ -142,7 +146,7 @@ export const ClassListItem = ({ clazz }: Props) => {
             </ClassSubtitle>
           </Metadata>
         </ContentWrapper>
-        <Button interactive={interactive} disabled={!interactive}>
+        <Button $interactive={interactive} disabled={!interactive}>
           {clazz.free
             ? "Book"
             : !clazz.waitlistFull
