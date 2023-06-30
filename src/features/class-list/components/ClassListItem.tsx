@@ -33,7 +33,7 @@ const InteractiveCard = styled(Card)<InteractiveProps>`
     props.interactive
       ? `
         cursor: pointer;
-        &:hover {
+        &:hover, &:active {
           box-shadow: rgba(0, 0, 0, 0.16) 0px 2px 8px 0px;
           cursor: pointer;
         }
