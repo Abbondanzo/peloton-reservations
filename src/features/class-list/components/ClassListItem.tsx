@@ -16,6 +16,7 @@ interface InteractiveProps {
 const Anchor = styled.a<InteractiveProps>`
   text-decoration: none;
   color: inherit;
+  display: block;
 
   ${(props) =>
     !props.$interactive &&

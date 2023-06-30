@@ -8,23 +8,30 @@ import { Card } from "./atoms/Card";
 
 const Wrapper = styled.div`
   & > *:not(:last-child) {
-    display: block;
     margin-bottom: 8px;
   }
 `;
 
 const GroupWrapper = styled.div`
   & > *:not(:last-child) {
-    display: block;
     margin-bottom: 8px;
   }
 `;
 
 const GroupTitle = styled.div`
-  text-transform: uppercase;
   padding: 8px;
   padding-top: 16px;
+  display: flex;
+  justify-content: space-between;
+`;
+
+const GroupTitleText = styled.span`
+  text-transform: uppercase;
   font-size: 14px;
+`;
+
+const TimeZoneTipText = styled.i`
+  font-size: 12px;
 `;
 
 const TipText = styled.i`
@@ -70,7 +77,12 @@ export const ClassList = ({ classes }: Props) => {
       {filteredGroups.map((group, index) => {
         return (
           <GroupWrapper key={index}>
-            <GroupTitle>{group.formattedDate}</GroupTitle>
+            <GroupTitle>
+              <GroupTitleText>{group.formattedDate}</GroupTitleText>
+              {index === 0 && (
+                <TimeZoneTipText>All times in studio timezone</TimeZoneTipText>
+              )}
+            </GroupTitle>
             {group.classes.map((clazz, index) => {
               return <ClassListItem key={index} clazz={clazz} />;
             })}
