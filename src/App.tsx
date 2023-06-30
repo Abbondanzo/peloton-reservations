@@ -2,12 +2,12 @@ import { useEffect } from "react";
 import { Provider } from "react-redux";
 import styled, { ThemeProvider } from "styled-components";
 import { ClassListWrapper } from "./features/class-list/components/ClassListWrapper";
-import { CLASS_IDS } from "./features/class-list/constants/classIds";
+import { STUDIOS } from "./features/class-list/constants/studios";
 import { fetchClassList } from "./features/class-list/slices/classListSlice";
 import { FiltersWrapper } from "./features/filters/components/FiltersWrapper";
 import { store } from "./features/store/constants/store";
-import { theme } from "./features/theme/constants/theme";
 import { useAppDispatch } from "./features/store/hooks/useStore";
+import { theme } from "./features/theme/constants/theme";
 
 const AppWrapper = styled.div`
   display: flex;
@@ -30,7 +30,10 @@ const MainContent = styled.div`
 const ProvidedApp = () => {
   const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(fetchClassList(CLASS_IDS["New York"]));
+    const [classId] = Object.entries(STUDIOS).find(
+      ([_, value]) => value.location === "New York"
+    )!;
+    dispatch(fetchClassList(classId));
   }, [dispatch]);
   return (
     <AppWrapper>

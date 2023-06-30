@@ -1,11 +1,11 @@
-import styled from "styled-components";
-import { Class } from "../types/Class";
-import { Card } from "./atoms/Card";
-import { DisciplineIcon } from "./DisciplineIcon";
 import { useMemo } from "react";
-import { InstructorIcon } from "./InstructorIcon";
+import styled from "styled-components";
 import { useAppSelector } from "../../store/hooks/useStore";
-import { CLASS_IDS } from "../constants/classIds";
+import { selectStudio } from "../selectors/selectStudio";
+import { Class } from "../types/Class";
+import { DisciplineIcon } from "./DisciplineIcon";
+import { InstructorIcon } from "./InstructorIcon";
+import { Card } from "./atoms/Card";
 
 interface InteractiveProps {
   interactive: boolean;
@@ -117,15 +117,11 @@ const formatTime = (date: Date) => {
 };
 
 export const ClassListItem = ({ clazz }: Props) => {
-  const studioId = useAppSelector((state) => state.classList.studioId);
+  const studio = useAppSelector(selectStudio);
   const date = useMemo(() => new Date(clazz.start * 1000), [clazz.start]);
   const interactive = clazz.free || !clazz.waitlistFull;
   const slug = useMemo(() => {
-    const locations = Object.keys(CLASS_IDS) as (keyof typeof CLASS_IDS)[];
-    const location = locations.find(
-      (location) => CLASS_IDS[location] === studioId
-    );
-    switch (location) {
+    switch (studio?.location) {
       case "New York":
         return `new-york/schedule/${clazz.id}/reserve`;
       case "London":
@@ -133,7 +129,7 @@ export const ClassListItem = ({ clazz }: Props) => {
       default:
         return "";
     }
-  }, [clazz.id, studioId]);
+  }, [clazz.id, studio?.location]);
   return (
     <Anchor
       interactive={interactive}
