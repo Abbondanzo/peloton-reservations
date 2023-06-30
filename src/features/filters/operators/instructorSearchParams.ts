@@ -1,4 +1,8 @@
-import { getSearchParams, setSearchParams } from "./searchParams";
+import {
+  getSearchParams,
+  removeSearchParams,
+  setSearchParams,
+} from "./searchParams";
 
 const KEY = "instructors";
 
@@ -13,5 +17,9 @@ export const getInstructorsSearchParams = (
 };
 
 export const setInstructorsSearchParams = (instructorIds: string[]) => {
-  setSearchParams(KEY, instructorIds.join(";"));
+  if (instructorIds.length === 0) {
+    removeSearchParams(KEY);
+  } else {
+    setSearchParams(KEY, instructorIds.join(";"));
+  }
 };
