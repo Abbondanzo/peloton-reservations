@@ -1,0 +1,26 @@
+import * as Sentry from "@sentry/react";
+
+export const initialize = () => {
+  const sampleRate =
+    "SAMPLE_RATE" in process.env
+      ? Number(process.env.SAMPLE_RATE)
+      : process.env.NODE_ENV === "development"
+      ? 1.0
+      : 0.1;
+
+  Sentry.init({
+    dsn: "https://a9efe74598ad4f0b86604e9694d254ed@o237935.ingest.sentry.io/4505446442663936",
+    integrations: [
+      new Sentry.BrowserTracing({
+        // Set `tracePropagationTargets` to control for which URLs distributed tracing should be enabled
+        tracePropagationTargets: ["localhost"],
+      }),
+      new Sentry.Replay(),
+    ],
+    // Performance Monitoring
+    tracesSampleRate: sampleRate,
+    // Session Replay
+    replaysSessionSampleRate: sampleRate,
+    replaysOnErrorSampleRate: sampleRate,
+  });
+};
