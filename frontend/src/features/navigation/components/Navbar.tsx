@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { Paths } from "../constants/paths";
+import { SessionInfo } from "./SessionInfo";
 
 const Wrapper = styled.nav`
   height: inherit;
@@ -16,12 +17,18 @@ const Title = styled.h1`
   font-size: 20px;
 `;
 
+const RightGap = styled.div`
+  display: flex;
+  column-gap: 4em;
+  align-items: center;
+`;
+
 const Routes = styled.ul`
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
-  column-gap: 1em;
+  column-gap: 1.5em;
 `;
 
 const Route = styled.li`
@@ -35,14 +42,17 @@ export const Navbar = () => {
   return (
     <Wrapper>
       <Title>Peloton Alerts</Title>
-      <Routes>
-        <Route>
-          <Link to={Paths.CLASS_LIST}>Class List</Link>
-        </Route>
-        <Route>
-          <Link to={Paths.ABOUT}>About</Link>
-        </Route>
-      </Routes>
+      <RightGap>
+        <Routes>
+          <Route>
+            <Link to={Paths.CLASS_LIST}>Class List</Link>
+          </Route>
+          <Route>
+            <Link to={Paths.ABOUT}>About</Link>
+          </Route>
+        </Routes>
+        <SessionInfo />
+      </RightGap>
     </Wrapper>
   );
 };
