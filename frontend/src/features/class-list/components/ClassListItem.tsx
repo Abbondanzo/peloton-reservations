@@ -50,11 +50,19 @@ const ContentWrapper = styled.div`
   align-items: center;
 `;
 
-const Time = styled.div`
+const TimeWrapper = styled.div`
   margin-right: 8px;
   width: 80px;
+`;
+
+const Time = styled.div`
   font-weight: 600;
   color: ${(props) => props.theme.colors.main};
+`;
+
+const Duration = styled.div`
+  font-size: 12px;
+  color: ${(props) => props.theme.colors.secondary};
 `;
 
 const Metadata = styled.div`
@@ -138,7 +146,10 @@ export const ClassListItem = ({ clazz }: Props) => {
     >
       <InteractiveCard $interactive={interactive}>
         <ContentWrapper>
-          <Time>{getLocalTime(clazz, studio?.timezone || "")} </Time>
+          <TimeWrapper>
+            <Time>{getLocalTime(clazz, studio?.timezone || "")} </Time>
+            <Duration>{clazz.duration / 60} mins</Duration>
+          </TimeWrapper>
           <InstructorIcon instructor={clazz.instructor} size={48} />
           <Metadata>
             <ClassTitle>{clazz.name}</ClassTitle>
