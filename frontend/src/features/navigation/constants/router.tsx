@@ -41,6 +41,5 @@ export const router = createHashRouter(
         element={<Navigate to={Paths.CLASS_LIST} replace={true} />}
       />
     </Route>
-  ),
-  { basename: process.env.PUBLIC_URL }
+  )
 );
