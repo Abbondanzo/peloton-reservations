@@ -33,14 +33,13 @@ const ComingSoon = () => {
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <Route>
-      <Route
-        path="/"
-        element={<Navigate to={Paths.CLASS_LIST} replace={true} />}
-      />
       <Route path={Paths.CLASS_LIST} element={<ClassListRoot />} />
       <Route path={Paths.SIGN_IN} element={<ComingSoon />} />
       <Route path={Paths.ABOUT} element={<AboutRoot />} />
-      <Route path="*" element={<Navigate to="/" replace={true} />} />
+      <Route
+        path="*"
+        element={<Navigate to={Paths.CLASS_LIST} replace={true} />}
+      />
     </Route>
   )
 );
