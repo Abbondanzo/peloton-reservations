@@ -2,11 +2,12 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import { initialize } from "./Sentry";
-import "./features/firebase/observers/sessionObserver";
+import { observeSession } from "./features/firebase/observers/observeSession";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 
 initialize();
+observeSession();
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement

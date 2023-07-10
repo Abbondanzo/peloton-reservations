@@ -1,13 +1,19 @@
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../../firebase/constants/auth";
 import { removeSession, setSession } from "../../session/slices/sessionSlice";
 import { store } from "../../store/constants/store";
+import { auth } from "../constants/auth";
 import { userToSession } from "../operators/userToSession";
 
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    store.dispatch(setSession(userToSession(user)));
-  } else {
+export const observeSession = () => {
+  if (!auth) {
     store.dispatch(removeSession());
+    return;
   }
-});
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      store.dispatch(setSession(userToSession(user)));
+    } else {
+      store.dispatch(removeSession());
+    }
+  });
+};

@@ -1,4 +1,5 @@
 import { initializeApp } from "firebase/app";
+import { safeInit } from "./../operators/safeInit";
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -10,4 +11,4 @@ const firebaseConfig = {
   measurementId: "G-R2QRE36WEQ",
 };
 
-export const app = initializeApp(firebaseConfig);
+export const app = safeInit(() => initializeApp(firebaseConfig));
