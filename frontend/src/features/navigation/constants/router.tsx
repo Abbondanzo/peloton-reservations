@@ -41,5 +41,6 @@ export const router = createBrowserRouter(
         element={<Navigate to={Paths.CLASS_LIST} replace={true} />}
       />
     </Route>
-  )
+  ),
+  { basename: process.env.PUBLIC_URL }
 );
