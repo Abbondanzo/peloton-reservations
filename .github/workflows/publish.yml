@@ -10,6 +10,8 @@ on:
 env:
   # react-scripts uses `PUBLIC_URL` to infer the "public path" at which the app is served.
   PUBLIC_URL: "/peloton-reservations"
+  # REACT_APP_FIREBASE_API_KEY is required in production environments
+  REACT_APP_FIREBASE_API_KEY: ${{ vars.REACT_APP_FIREBASE_API_KEY }}
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
