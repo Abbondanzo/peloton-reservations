@@ -5,10 +5,11 @@ import {
   Route,
 } from "react-router-dom";
 import styled from "styled-components";
+import { AboutRoot } from "../../about/components/AboutRoot";
 import { ClassListRoot } from "../../class-list/components/ClassListRoot";
+import { Card } from "../../theme/components/Card";
 import { NavbarProvider } from "../components/NavbarProvider";
 import { Paths } from "./paths";
-import { Card } from "../../theme/components/Card";
 
 const ComingSoonWrapper = styled.div`
   max-width: 960px;
@@ -38,7 +39,7 @@ export const router = createBrowserRouter(
       />
       <Route path={Paths.CLASS_LIST} element={<ClassListRoot />} />
       <Route path={Paths.SIGN_IN} element={<ComingSoon />} />
-      <Route path={Paths.ABOUT} element={<ComingSoon />} />
+      <Route path={Paths.ABOUT} element={<AboutRoot />} />
       <Route path="*" element={<Navigate to="/" replace={true} />} />
     </Route>
   )
