@@ -1,5 +1,5 @@
 import {
-  createBrowserRouter,
+  createHashRouter,
   createRoutesFromElements,
   Navigate,
   Route,
@@ -30,7 +30,7 @@ const ComingSoon = () => {
   );
 };
 
-export const router = createBrowserRouter(
+export const router = createHashRouter(
   createRoutesFromElements(
     <Route>
       <Route path={Paths.CLASS_LIST} element={<ClassListRoot />} />
