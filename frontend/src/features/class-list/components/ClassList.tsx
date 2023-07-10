@@ -1,10 +1,10 @@
 import styled from "styled-components";
 import { selectHasFilters } from "../../filters/selectors/selectHasFilters";
 import { useAppSelector } from "../../store/hooks/useStore";
+import { Card } from "../../theme/components/Card";
 import { selectFilteredClassesGroups } from "../selectors/selectFilteredClassesGroups";
 import { Class } from "../types/Class";
 import { ClassListItem } from "./ClassListItem";
-import { Card } from "./atoms/Card";
 
 const Wrapper = styled.div`
   & > *:not(:last-child) {

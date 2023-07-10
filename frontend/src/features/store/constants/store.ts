@@ -1,11 +1,13 @@
 import { Action, ThunkAction, configureStore } from "@reduxjs/toolkit";
 import classListReducer from "../../class-list/slices/classListSlice";
 import filtersReducer from "../../filters/slices/filtersSlice";
+import sessionReducer from "./../../session/slices/sessionSlice";
 
 export const store = configureStore({
   reducer: {
     classList: classListReducer,
     filters: filtersReducer,
+    session: sessionReducer,
   },
 });
 
