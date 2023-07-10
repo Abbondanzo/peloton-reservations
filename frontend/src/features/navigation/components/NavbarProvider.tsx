@@ -18,6 +18,7 @@ const NavWrapper = styled.div`
 const BodyWrapper = styled.div`
   flex: 1;
   height: calc(100% - ${HEIGHT}px);
+  background-color: ${(props) => props.theme.colors.secondarySurface};
 `;
 
 interface Props {
