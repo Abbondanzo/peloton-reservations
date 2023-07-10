@@ -11,6 +11,11 @@ const Wrapper = styled.nav`
   align-items: center;
   justify-content: space-between;
   padding: 0 1em;
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 `;
 
 const Title = styled.h1`
@@ -31,25 +36,16 @@ const Routes = styled.ul`
   column-gap: 1.5em;
 `;
 
-const Route = styled.li`
-  a {
-    color: inherit;
-    text-decoration: none;
-  }
-`;
-
 export const Navbar = () => {
   return (
     <Wrapper>
-      <Title>Peloton Alerts</Title>
+      <Link to={Paths.CLASS_LIST}>
+        <Title>Peloton Alerts</Title>
+      </Link>
       <RightGap>
         <Routes>
-          <Route>
-            <Link to={Paths.CLASS_LIST}>Class List</Link>
-          </Route>
-          <Route>
-            <Link to={Paths.ABOUT}>About</Link>
-          </Route>
+          <Link to={Paths.CLASS_LIST}>Class List</Link>
+          <Link to={Paths.ABOUT}>About</Link>
         </Routes>
         <SessionInfo />
       </RightGap>
