@@ -2,12 +2,12 @@ import * as Sentry from "@sentry/react";
 import { useMemo } from "react";
 import styled from "styled-components";
 import { useAppSelector } from "../../store/hooks/useStore";
+import { Card } from "../../theme/components/Card";
 import { getLocalTime } from "../operators/getLocalTime";
 import { selectStudio } from "../selectors/selectStudio";
 import { Class } from "../types/Class";
 import { DisciplineIcon } from "./DisciplineIcon";
 import { InstructorIcon } from "./InstructorIcon";
-import { Card } from "./atoms/Card";
 
 interface InteractiveProps {
   $interactive: boolean;

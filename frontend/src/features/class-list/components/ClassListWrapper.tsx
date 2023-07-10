@@ -1,7 +1,7 @@
 import { useAppSelector } from "../../store/hooks/useStore";
+import { Card } from "../../theme/components/Card";
 import { selectActiveClassList } from "../selectors/selectActiveClassList";
 import { ClassList } from "./ClassList";
-import { Card } from "./atoms/Card";
 
 export const ClassListWrapper = () => {
   const state = useAppSelector(selectActiveClassList);
