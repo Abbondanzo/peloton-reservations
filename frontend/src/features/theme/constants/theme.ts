@@ -10,4 +10,8 @@ export const theme: DefaultTheme = {
     secondarySurface: "#ededed",
     accent: "#cb3449",
   },
+  widths: {
+    tablet: 1024,
+    mobile: 560,
+  },
 };

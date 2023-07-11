@@ -32,6 +32,7 @@ const InteractiveCard = styled(Card)<InteractiveProps>`
   justify-content: space-between;
   box-shadow: rgba(0, 0, 0, 0.04) 0px 2px 4px 1px;
   min-width: 500px;
+  overflow: hidden;
 
   ${(props) =>
     props.$interactive
@@ -43,6 +44,11 @@ const InteractiveCard = styled(Card)<InteractiveProps>`
         }
         `
       : `opacity: 0.5;`}
+
+  @media only screen and (max-width: ${(props) =>
+    props.theme.widths.mobile}px) {
+    min-width: auto;
+  }
 `;
 
 const ContentWrapper = styled.div`
@@ -52,17 +58,33 @@ const ContentWrapper = styled.div`
 
 const TimeWrapper = styled.div`
   margin-right: 8px;
-  width: 80px;
+  width: 96px;
+  flex-shrink: 0;
+  @media only screen and (max-width: ${(props) =>
+      props.theme.widths.mobile}px) {
+    width: 60px;
+  }
 `;
 
 const Time = styled.div`
   font-weight: 600;
   color: ${(props) => props.theme.colors.main};
+  @media only screen and (max-width: ${(props) =>
+      props.theme.widths.mobile}px) {
+    font-size: 12px;
+  }
 `;
 
 const Duration = styled.div`
   font-size: 12px;
   color: ${(props) => props.theme.colors.secondary};
+`;
+
+const HiddenMobile = styled.div`
+  @media only screen and (max-width: ${(props) =>
+      props.theme.widths.mobile}px) {
+    display: none;
+  }
 `;
 
 const Metadata = styled.div`
@@ -72,6 +94,10 @@ const Metadata = styled.div`
 const ClassTitle = styled.div`
   margin-bottom: 4px;
   color: ${(props) => props.theme.colors.secondary};
+  @media only screen and (max-width: ${(props) =>
+      props.theme.widths.mobile}px) {
+    font-size: 12px;
+  }
 `;
 
 const ClassSubtitle = styled.div`
@@ -79,6 +105,10 @@ const ClassSubtitle = styled.div`
   align-items: center;
   font-size: 12px;
   color: ${(props) => props.theme.colors.secondary};
+  @media only screen and (max-width: ${(props) =>
+      props.theme.widths.mobile}px) {
+    font-size: 10px;
+  }
 `;
 
 const Spacer = styled.div`
@@ -118,6 +148,12 @@ const Button = styled.button<InteractiveProps>`
       : `
         background-color: transparent;  
         `}
+
+  @media only screen and (max-width: ${(props) =>
+    props.theme.widths.mobile}px) {
+    font-size: 10px;
+    min-width: 120px;
+  }
 `;
 
 interface Props {
@@ -150,7 +186,9 @@ export const ClassListItem = ({ clazz }: Props) => {
             <Time>{getLocalTime(clazz, studio?.timezone || "")} </Time>
             <Duration>{clazz.duration / 60} mins</Duration>
           </TimeWrapper>
-          <InstructorIcon instructor={clazz.instructor} size={48} />
+          <HiddenMobile>
+            <InstructorIcon instructor={clazz.instructor} size={48} />
+          </HiddenMobile>
           <Metadata>
             <ClassTitle>{clazz.name}</ClassTitle>
             <ClassSubtitle>

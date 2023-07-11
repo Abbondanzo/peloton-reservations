@@ -14,5 +14,10 @@ declare module "styled-components" {
       secondarySurface: string;
       accent: string;
     };
+
+    widths: {
+      tablet: number;
+      mobile: number;
+    };
   }
 }
