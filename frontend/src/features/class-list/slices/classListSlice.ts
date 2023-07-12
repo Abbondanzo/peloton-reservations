@@ -9,6 +9,7 @@ interface FulfilledState {
   classes: Class[];
   instructors: Instructor[];
   disciplines: Discipline[];
+  updatedAt: number;
 }
 
 interface LoadingState {
@@ -88,6 +89,7 @@ export const classListSlice = createSlice({
           classes: action.payload.classes,
           instructors: action.payload.instructors,
           disciplines: action.payload.disciplines,
+          updatedAt: new Date().getTime(),
         };
       })
       .addCase(fetchClassList.rejected, (state, action) => {

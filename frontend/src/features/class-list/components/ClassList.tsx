@@ -3,6 +3,7 @@ import { selectHasFilters } from "../../filters/selectors/selectHasFilters";
 import { useAppSelector } from "../../store/hooks/useStore";
 import { Card } from "../../theme/components/Card";
 import { selectFilteredClassesGroups } from "../selectors/selectFilteredClassesGroups";
+import { selectedLastUpdatedFormatted } from "../selectors/selectedLastUpdatedFormatted";
 import { Class } from "../types/Class";
 import { ClassListItem } from "./ClassListItem";
 
@@ -53,6 +54,7 @@ export const ClassList = ({ classes }: Props) => {
   const isFreeSelected = useAppSelector((state) =>
     state.filters.selectedBookableStatuses.includes("free")
   );
+  const lastUpdated = useAppSelector(selectedLastUpdatedFormatted);
 
   if (filteredGroups.length === 0) {
     return (
@@ -66,8 +68,9 @@ export const ClassList = ({ classes }: Props) => {
         )}
         {isFreeSelected && !hasFilters && (
           <TipText>
-            Tip: Try checking back exactly at 12:00 pm on Mondays and Thursdays.
-            This is usually when new classes open up.
+            Tip: Try checking back exactly at 12:00 pm on Mondays and Thursdays
+            (in your studio's timezone). This is usually when new classes open
+            up.
           </TipText>
         )}
       </Card>
@@ -82,7 +85,10 @@ export const ClassList = ({ classes }: Props) => {
             <GroupTitle>
               <GroupTitleText>{group.formattedDate}</GroupTitleText>
               {index === 0 && (
-                <TimeZoneTipText>All times in studio timezone</TimeZoneTipText>
+                <TimeZoneTipText>
+                  All times in studio timezone.{" "}
+                  {lastUpdated && `Last updated ${lastUpdated}`}
+                </TimeZoneTipText>
               )}
             </GroupTitle>
             {group.classes.map((clazz, index) => {
