@@ -62,6 +62,11 @@ const MainContent = styled.div<ToggleProps>`
       pointer-events: ${(props) => (props.toggleVisible ? "all" : "none")};
     }
   }
+
+  @media only screen and (max-width: ${(props) =>
+      props.theme.widths.mobile}px) {
+    padding: 8px;
+  }
 `;
 
 const FiltersButton = styled.button`
