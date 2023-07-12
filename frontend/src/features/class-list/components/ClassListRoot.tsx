@@ -94,7 +94,7 @@ export const ClassListRoot = () => {
     dispatch(fetchClassList(classId));
   }, [dispatch]);
 
-  const [sidebarVisible, setSidebarVisible] = useState(true);
+  const [sidebarVisible, setSidebarVisible] = useState(false);
 
   return (
     <NavbarProvider>
