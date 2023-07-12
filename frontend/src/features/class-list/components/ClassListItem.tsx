@@ -62,7 +62,7 @@ const TimeWrapper = styled.div`
   flex-shrink: 0;
   @media only screen and (max-width: ${(props) =>
       props.theme.widths.mobile}px) {
-    width: 60px;
+    width: fit-content;
   }
 `;
 
@@ -89,6 +89,12 @@ const HiddenMobile = styled.div`
 
 const Metadata = styled.div`
   margin-left: 20px;
+  min-width: 0;
+  flex: 1;
+  @media only screen and (max-width: ${(props) =>
+      props.theme.widths.mobile}px) {
+    margin-left: 4px;
+  }
 `;
 
 const ClassTitle = styled.div`
@@ -105,6 +111,9 @@ const ClassSubtitle = styled.div`
   align-items: center;
   font-size: 12px;
   color: ${(props) => props.theme.colors.secondary};
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  min-width: 0;
   @media only screen and (max-width: ${(props) =>
       props.theme.widths.mobile}px) {
     font-size: 10px;
@@ -120,8 +129,12 @@ const Spacer = styled.div`
   }
 `;
 
-const MarginLeft = styled.div`
+const DisciplineIconWrapper = styled.div`
   margin-left: 4px;
+  @media only screen and (max-width: ${(props) =>
+      props.theme.widths.mobile}px) {
+    display: none;
+  }
 `;
 
 const Button = styled.button<InteractiveProps>`
@@ -152,7 +165,7 @@ const Button = styled.button<InteractiveProps>`
   @media only screen and (max-width: ${(props) =>
     props.theme.widths.mobile}px) {
     font-size: 10px;
-    min-width: 120px;
+    min-width: fit-content;
   }
 `;
 
@@ -195,9 +208,9 @@ export const ClassListItem = ({ clazz }: Props) => {
               {clazz.instructor.name}
               <Spacer></Spacer>
               {clazz.discipline.name}
-              <MarginLeft>
+              <DisciplineIconWrapper>
                 <DisciplineIcon discipline={clazz.discipline} size={24} />
-              </MarginLeft>
+              </DisciplineIconWrapper>
             </ClassSubtitle>
           </Metadata>
         </ContentWrapper>
