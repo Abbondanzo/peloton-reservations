@@ -50,8 +50,8 @@ export const ClassList = ({ classes }: Props) => {
     selectFilteredClassesGroups(state, classes)
   );
   const hasFilters = useAppSelector(selectHasFilters);
-  const isFreeSelected = useAppSelector(
-    (state) => state.filters.showBookableStatus === "free"
+  const isFreeSelected = useAppSelector((state) =>
+    state.filters.selectedBookableStatuses.includes("free")
   );
 
   if (filteredGroups.length === 0) {

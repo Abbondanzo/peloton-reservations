@@ -5,15 +5,15 @@ import { getSearchParams, setSearchParams } from "./searchParams";
 const KEY = "status";
 
 export const getBookableStatusSearchParams = (
-  defaultValue: BookableStatus
-): BookableStatus => {
+  defaultValue: BookableStatus[]
+): BookableStatus[] => {
   const value = getSearchParams(KEY);
-  if (value === null || !isBookableStatus(value)) {
+  if (value === null) {
     return defaultValue;
   }
-  return value;
+  return value.split(";").filter(isBookableStatus);
 };
 
-export const setBookableStatusSearchParams = (show: BookableStatus) => {
-  setSearchParams(KEY, show);
+export const setBookableStatusSearchParams = (show: BookableStatus[]) => {
+  setSearchParams(KEY, show.join(";"));
 };

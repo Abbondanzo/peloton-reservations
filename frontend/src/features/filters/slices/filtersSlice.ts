@@ -13,13 +13,13 @@ import { setBookableStatusSearchParams } from "./../operators/bookableStatusSear
 import { BookableStatus } from "./../types/BookableStatus";
 
 export interface FilterState {
-  showBookableStatus: BookableStatus;
+  selectedBookableStatuses: BookableStatus[];
   selectedInstructors: string[];
   selectedDisciplines: string[];
 }
 
 const initialState: FilterState = {
-  showBookableStatus: getBookableStatusSearchParams("waitlist"),
+  selectedBookableStatuses: getBookableStatusSearchParams(["free", "waitlist"]),
   selectedInstructors: getInstructorsSearchParams([]),
   selectedDisciplines: getDisciplinesSearchParams([]),
 };
@@ -29,9 +29,18 @@ export const filtersSlice = createSlice({
   initialState,
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
-    setBookableStatus(state, action: PayloadAction<BookableStatus>) {
-      state.showBookableStatus = action.payload;
-      setBookableStatusSearchParams(action.payload);
+    toggleBookableStatus(state, action: PayloadAction<BookableStatus>) {
+      if (state.selectedBookableStatuses.includes(action.payload)) {
+        state.selectedBookableStatuses = state.selectedBookableStatuses.filter(
+          (status) => status !== action.payload
+        );
+      } else {
+        state.selectedBookableStatuses = [
+          ...state.selectedBookableStatuses,
+          action.payload,
+        ];
+      }
+      setBookableStatusSearchParams(state.selectedBookableStatuses);
     },
     toggleInstructor(state, action: PayloadAction<string>) {
       if (state.selectedInstructors.includes(action.payload)) {
@@ -71,7 +80,7 @@ export const filtersSlice = createSlice({
 });
 
 export const {
-  setBookableStatus,
+  toggleBookableStatus,
   toggleInstructor,
   resetInstructors,
   toggleDiscipline,

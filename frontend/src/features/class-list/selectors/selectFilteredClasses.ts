@@ -1,9 +1,10 @@
+import { classToStatus } from "./../operators/classToStatus";
 import { createSelector } from "@reduxjs/toolkit";
 import { RootState } from "../../store/constants/store";
 import { Class } from "../types/Class";
 
-const selectBookableStatus = (state: RootState) =>
-  state.filters.showBookableStatus;
+const selectBookableStatuses = (state: RootState) =>
+  state.filters.selectedBookableStatuses;
 
 const selectDisciplines = (state: RootState) =>
   state.filters.selectedDisciplines;
@@ -14,14 +15,12 @@ const selectInstructors = (state: RootState) =>
 const selectClasses = (_: RootState, classes: Class[]) => classes;
 
 export const selectFilteredClasses = createSelector(
-  [selectBookableStatus, selectDisciplines, selectInstructors, selectClasses],
-  (bookableStatus, selectedDisciplines, selectedInstructors, classes) => {
+  [selectBookableStatuses, selectDisciplines, selectInstructors, selectClasses],
+  (bookableStatuses, selectedDisciplines, selectedInstructors, classes) => {
     return classes
       .filter((clazz) => {
-        if (bookableStatus === "waitlist") return !clazz.waitlistFull;
-        if (bookableStatus === "free") return clazz.free;
-        if (bookableStatus === "full") return !clazz.cancelled;
-        return false;
+        const status = classToStatus(clazz);
+        return status && bookableStatuses.includes(status);
       })
       .filter((clazz) => {
         if (selectedInstructors.length > 0) {

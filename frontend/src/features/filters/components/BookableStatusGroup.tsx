@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useBookableStatus } from "../hooks/useBookableStatus";
+import { useBookableStatuses } from "../hooks/useBookableStatuses";
 import { BookableStatus } from "../types/BookableStatus";
 import { List } from "./atoms/List";
 import { ListItem } from "./atoms/ListItem";
@@ -23,7 +23,7 @@ const Label = styled.label`
 `;
 
 export const BookableStatusGroup = () => {
-  const [bookableStatus, setBookableStatus] = useBookableStatus();
+  const { bookableStatuses, toggleBookableStatus } = useBookableStatuses();
 
   return (
     <Padding>
@@ -34,17 +34,17 @@ export const BookableStatusGroup = () => {
         {OPTIONS.map((option, index) => (
           <ListItem
             key={index}
-            onClick={() => setBookableStatus(option.status)}
+            onClick={() => toggleBookableStatus(option.status)}
           >
             <input
-              type="radio"
+              type="checkbox"
               id={`bookable-${option.status}`}
               name="bookable-status"
               value={option.status}
-              checked={bookableStatus === option.status}
+              checked={bookableStatuses.includes(option.status)}
               readOnly
             />
-            <Label htmlFor={`bookable-${option.status}`}>{option.label}</Label>
+            <Label>{option.label}</Label>
           </ListItem>
         ))}
       </List>
