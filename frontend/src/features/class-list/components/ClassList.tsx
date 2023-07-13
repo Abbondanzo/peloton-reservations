@@ -87,7 +87,7 @@ export const ClassList = ({ classes }: Props) => {
               {index === 0 && (
                 <TimeZoneTipText>
                   All times in studio timezone.{" "}
-                  {lastUpdated && `Last updated ${lastUpdated} local`}
+                  {lastUpdated && `Loaded at ${lastUpdated} local`}
                 </TimeZoneTipText>
               )}
             </GroupTitle>
