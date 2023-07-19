@@ -7,7 +7,7 @@ export interface SessionState {
 }
 
 const initialState: SessionState = {
-  loading: false,
+  loading: true,
 };
 
 export const sessionSlice = createSlice({
@@ -16,9 +16,11 @@ export const sessionSlice = createSlice({
   reducers: {
     setSession(state, action: PayloadAction<Session>) {
       state.session = action.payload;
+      state.loading = false;
     },
     removeSession(state) {
       state.session = undefined;
+      state.loading = false;
     },
   },
 });
