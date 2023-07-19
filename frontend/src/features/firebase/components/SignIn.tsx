@@ -12,6 +12,10 @@ const ui = safeInit(() => new firebaseui.auth.AuthUI(auth));
 
 const Wrapper = styled.div`
   width: 100%;
+
+  * {
+    font-family: inherit;
+  }
 `;
 
 export const SignIn = () => {
