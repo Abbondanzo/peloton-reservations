@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { Paths } from "../constants/paths";
+import { SessionInfo } from "./SessionInfo";
 // import { SessionInfo } from "./SessionInfo";
 
 const Wrapper = styled.nav`
@@ -47,7 +48,7 @@ export const Navbar = () => {
           <Link to={Paths.CLASS_LIST}>Class List</Link>
           <Link to={Paths.ABOUT}>About</Link>
         </Routes>
-        {/* <SessionInfo /> */}
+        <SessionInfo />
       </RightGap>
     </Wrapper>
   );

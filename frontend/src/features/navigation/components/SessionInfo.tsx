@@ -26,5 +26,5 @@ export const SessionInfo = () => {
     return <SignInButton to={Paths.SIGN_IN}>Sign In</SignInButton>;
   }
 
-  return <p>{state.session.id}</p>;
+  return <p>{state.session.displayName}</p>;
 };
