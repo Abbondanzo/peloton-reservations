@@ -8,12 +8,13 @@ import { List } from "../../../theme/components/List";
 import { ListItem } from "../../../theme/components/ListItem";
 
 const RadioGroupWrapper = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   column-gap: 1em;
+  row-gap: 1em;
 `;
 
 const RadioGroupItem = styled(Card)`
-  flex: 1;
   max-height: 200px;
   overflow: auto;
 `;
