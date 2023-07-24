@@ -13,6 +13,11 @@ const Content = styled.div`
   padding: 1em 0;
 `;
 
+const OverflowWrapper = styled.div`
+  overflow: auto;
+  height: 100%;
+`;
+
 const AlertsBody = () => {
   const hasSession = useAppSelector(selectHasSession);
   if (!hasSession) {
@@ -30,12 +35,14 @@ const AlertsBody = () => {
 export const AlertsRoot = () => {
   return (
     <NavbarProvider>
-      <Content>
-        <Card>
-          <h1>Alerts</h1>
-          <AlertsBody />
-        </Card>
-      </Content>
+      <OverflowWrapper>
+        <Content>
+          <Card>
+            <h1>Alerts</h1>
+            <AlertsBody />
+          </Card>
+        </Content>
+      </OverflowWrapper>
     </NavbarProvider>
   );
 };
