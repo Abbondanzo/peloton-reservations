@@ -2,14 +2,14 @@ import styled from "styled-components";
 import { InstructorIcon } from "../../class-list/components/InstructorIcon";
 import { Instructor } from "../../class-list/types/Instructor";
 import { useAppDispatch, useAppSelector } from "../../store/hooks/useStore";
+import { List } from "../../theme/components/List";
+import { ListItem } from "../../theme/components/ListItem";
+import { Padding } from "../../theme/components/Padding";
+import { SectionTitle } from "../../theme/components/SectionTitle";
 import { useInstructorFilters } from "../hooks/useInstructorFilters";
 import { selectSortedInstructors } from "../selectors/selectSortedInstructors";
 import { resetInstructors } from "../slices/filtersSlice";
-import { List } from "./atoms/List";
-import { ListItem } from "./atoms/ListItem";
-import { Padding } from "./atoms/Padding";
 import { ResetButton } from "./atoms/ResetButton";
-import { SectionTitle } from "./atoms/SectionTitle";
 
 const SectionRow = styled.div`
   display: flex;

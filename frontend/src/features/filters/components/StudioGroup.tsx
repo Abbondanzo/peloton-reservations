@@ -2,10 +2,10 @@ import styled from "styled-components";
 import { STUDIOS } from "../../class-list/constants/studios";
 import { fetchClassList } from "../../class-list/slices/classListSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks/useStore";
-import { List } from "./atoms/List";
-import { ListItem } from "./atoms/ListItem";
-import { Padding } from "./atoms/Padding";
-import { SectionTitle } from "./atoms/SectionTitle";
+import { List } from "../../theme/components/List";
+import { ListItem } from "../../theme/components/ListItem";
+import { Padding } from "../../theme/components/Padding";
+import { SectionTitle } from "../../theme/components/SectionTitle";
 
 interface Option {
   id: string;
@@ -34,7 +34,11 @@ export const StudioGroup = () => {
         {OPTIONS.map((option, index) => (
           <ListItem
             key={index}
-            onClick={() => dispatch(fetchClassList(option.id))}
+            onClick={() => {
+              if (option.id !== selectedStudioId) {
+                dispatch(fetchClassList(option.id));
+              }
+            }}
           >
             <input
               type="radio"
