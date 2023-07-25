@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { STUDIOS } from "../../class-list/constants/studios";
+import { selectStudio } from "../../class-list/selectors/selectStudio";
 import { fetchClassList } from "../../class-list/slices/classListSlice";
 import { StudioGroup } from "../../filters/components/StudioGroup";
 import { useAppDispatch, useAppSelector } from "../../store/hooks/useStore";
 import { Padding } from "../../theme/components/Padding";
 import { SectionTitle } from "../../theme/components/SectionTitle";
-import { InstructorsPicker } from "./editor/InstructorsPicker";
+import { TimeRange } from "../types/Alert";
+import { DayPicker } from "./editor/DayPicker";
 import { DisciplinesPicker } from "./editor/DisciplinesPicker";
-import { selectStudio } from "../../class-list/selectors/selectStudio";
+import { InstructorsPicker } from "./editor/InstructorsPicker";
 
 export const AlertEditor = () => {
   const dispatch = useAppDispatch();
@@ -25,6 +27,7 @@ export const AlertEditor = () => {
   const [selectedDisciplines, setSelectedDisciplines] = useState<
     string[] | null
   >(null);
+  const [timeRanges, setTimeRanges] = useState<(TimeRange | null)[]>([]);
 
   // Reset all picked disciplines and instructors when the studio selection changes
   useEffect(() => {
@@ -50,6 +53,10 @@ export const AlertEditor = () => {
           selectedDisciplines={selectedDisciplines}
           setSelectedDisciplines={setSelectedDisciplines}
         />
+      </Padding>
+      <Padding>
+        <SectionTitle>Day & Time</SectionTitle>
+        <DayPicker timeRanges={timeRanges} setTimeRanges={setTimeRanges} />
       </Padding>
     </form>
   );
