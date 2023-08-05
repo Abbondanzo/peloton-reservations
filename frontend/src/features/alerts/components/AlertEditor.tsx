@@ -28,6 +28,7 @@ const Button = styled.button`
   cursor: pointer;
   &:hover {
     filter: brightness(96%);
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 2px 8px 0px;
   }
 `;
 
