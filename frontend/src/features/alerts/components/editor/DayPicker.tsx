@@ -12,7 +12,7 @@ import {
 import { isFirstEditableTimeRange } from "../../operators/isFirstEditableTimeRange";
 import { TimeRange } from "../../types/Alert";
 
-const ListItemWrapper = styled.div`
+const ListItemWrapper = styled.li`
   display: flex;
   align-items: center;
   column-gap: 24px;
@@ -24,9 +24,16 @@ const ListItemWrapper = styled.div`
   `}
 `;
 
-const MaxWidthListItem = styled(ListItem)`
-  width: 140px;
+const MaxWidthListItem = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  cursor: pointer;
+  user-select: none;
+  min-height: 32px;
+  ${hover}
 
+  width: 140px;
   ${mediaMobile`
     width: 100%;
   `}
