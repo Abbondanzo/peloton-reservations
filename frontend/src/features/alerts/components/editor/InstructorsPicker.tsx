@@ -120,6 +120,7 @@ export const InstructorsPicker = ({
           id="instructor-pick-all"
           name="instructor-pick"
           checked={selectedInstructors === null}
+          readOnly
         />
         <label htmlFor="instructor-pick-all">
           Pick any available instructor
@@ -140,6 +141,7 @@ export const InstructorsPicker = ({
           id="instructor-pick-select"
           name="instructor-pick"
           checked={selectedInstructors !== null}
+          readOnly
         />
         <label htmlFor="instructor-pick-select">
           Pick instructors from the list

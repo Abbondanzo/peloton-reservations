@@ -129,6 +129,7 @@ export const DisciplinesPicker = ({
           id="discipline-pick-all"
           name="discipline-pick"
           checked={selectedDisciplines === null}
+          readOnly
         />
         <label htmlFor="discipline-pick-all">
           Pick any available discipline
@@ -149,6 +150,7 @@ export const DisciplinesPicker = ({
           id="discipline-pick-select"
           name="discipline-pick"
           checked={selectedDisciplines !== null}
+          readOnly
         />
         <label htmlFor="discipline-pick-select">
           Pick disciplines from the list
