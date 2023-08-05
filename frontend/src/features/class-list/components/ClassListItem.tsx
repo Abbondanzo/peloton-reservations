@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import styled from "styled-components";
 import { useAppSelector } from "../../store/hooks/useStore";
 import { Card } from "../../theme/components/Card";
+import { mediaMobile } from "../../theme/constants/queries";
 import { getLocalTime } from "../operators/getLocalTime";
 import { selectStudio } from "../selectors/selectStudio";
 import { Class } from "../types/Class";
@@ -45,10 +46,9 @@ const InteractiveCard = styled(Card)<InteractiveProps>`
         `
       : `opacity: 0.5;`}
 
-  @media only screen and (max-width: ${(props) =>
-    props.theme.widths.mobile}px) {
+  ${mediaMobile`
     min-width: auto;
-  }
+  `}
 `;
 
 const ContentWrapper = styled.div`
@@ -60,19 +60,17 @@ const TimeWrapper = styled.div`
   margin-right: 8px;
   width: 96px;
   flex-shrink: 0;
-  @media only screen and (max-width: ${(props) =>
-      props.theme.widths.mobile}px) {
+  ${mediaMobile`
     width: fit-content;
-  }
+  `}
 `;
 
 const Time = styled.div`
   font-weight: 600;
   color: ${(props) => props.theme.colors.main};
-  @media only screen and (max-width: ${(props) =>
-      props.theme.widths.mobile}px) {
+  ${mediaMobile`
     font-size: 12px;
-  }
+  `}
 `;
 
 const Duration = styled.div`
@@ -81,29 +79,26 @@ const Duration = styled.div`
 `;
 
 const HiddenMobile = styled.div`
-  @media only screen and (max-width: ${(props) =>
-      props.theme.widths.mobile}px) {
+  ${mediaMobile`
     display: none;
-  }
+  `}
 `;
 
 const Metadata = styled.div`
   margin-left: 20px;
   min-width: 0;
   flex: 1;
-  @media only screen and (max-width: ${(props) =>
-      props.theme.widths.mobile}px) {
+  ${mediaMobile`
     margin-left: 4px;
-  }
+  `}
 `;
 
 const ClassTitle = styled.div`
   margin-bottom: 4px;
   color: ${(props) => props.theme.colors.secondary};
-  @media only screen and (max-width: ${(props) =>
-      props.theme.widths.mobile}px) {
+  ${mediaMobile`
     font-size: 12px;
-  }
+  `}
 `;
 
 const ClassSubtitle = styled.div`
@@ -114,10 +109,9 @@ const ClassSubtitle = styled.div`
   white-space: nowrap;
   text-overflow: ellipsis;
   min-width: 0;
-  @media only screen and (max-width: ${(props) =>
-      props.theme.widths.mobile}px) {
+  ${mediaMobile`
     font-size: 10px;
-  }
+  `}
 `;
 
 const Spacer = styled.div`
@@ -131,10 +125,9 @@ const Spacer = styled.div`
 
 const DisciplineIconWrapper = styled.div`
   margin-left: 4px;
-  @media only screen and (max-width: ${(props) =>
-      props.theme.widths.mobile}px) {
+  ${mediaMobile`
     display: none;
-  }
+  `}
 `;
 
 const Button = styled.button<InteractiveProps>`
@@ -162,11 +155,10 @@ const Button = styled.button<InteractiveProps>`
         background-color: transparent;  
         `}
 
-  @media only screen and (max-width: ${(props) =>
-    props.theme.widths.mobile}px) {
+  ${mediaMobile`
     font-size: 10px;
     min-width: fit-content;
-  }
+  `}
 `;
 
 interface Props {

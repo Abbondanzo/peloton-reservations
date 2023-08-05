@@ -6,6 +6,8 @@ import { StudioGroup } from "../../filters/components/StudioGroup";
 import { useAppDispatch, useAppSelector } from "../../store/hooks/useStore";
 import { Padding } from "../../theme/components/Padding";
 import { SectionTitle } from "../../theme/components/SectionTitle";
+import { DAY_NAMES } from "../constants/days";
+import { DEFAULT_TIME_RANGE } from "../constants/timeRanges";
 import { TimeRange } from "../types/Alert";
 import { DayPicker } from "./editor/DayPicker";
 import { DisciplinesPicker } from "./editor/DisciplinesPicker";
@@ -27,7 +29,9 @@ export const AlertEditor = () => {
   const [selectedDisciplines, setSelectedDisciplines] = useState<
     string[] | null
   >(null);
-  const [timeRanges, setTimeRanges] = useState<(TimeRange | null)[]>([]);
+  const [timeRanges, setTimeRanges] = useState<(TimeRange | null)[]>(
+    DAY_NAMES.map(() => DEFAULT_TIME_RANGE)
+  );
 
   // Reset all picked disciplines and instructors when the studio selection changes
   useEffect(() => {
