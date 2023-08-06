@@ -4,11 +4,13 @@ import { STUDIOS } from "../../class-list/constants/studios";
 import { selectStudio } from "../../class-list/selectors/selectStudio";
 import { fetchClassList } from "../../class-list/slices/classListSlice";
 import { StudioGroup } from "../../filters/components/StudioGroup";
+import { selectUserId } from "../../session/selectors/selectUserId";
 import { useAppDispatch, useAppSelector } from "../../store/hooks/useStore";
 import { Padding } from "../../theme/components/Padding";
 import { SectionTitle } from "../../theme/components/SectionTitle";
 import { DAY_NAMES } from "../constants/days";
 import { DEFAULT_TIME_RANGE } from "../constants/timeRanges";
+import { addAlert } from "../firebase/addAlert";
 import { Alert, TimeRange } from "../types/Alert";
 import { DayPicker } from "./editor/DayPicker";
 import { DisciplinesPicker } from "./editor/DisciplinesPicker";
@@ -46,6 +48,7 @@ export const AlertEditor = () => {
     dispatch(fetchClassList(classId));
   }, [dispatch]);
   const selectedStudio = useAppSelector(selectStudio);
+  const userId = useAppSelector(selectUserId);
 
   const [selectedInstructors, setSelectedInstructors] = useState<
     string[] | null
@@ -68,6 +71,9 @@ export const AlertEditor = () => {
     if (!location) {
       return;
     }
+    if (!userId) {
+      return;
+    }
     const alert: Alert = {
       id: null as any,
       created: new Date().getTime(),
@@ -78,7 +84,11 @@ export const AlertEditor = () => {
       maxStatus: "free",
       numberOfWeeks: 3,
     };
-    console.log(alert);
+    addAlert(userId, alert)
+      .then((newAlert) => console.log(newAlert))
+      .catch((error) => {
+        console.error(error);
+      });
   };
 
   return (
