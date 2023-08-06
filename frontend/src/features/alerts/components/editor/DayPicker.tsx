@@ -157,7 +157,6 @@ export const DayPicker = ({ timeRanges, setTimeRanges }: Props) => {
                   setTimeRange={(newTimeRange) => {
                     const newTimeRanges = [...timeRanges];
                     newTimeRanges[index] = newTimeRange;
-                    console.log(newTimeRanges);
                     setTimeRanges(newTimeRanges);
                   }}
                 />
