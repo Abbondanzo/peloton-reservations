@@ -1,7 +1,7 @@
 import { TimeRange } from "./../types/Alert";
 
 export const isFirstEditableTimeRange = (
-  timeRanges: (TimeRange | null)[],
+  timeRanges: Optional<TimeRange>[],
   index: number
 ) => {
   for (let i = 0; i < timeRanges.length; i++) {

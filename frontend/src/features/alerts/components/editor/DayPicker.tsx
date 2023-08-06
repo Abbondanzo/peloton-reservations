@@ -119,8 +119,8 @@ const TimePicker = ({ timeRange, setTimeRange }: TimePickerProps) => {
 };
 
 interface Props {
-  timeRanges: (TimeRange | null)[];
-  setTimeRanges: (timeRanges: (TimeRange | null)[]) => void;
+  timeRanges: Optional<TimeRange>[];
+  setTimeRanges: (timeRanges: Optional<TimeRange>[]) => void;
 }
 
 export const DayPicker = ({ timeRanges, setTimeRanges }: Props) => {

@@ -6,6 +6,7 @@ import { useAppSelector } from "../../../store/hooks/useStore";
 import { Card } from "../../../theme/components/Card";
 import { List } from "../../../theme/components/List";
 import { ListItem } from "../../../theme/components/ListItem";
+import { isEmpty, isNotEmpty } from "../../../utils/optional";
 
 const InstructorImageWrapper = styled.div`
   margin: 0 8px;
@@ -54,7 +55,7 @@ const InstructorsListPicker = ({
   setSelectedInstructors,
 }: Props) => {
   const state = useAppSelector(selectSortedInstructors);
-  const disabled = selectedInstructors === null;
+  const disabled = isEmpty(selectedInstructors);
 
   if (!state || state.status === "loading") {
     return <div>Loading...</div>;
@@ -77,7 +78,7 @@ const InstructorsListPicker = ({
     >
       {state.instructors.map((instructor, index) => {
         const toggleInstructor = () => {
-          if (selectedInstructors !== null) {
+          if (isNotEmpty(selectedInstructors)) {
             const hasInstructor = selectedInstructors.includes(instructor.id);
             const newInstructors = hasInstructor
               ? selectedInstructors.filter((id) => id !== instructor.id)
@@ -99,8 +100,8 @@ const InstructorsListPicker = ({
 };
 
 interface Props {
-  selectedInstructors: string[] | null;
-  setSelectedInstructors: (instructorIds: string[] | null) => void;
+  selectedInstructors: Optional<string[]>;
+  setSelectedInstructors: (instructorIds: Optional<string[]>) => void;
 }
 
 export const InstructorsPicker = ({
@@ -119,7 +120,7 @@ export const InstructorsPicker = ({
           type="radio"
           id="instructor-pick-all"
           name="instructor-pick"
-          checked={selectedInstructors === null}
+          checked={isEmpty(selectedInstructors)}
           readOnly
         />
         <label htmlFor="instructor-pick-all">
@@ -128,19 +129,19 @@ export const InstructorsPicker = ({
       </RadioGroupItem>
       <RadioGroupItem
         onClick={() => {
-          if (selectedInstructors === null) {
+          if (isEmpty(selectedInstructors)) {
             setSelectedInstructors([]);
           }
         }}
         style={{
-          cursor: selectedInstructors === null ? "pointer" : "initial",
+          cursor: isEmpty(selectedInstructors) ? "pointer" : "initial",
         }}
       >
         <input
           type="radio"
           id="instructor-pick-select"
           name="instructor-pick"
-          checked={selectedInstructors !== null}
+          checked={isNotEmpty(selectedInstructors)}
           readOnly
         />
         <label htmlFor="instructor-pick-select">

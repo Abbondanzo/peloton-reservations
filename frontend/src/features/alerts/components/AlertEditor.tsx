@@ -50,13 +50,11 @@ export const AlertEditor = () => {
   const selectedStudio = useAppSelector(selectStudio);
   const userId = useAppSelector(selectUserId);
 
-  const [selectedInstructors, setSelectedInstructors] = useState<
-    string[] | null
-  >(null);
-  const [selectedDisciplines, setSelectedDisciplines] = useState<
-    string[] | null
-  >(null);
-  const [timeRanges, setTimeRanges] = useState<(TimeRange | null)[]>(
+  const [selectedInstructors, setSelectedInstructors] =
+    useState<Optional<string[]>>(null);
+  const [selectedDisciplines, setSelectedDisciplines] =
+    useState<Optional<string[]>>(null);
+  const [timeRanges, setTimeRanges] = useState<Optional<TimeRange>[]>(
     DAY_NAMES.map(() => DEFAULT_TIME_RANGE)
   );
 

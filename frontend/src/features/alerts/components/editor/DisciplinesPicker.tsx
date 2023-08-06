@@ -6,6 +6,7 @@ import { useAppSelector } from "../../../store/hooks/useStore";
 import { Card } from "../../../theme/components/Card";
 import { List } from "../../../theme/components/List";
 import { ListItem } from "../../../theme/components/ListItem";
+import { isEmpty, isNotEmpty } from "../../../utils/optional";
 
 const RadioGroupWrapper = styled.div`
   display: grid;
@@ -63,7 +64,7 @@ const DisciplinesListPicker = ({
   setSelectedDisciplines,
 }: Props) => {
   const state = useAppSelector(selectSortedDisciplines);
-  const disabled = selectedDisciplines === null;
+  const disabled = isEmpty(selectedDisciplines);
 
   if (!state || state.status === "loading") {
     return <div>Loading...</div>;
@@ -86,7 +87,7 @@ const DisciplinesListPicker = ({
     >
       {state.disciplines.map((discipline, index) => {
         const toggleDiscipline = () => {
-          if (selectedDisciplines !== null) {
+          if (isNotEmpty(selectedDisciplines)) {
             const hasDiscipline = selectedDisciplines.includes(discipline.id);
             const newDisciplines = hasDiscipline
               ? selectedDisciplines.filter((id) => id !== discipline.id)
@@ -108,8 +109,8 @@ const DisciplinesListPicker = ({
 };
 
 interface Props {
-  selectedDisciplines: string[] | null;
-  setSelectedDisciplines: (disciplineIds: string[] | null) => void;
+  selectedDisciplines: Optional<string[]>;
+  setSelectedDisciplines: (disciplineIds: Optional<string[]>) => void;
 }
 
 export const DisciplinesPicker = ({
@@ -128,7 +129,7 @@ export const DisciplinesPicker = ({
           type="radio"
           id="discipline-pick-all"
           name="discipline-pick"
-          checked={selectedDisciplines === null}
+          checked={isEmpty(selectedDisciplines)}
           readOnly
         />
         <label htmlFor="discipline-pick-all">
@@ -137,19 +138,19 @@ export const DisciplinesPicker = ({
       </RadioGroupItem>
       <RadioGroupItem
         onClick={() => {
-          if (selectedDisciplines === null) {
+          if (isEmpty(selectedDisciplines)) {
             setSelectedDisciplines([]);
           }
         }}
         style={{
-          cursor: selectedDisciplines === null ? "pointer" : "initial",
+          cursor: isEmpty(selectedDisciplines) ? "pointer" : "initial",
         }}
       >
         <input
           type="radio"
           id="discipline-pick-select"
           name="discipline-pick"
-          checked={selectedDisciplines !== null}
+          checked={isNotEmpty(selectedDisciplines)}
           readOnly
         />
         <label htmlFor="discipline-pick-select">

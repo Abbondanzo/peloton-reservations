@@ -9,10 +9,10 @@ export interface TimeRange {
 export interface Alert {
   id: string;
   created: number;
-  instructors: string[] | null;
-  disciplines: string[] | null;
+  instructors: Optional<string[]>;
+  disciplines: Optional<string[]>;
   maxStatus: BookableStatus;
   numberOfWeeks: number;
-  timeRanges: (TimeRange | null)[];
+  timeRanges: Optional<TimeRange>[];
   studio: Location;
 }
