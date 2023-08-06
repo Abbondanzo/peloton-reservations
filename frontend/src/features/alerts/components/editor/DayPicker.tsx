@@ -1,7 +1,6 @@
 import { ChangeEvent } from "react";
 import styled from "styled-components";
 import { List } from "../../../theme/components/List";
-import { ListItem } from "../../../theme/components/ListItem";
 import { mediaMobile } from "../../../theme/constants/queries";
 import { border, focus, hover } from "../../../theme/constants/styles";
 import { DAY_NAMES } from "../../constants/days";
