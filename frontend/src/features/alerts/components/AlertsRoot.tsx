@@ -1,3 +1,4 @@
+import { useContext } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { NavbarProvider } from "../../navigation/components/NavbarProvider";
@@ -5,6 +6,7 @@ import { Paths } from "../../navigation/constants/paths";
 import { selectSession } from "../../session/selectors/selectSession";
 import { useAppSelector } from "../../store/hooks/useStore";
 import { Card } from "../../theme/components/Card";
+import { AlertsContext } from "../context/AlertsContext";
 import { AlertsProvider } from "../providers/AlertsProvider";
 import { AlertEditor } from "./AlertEditor";
 
@@ -19,11 +21,29 @@ const OverflowWrapper = styled.div`
   height: 100%;
 `;
 
+const AlertsLoading = () => {
+  return <p>Loading...</p>;
+};
+
+const AsyncAlertsList = () => {
+  const alertsState = useContext(AlertsContext);
+
+  if (alertsState.state === "loading" || alertsState.state === "idle") {
+    return <AlertsLoading />;
+  }
+
+  if (alertsState.state === "failed") {
+    return <p>Failed to load: {alertsState.error.message}</p>;
+  }
+
+  return <code>{JSON.stringify(alertsState.data, null, 2)}</code>;
+};
+
 const AlertsBody = () => {
   const sessionState = useAppSelector(selectSession);
 
   if (sessionState.state === "loading") {
-    return <p>Loading...</p>;
+    return <AlertsLoading />;
   }
 
   if (sessionState.state !== "fulfilled" || !sessionState.data) {
@@ -37,6 +57,7 @@ const AlertsBody = () => {
 
   return (
     <AlertsProvider userId={sessionState.data.id}>
+      <AsyncAlertsList />
       <AlertEditor />
     </AlertsProvider>
   );
