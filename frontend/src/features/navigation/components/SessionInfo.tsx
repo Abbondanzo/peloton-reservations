@@ -41,14 +41,14 @@ const TextButtonWrapper = styled.button`
 `;
 
 export const SessionInfo = () => {
-  const state = useAppSelector(selectSession);
+  const sessionState = useAppSelector(selectSession);
   const [showPopover, setShowPopover] = useState(false);
 
-  if (state.loading) {
+  if (sessionState.state === "loading") {
     return <p>Loading...</p>;
   }
 
-  if (!state.session) {
+  if (sessionState.state !== "fulfilled" || !sessionState.data) {
     return (
       <Link to={Paths.SIGN_IN}>
         <SignInButton>Sign In</SignInButton>
@@ -59,7 +59,7 @@ export const SessionInfo = () => {
   return (
     <ButtonWrapper>
       <SignInButton onClick={() => setShowPopover(true)}>
-        {state.session.displayName}
+        {sessionState.data.displayName}
       </SignInButton>
       <Popover open={showPopover} onClose={() => setShowPopover(false)}>
         <TextButtonWrapper onClick={() => auth?.signOut()}>

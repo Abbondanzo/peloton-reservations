@@ -1,30 +1,33 @@
+import { AsyncData } from "./../../store/types/AsyncData";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { Session } from "./../types/Session";
 
-export interface SessionState {
-  loading: boolean;
-  session?: Session;
-}
-
-const initialState: SessionState = {
-  loading: true,
-};
+const initialState = {
+  state: "idle",
+} as AsyncData<Session | null>;
 
 export const sessionSlice = createSlice({
   name: "session",
   initialState,
   reducers: {
-    setSession(state, action: PayloadAction<Session>) {
-      state.session = action.payload;
-      state.loading = false;
+    setLoading() {
+      return { state: "loading" };
     },
-    removeSession(state) {
-      state.session = undefined;
-      state.loading = false;
+    setSession(_, action: PayloadAction<Session>) {
+      return {
+        state: "fulfilled",
+        data: action.payload,
+      };
+    },
+    removeSession() {
+      return {
+        state: "fulfilled",
+        data: null,
+      };
     },
   },
 });
 
-export const { setSession, removeSession } = sessionSlice.actions;
+export const { setLoading, setSession, removeSession } = sessionSlice.actions;
 
 export default sessionSlice.reducer;
