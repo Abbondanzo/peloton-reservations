@@ -75,7 +75,10 @@ const AlertsBody = () => {
     <AlertsProvider userId={sessionState.data.id}>
       {alertToEdit ? (
         <Card>
-          <AlertEditor onSave={() => setAlertToEdit(undefined)} />
+          <AlertEditor
+            onSave={() => setAlertToEdit(undefined)}
+            onCancel={() => setAlertToEdit(undefined)}
+          />
         </Card>
       ) : (
         <AsyncAlertsList onAdd={() => setAlertToEdit({})} />

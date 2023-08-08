@@ -12,7 +12,7 @@ import { DAY_NAMES } from "../constants/days";
 import { DEFAULT_TIME_RANGE } from "../constants/timeRanges";
 import { addAlert } from "../firebase/addAlert";
 import { Alert, TimeRange } from "../types/Alert";
-import { Button } from "./atoms/Button";
+import { Button, SecondaryButton } from "./atoms/Button";
 import { DayPicker } from "./editor/DayPicker";
 import { DisciplinesPicker } from "./editor/DisciplinesPicker";
 import { InstructorsPicker } from "./editor/InstructorsPicker";
@@ -20,13 +20,19 @@ import { InstructorsPicker } from "./editor/InstructorsPicker";
 const SaveFooter = styled(Padding)`
   text-align: center;
   margin-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  column-gap: 8px;
+  row-gap: 8px;
 `;
 
 interface Props {
   onSave: () => void;
+  onCancel: () => void;
 }
 
-export const AlertEditor = ({ onSave }: Props) => {
+export const AlertEditor = ({ onSave, onCancel }: Props) => {
   const dispatch = useAppDispatch();
   useEffect(() => {
     const [classId] = Object.entries(STUDIOS).find(
@@ -100,6 +106,7 @@ export const AlertEditor = ({ onSave }: Props) => {
         <DayPicker timeRanges={timeRanges} setTimeRanges={setTimeRanges} />
       </Padding>
       <SaveFooter>
+        <SecondaryButton onClick={onCancel}>Cancel</SecondaryButton>
         <Button onClick={handleSave}>Save</Button>
       </SaveFooter>
     </form>
