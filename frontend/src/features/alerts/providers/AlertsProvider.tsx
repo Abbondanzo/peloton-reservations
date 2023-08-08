@@ -28,7 +28,12 @@ export const AlertsProvider = ({ children, userId }: Props) => {
     const unsubscribe = onValue(
       dbRef,
       (snapshot) => {
-        const values: { [key: string]: Omit<Alert, "id"> } = snapshot.val();
+        const values: { [key: string]: Omit<Alert, "id"> } | null =
+          snapshot.val();
+        if (!values) {
+          setAlertsState({ state: "fulfilled", data: [] });
+          return;
+        }
         const alerts: Alert[] = Object.entries(values).map(([key, value]) => ({
           ...value,
           id: key,
