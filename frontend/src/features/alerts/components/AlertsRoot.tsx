@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { NavbarProvider } from "../../navigation/components/NavbarProvider";
@@ -8,7 +8,10 @@ import { useAppSelector } from "../../store/hooks/useStore";
 import { Card } from "../../theme/components/Card";
 import { AlertsContext } from "../context/AlertsContext";
 import { AlertsProvider } from "../providers/AlertsProvider";
+import { Alert } from "../types/Alert";
 import { AlertEditor } from "./AlertEditor";
+import { AlertsList } from "./AlertsList";
+import { Button } from "./atoms/Button";
 
 const Content = styled.div`
   margin: 0 auto;
@@ -25,7 +28,11 @@ const AlertsLoading = () => {
   return <p>Loading...</p>;
 };
 
-const AsyncAlertsList = () => {
+interface AsyncAlertsListProps {
+  onAdd: () => void;
+}
+
+const AsyncAlertsList = ({ onAdd }: AsyncAlertsListProps) => {
   const alertsState = useContext(AlertsContext);
 
   if (alertsState.state === "loading" || alertsState.state === "idle") {
@@ -36,11 +43,20 @@ const AsyncAlertsList = () => {
     return <p>Failed to load: {alertsState.error.message}</p>;
   }
 
-  return <code>{JSON.stringify(alertsState.data, null, 2)}</code>;
+  return (
+    <Card>
+      <h1>Alerts</h1>
+      <AlertsList alerts={alertsState.data} />
+      <Button onClick={onAdd} style={{ marginTop: "2em" }}>
+        Add Alert
+      </Button>
+    </Card>
+  );
 };
 
 const AlertsBody = () => {
   const sessionState = useAppSelector(selectSession);
+  const [alertToEdit, setAlertToEdit] = useState<Partial<Alert>>();
 
   if (sessionState.state === "loading") {
     return <AlertsLoading />;
@@ -57,8 +73,13 @@ const AlertsBody = () => {
 
   return (
     <AlertsProvider userId={sessionState.data.id}>
-      <AsyncAlertsList />
-      <AlertEditor />
+      {alertToEdit ? (
+        <Card>
+          <AlertEditor onSave={() => setAlertToEdit(undefined)} />
+        </Card>
+      ) : (
+        <AsyncAlertsList onAdd={() => setAlertToEdit({})} />
+      )}
     </AlertsProvider>
   );
 };
@@ -68,10 +89,7 @@ export const AlertsRoot = () => {
     <NavbarProvider>
       <OverflowWrapper>
         <Content>
-          <Card>
-            <h1>Alerts</h1>
-            <AlertsBody />
-          </Card>
+          <AlertsBody />
         </Content>
       </OverflowWrapper>
     </NavbarProvider>

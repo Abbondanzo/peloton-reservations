@@ -12,34 +12,21 @@ import { DAY_NAMES } from "../constants/days";
 import { DEFAULT_TIME_RANGE } from "../constants/timeRanges";
 import { addAlert } from "../firebase/addAlert";
 import { Alert, TimeRange } from "../types/Alert";
+import { Button } from "./atoms/Button";
 import { DayPicker } from "./editor/DayPicker";
 import { DisciplinesPicker } from "./editor/DisciplinesPicker";
 import { InstructorsPicker } from "./editor/InstructorsPicker";
-
-const Button = styled.button`
-  padding: 1.5em;
-  max-width: 300px;
-  width: 100%;
-  line-height: 0;
-  border: 0;
-  font-family: inherit;
-  background-color: ${(props) => props.theme.colors.accent};
-  border-radius: ${(props) => props.theme.borderRadius};
-  text-transform: uppercase;
-  color: #fff;
-  cursor: pointer;
-  &:hover {
-    filter: brightness(96%);
-    box-shadow: rgba(0, 0, 0, 0.16) 0px 2px 8px 0px;
-  }
-`;
 
 const SaveFooter = styled(Padding)`
   text-align: center;
   margin-top: 24px;
 `;
 
-export const AlertEditor = () => {
+interface Props {
+  onSave: () => void;
+}
+
+export const AlertEditor = ({ onSave }: Props) => {
   const dispatch = useAppDispatch();
   useEffect(() => {
     const [classId] = Object.entries(STUDIOS).find(
@@ -83,7 +70,7 @@ export const AlertEditor = () => {
       numberOfWeeks: 3,
     };
     addAlert(userId, alert)
-      .then((newAlert) => console.log(newAlert))
+      .then(() => onSave())
       .catch((error) => {
         console.error(error);
       });
