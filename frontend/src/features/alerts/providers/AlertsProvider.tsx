@@ -2,6 +2,7 @@ import { onValue, ref } from "firebase/database";
 import { ReactNode, useEffect, useState } from "react";
 import { database } from "../../firebase/constants/database";
 import { AsyncData } from "../../store/types/AsyncData";
+import { DAY_NAMES } from "../constants/days";
 import { AlertsContext } from "../context/AlertsContext";
 import { Alert } from "../types/Alert";
 
@@ -36,7 +37,7 @@ export const AlertsProvider = ({ children, userId }: Props) => {
         }
         const alerts: Alert[] = Object.entries(values).map(([key, value]) => ({
           ...value,
-          timeRanges: new Array(value.timeRanges.length)
+          timeRanges: new Array(DAY_NAMES.length)
             .fill(null)
             .map((_, index) => value.timeRanges[index] || null),
           id: key,
