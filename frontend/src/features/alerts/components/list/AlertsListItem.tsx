@@ -33,6 +33,10 @@ const Metadata = styled.div`
   row-gap: 8px;
 `;
 
+const Title = styled.span`
+  font-weight: 500;
+`;
+
 const Subtitle = styled.span`
   display: flex;
   font-size: 12px;
@@ -78,7 +82,7 @@ export const AlertsListItem = ({ alert, onEdit }: Props) => {
       <Card>
         <CardContents>
           <Metadata>
-            {getFriendlyTitle(alert)}
+            <Title>{getFriendlyTitle(alert)}</Title>
             <Subtitle>
               {STUDIOS[alert.studioId]?.location || alert.studioId || (
                 <i>No studio set</i>
