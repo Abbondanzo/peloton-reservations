@@ -30,9 +30,15 @@ const AlertsLoading = () => {
 
 interface AsyncAlertsListProps {
   onAdd: () => void;
+  onEdit: (alert: Alert) => void;
+  onDuplicate: (alert: Alert) => void;
 }
 
-const AsyncAlertsList = ({ onAdd }: AsyncAlertsListProps) => {
+const AsyncAlertsList = ({
+  onAdd,
+  onEdit,
+  onDuplicate,
+}: AsyncAlertsListProps) => {
   const alertsState = useContext(AlertsContext);
 
   if (alertsState.state === "loading" || alertsState.state === "idle") {
@@ -46,7 +52,11 @@ const AsyncAlertsList = ({ onAdd }: AsyncAlertsListProps) => {
   return (
     <Card>
       <h1>Alerts</h1>
-      <AlertsList alerts={alertsState.data} />
+      <AlertsList
+        alerts={alertsState.data}
+        onEdit={onEdit}
+        onDuplicate={onDuplicate}
+      />
       <Button onClick={onAdd} style={{ marginTop: "2em" }}>
         Add Alert
       </Button>
@@ -76,12 +86,19 @@ const AlertsBody = () => {
       {alertToEdit ? (
         <Card>
           <AlertEditor
+            alertToEdit={alertToEdit}
             onSave={() => setAlertToEdit(undefined)}
             onCancel={() => setAlertToEdit(undefined)}
           />
         </Card>
       ) : (
-        <AsyncAlertsList onAdd={() => setAlertToEdit({})} />
+        <AsyncAlertsList
+          onAdd={() => setAlertToEdit({})}
+          onEdit={(alert) => setAlertToEdit(alert)}
+          onDuplicate={(alert: Alert) =>
+            setAlertToEdit({ ...alert, id: null as any })
+          }
+        />
       )}
     </AlertsProvider>
   );

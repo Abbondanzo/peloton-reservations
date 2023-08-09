@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { STUDIOS } from "../../class-list/constants/studios";
-import { selectStudio } from "../../class-list/selectors/selectStudio";
+import { selectStudioId } from "../../class-list/selectors/selectStudioId";
 import { fetchClassList } from "../../class-list/slices/classListSlice";
 import { StudioGroup } from "../../filters/components/StudioGroup";
 import { selectUserId } from "../../session/selectors/selectUserId";
@@ -11,6 +11,7 @@ import { SectionTitle } from "../../theme/components/SectionTitle";
 import { DAY_NAMES } from "../constants/days";
 import { DEFAULT_TIME_RANGE } from "../constants/timeRanges";
 import { addAlert } from "../firebase/addAlert";
+import { editAlert } from "../firebase/editAlert";
 import { Alert, TimeRange } from "../types/Alert";
 import { Button, SecondaryButton } from "./atoms/Button";
 import { DayPicker } from "./editor/DayPicker";
@@ -28,54 +29,67 @@ const SaveFooter = styled(Padding)`
 `;
 
 interface Props {
+  alertToEdit: Partial<Alert>;
   onSave: () => void;
   onCancel: () => void;
 }
 
-export const AlertEditor = ({ onSave, onCancel }: Props) => {
+export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
   const dispatch = useAppDispatch();
   useEffect(() => {
-    const [classId] = Object.entries(STUDIOS).find(
-      ([_, value]) => value.location === "New York"
-    )!;
-    dispatch(fetchClassList(classId));
-  }, [dispatch]);
-  const selectedStudio = useAppSelector(selectStudio);
+    if (alertToEdit.studioId) {
+      dispatch(fetchClassList(alertToEdit.studioId));
+    } else {
+      const [classId] = Object.entries(STUDIOS).find(
+        ([_, value]) => value.location === "New York"
+      )!;
+      dispatch(fetchClassList(classId));
+    }
+  }, [alertToEdit.studioId, dispatch]);
+  const selectedStudioId = useAppSelector(selectStudioId);
   const userId = useAppSelector(selectUserId);
 
-  const [selectedInstructors, setSelectedInstructors] =
-    useState<Optional<string[]>>(null);
-  const [selectedDisciplines, setSelectedDisciplines] =
-    useState<Optional<string[]>>(null);
+  const [selectedInstructors, setSelectedInstructors] = useState<
+    Optional<string[]>
+  >(alertToEdit.instructors || null);
+  const [selectedDisciplines, setSelectedDisciplines] = useState<
+    Optional<string[]>
+  >(alertToEdit.disciplines || null);
   const [timeRanges, setTimeRanges] = useState<Optional<TimeRange>[]>(
-    DAY_NAMES.map(() => DEFAULT_TIME_RANGE)
+    alertToEdit.timeRanges || DAY_NAMES.map(() => DEFAULT_TIME_RANGE)
   );
 
-  // Reset all picked disciplines and instructors when the studio selection changes
-  useEffect(() => {
-    setSelectedInstructors((cur) => (cur ? [] : cur));
-    setSelectedDisciplines((cur) => (cur ? [] : cur));
-  }, [selectedStudio]);
+  // TODO: Reset all picked disciplines and instructors when the studio selection changes
+  // const lastStudioRef = useRef<string>(alertToEdit.studioId || null);
+  // useEffect(() => {
+  //   if (selectedStudioId !== lastStudioRef.current) {
+  //     lastStudioRef.current = selectStudioId;
+  //     setSelectedInstructors((cur) => (cur ? [] : cur));
+  //     setSelectedDisciplines((cur) => (cur ? [] : cur));
+  //   }
+  // }, [selectedStudioId]);
 
   const handleSave = () => {
-    const location = selectedStudio?.location;
-    if (!location) {
+    if (!selectedStudioId) {
       return;
     }
     if (!userId) {
       return;
     }
     const alert: Alert = {
-      id: null as any,
-      created: new Date().getTime(),
-      studio: location,
+      id: alertToEdit.id || (null as any),
+      created: alertToEdit.created || new Date().getTime(),
+      studioId: selectedStudioId,
       instructors: selectedInstructors,
       disciplines: selectedDisciplines,
       timeRanges,
       maxStatus: "free",
       numberOfWeeks: 3,
     };
-    addAlert(userId, alert)
+    const promise = alert.id
+      ? editAlert(userId, alert)
+      : addAlert(userId, alert);
+    promise
       .then(() => onSave())
       .catch((error) => {
         console.error(error);
@@ -84,7 +98,7 @@ export const AlertEditor = ({ onSave, onCancel }: Props) => {
 
   return (
     <form>
-      <h2>Add an alert</h2>
+      <h2>{alertToEdit.id ? "Edit" : "Add"} an alert</h2>
       <p>Pick from the following settings and hit "Save" when you're done.</p>
       <StudioGroup />
       <Padding>

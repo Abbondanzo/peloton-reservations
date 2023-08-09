@@ -1,4 +1,3 @@
-import { Location } from "../../class-list/types/Location";
 import { BookableStatus } from "../../filters/types/BookableStatus";
 
 export interface TimeRange {
@@ -14,5 +13,5 @@ export interface Alert {
   maxStatus: BookableStatus;
   numberOfWeeks: number;
   timeRanges: Optional<TimeRange>[];
-  studio: Location;
+  studioId: string;
 }
