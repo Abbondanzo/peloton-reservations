@@ -36,6 +36,9 @@ export const AlertsProvider = ({ children, userId }: Props) => {
         }
         const alerts: Alert[] = Object.entries(values).map(([key, value]) => ({
           ...value,
+          timeRanges: new Array(value.timeRanges.length)
+            .fill(null)
+            .map((_, index) => value.timeRanges[index] || null),
           id: key,
         }));
         setAlertsState({ state: "fulfilled", data: alerts });
