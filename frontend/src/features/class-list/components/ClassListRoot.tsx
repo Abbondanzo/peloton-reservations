@@ -7,10 +7,6 @@ import { STUDIOS } from "../constants/studios";
 import { fetchClassList } from "../slices/classListSlice";
 import { ClassListWrapper } from "./ClassListWrapper";
 
-interface ToggleProps {
-  toggleVisible: boolean;
-}
-
 const BodyWrapper = styled.div`
   flex: 1;
   display: flex;
@@ -19,7 +15,7 @@ const BodyWrapper = styled.div`
 `;
 
 interface ToggleProps {
-  toggleVisible: boolean;
+  $toggleVisible: boolean;
 }
 
 const SIDEBAR_WIDTH = 320;
@@ -35,7 +31,7 @@ const Sidebar = styled.aside<ToggleProps>`
       props.theme.widths.tablet}px) {
     position: absolute;
     transition: left 0.25s;
-    left: ${(props) => (props.toggleVisible ? 0 : -SIDEBAR_WIDTH)}px;
+    left: ${(props) => (props.$toggleVisible ? 0 : -SIDEBAR_WIDTH)}px;
     top: 0;
     bottom: 0;
   }
@@ -54,12 +50,12 @@ const MainContent = styled.div<ToggleProps>`
       position: fixed;
       background-color: rgba(0, 0, 0, 0.25);
       transition: opacity 0.25s;
-      opacity: ${(props) => (props.toggleVisible ? 1 : 0)};
+      opacity: ${(props) => (props.$toggleVisible ? 1 : 0)};
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-      pointer-events: ${(props) => (props.toggleVisible ? "all" : "none")};
+      pointer-events: ${(props) => (props.$toggleVisible ? "all" : "none")};
     }
   }
 
@@ -104,7 +100,7 @@ export const ClassListRoot = () => {
   return (
     <NavbarProvider>
       <BodyWrapper>
-        <Sidebar toggleVisible={sidebarVisible}>
+        <Sidebar $toggleVisible={sidebarVisible}>
           <FiltersWrapper
             onClose={() => {
               setSidebarVisible(false);
@@ -112,7 +108,7 @@ export const ClassListRoot = () => {
           />
         </Sidebar>
         <MainContent
-          toggleVisible={sidebarVisible}
+          $toggleVisible={sidebarVisible}
           onClick={() => {
             setSidebarVisible(false);
           }}

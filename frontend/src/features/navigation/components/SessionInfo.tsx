@@ -1,11 +1,18 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import styled from "styled-components";
+import { auth } from "../../firebase/constants/auth";
 import { selectSession } from "../../session/selectors/selectSession";
 import { useAppSelector } from "../../store/hooks/useStore";
+import { Popover } from "../../theme/components/Popover";
 import { Paths } from "../constants/paths";
-import styled from "styled-components";
 
-const SignInButton = styled(Link)`
+const SignInButton = styled.button`
+  background-color: transparent;
   color: inherit;
+  cursor: pointer;
+  font-size: inherit;
+  font-family: inherit;
   text-decoration: none;
   border: 1px solid #fff;
   border-radius: ${(props) => props.theme.borderRadius};
@@ -15,16 +22,50 @@ const SignInButton = styled(Link)`
   }
 `;
 
-export const SessionInfo = () => {
-  const state = useAppSelector(selectSession);
+const ButtonWrapper = styled.div`
+  position: relative;
+`;
 
-  if (state.loading) {
+const TextButtonWrapper = styled.button`
+  background-color: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: inherit;
+  font-family: inherit;
+  border: none;
+  width: 100%;
+  padding: 0.25em;
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+`;
+
+export const SessionInfo = () => {
+  const sessionState = useAppSelector(selectSession);
+  const [showPopover, setShowPopover] = useState(false);
+
+  if (sessionState.state === "loading") {
     return <p>Loading...</p>;
   }
 
-  if (!state.session) {
-    return <SignInButton to={Paths.SIGN_IN}>Sign In</SignInButton>;
+  if (sessionState.state !== "fulfilled" || !sessionState.data) {
+    return (
+      <Link to={Paths.SIGN_IN}>
+        <SignInButton>Sign In</SignInButton>
+      </Link>
+    );
   }
 
-  return <p>{state.session.id}</p>;
+  return (
+    <ButtonWrapper>
+      <SignInButton onClick={() => setShowPopover(true)}>
+        {sessionState.data.displayName}
+      </SignInButton>
+      <Popover open={showPopover} onClose={() => setShowPopover(false)}>
+        <TextButtonWrapper onClick={() => auth?.signOut()}>
+          Sign Out
+        </TextButtonWrapper>
+      </Popover>
+    </ButtonWrapper>
+  );
 };

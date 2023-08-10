@@ -1,10 +1,10 @@
 import styled from "styled-components";
+import { List } from "../../theme/components/List";
+import { ListItem } from "../../theme/components/ListItem";
+import { Padding } from "../../theme/components/Padding";
+import { SectionTitle } from "../../theme/components/SectionTitle";
 import { useBookableStatuses } from "../hooks/useBookableStatuses";
 import { BookableStatus } from "../types/BookableStatus";
-import { List } from "./atoms/List";
-import { ListItem } from "./atoms/ListItem";
-import { SectionTitle } from "./atoms/SectionTitle";
-import { Padding } from "./atoms/Padding";
 
 interface Option {
   label: string;

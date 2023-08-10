@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { hover } from "../constants/styles";
 
 export const ListItem = styled.li`
   display: flex;
@@ -8,7 +9,5 @@ export const ListItem = styled.li`
   user-select: none;
   min-height: 32px;
 
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-  }
+  ${hover}
 `;

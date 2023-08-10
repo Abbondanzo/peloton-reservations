@@ -1,11 +1,8 @@
-import { STUDIOS } from "./../constants/studios";
-import { RootState } from "./../../store/constants/store";
 import { createSelector } from "@reduxjs/toolkit";
+import { STUDIOS } from "./../constants/studios";
+import { selectStudioId } from "./selectStudioId";
 
-export const selectStudio = createSelector(
-  [(state: RootState) => state.classList],
-  (classList) => {
-    if (!classList.studioId) return undefined;
-    return STUDIOS[classList.studioId];
-  }
-);
+export const selectStudio = createSelector([selectStudioId], (studioId) => {
+  if (!studioId) return undefined;
+  return STUDIOS[studioId];
+});

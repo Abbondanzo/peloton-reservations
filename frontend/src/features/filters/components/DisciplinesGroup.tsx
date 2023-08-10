@@ -1,15 +1,15 @@
 import styled from "styled-components";
+import { DisciplineIcon } from "../../class-list/components/DisciplineIcon";
 import { Discipline } from "../../class-list/types/Discipline";
 import { useAppDispatch, useAppSelector } from "../../store/hooks/useStore";
+import { List } from "../../theme/components/List";
+import { ListItem } from "../../theme/components/ListItem";
+import { Padding } from "../../theme/components/Padding";
+import { SectionTitle } from "../../theme/components/SectionTitle";
 import { useDisciplineFilters } from "../hooks/useDisciplineFilters";
 import { selectSortedDisciplines } from "../selectors/selectSortedDisciplines";
 import { resetDisciplines } from "../slices/filtersSlice";
-import { List } from "./atoms/List";
-import { ListItem } from "./atoms/ListItem";
-import { Padding } from "./atoms/Padding";
 import { ResetButton } from "./atoms/ResetButton";
-import { SectionTitle } from "./atoms/SectionTitle";
-import { DisciplineIcon } from "../../class-list/components/DisciplineIcon";
 
 const SectionRow = styled.div`
   display: flex;
