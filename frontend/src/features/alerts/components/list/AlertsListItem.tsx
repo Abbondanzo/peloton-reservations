@@ -62,10 +62,11 @@ const EditorButtons = styled.div`
 
 interface Props {
   alert: Alert;
+  onDuplicate: () => void;
   onEdit: () => void;
 }
 
-export const AlertsListItem = ({ alert, onEdit }: Props) => {
+export const AlertsListItem = ({ alert, onDuplicate, onEdit }: Props) => {
   const userId = useAppSelector(selectUserId);
   const formattedDate = useMemo(() => {
     const formatter = new Intl.DateTimeFormat(undefined, {
@@ -92,6 +93,7 @@ export const AlertsListItem = ({ alert, onEdit }: Props) => {
             </Subtitle>
           </Metadata>
           <EditorButtons>
+            <button onClick={() => onDuplicate()}>Duplicate</button>
             <button onClick={() => onEdit()}>Edit</button>
             <button onClick={() => userId && deleteAlert(userId, alert.id)}>
               Delete

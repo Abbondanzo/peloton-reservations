@@ -9,11 +9,11 @@ const ListWrapper = styled.ul`
 
 interface Props {
   alerts: Alert[];
-  onEdit: (alert: Alert) => void;
   onDuplicate: (alert: Alert) => void;
+  onEdit: (alert: Alert) => void;
 }
 
-export const AlertsList = ({ alerts, onEdit }: Props) => {
+export const AlertsList = ({ alerts, onDuplicate, onEdit }: Props) => {
   if (alerts.length === 0) {
     return <p>No alerts. Begin by adding one below</p>;
   }
@@ -25,6 +25,7 @@ export const AlertsList = ({ alerts, onEdit }: Props) => {
             <AlertsListItem
               key={index}
               alert={alert}
+              onDuplicate={() => onDuplicate(alert)}
               onEdit={() => onEdit(alert)}
             />
           );

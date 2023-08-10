@@ -7,6 +7,7 @@ import { selectSession } from "../../session/selectors/selectSession";
 import { useAppSelector } from "../../store/hooks/useStore";
 import { Card } from "../../theme/components/Card";
 import { AlertsContext } from "../context/AlertsContext";
+import { AlertPreferencesProvider } from "../providers/AlertPreferencesProvider";
 import { AlertsProvider } from "../providers/AlertsProvider";
 import { Alert } from "../types/Alert";
 import { AlertEditor } from "./AlertEditor";
@@ -57,7 +58,7 @@ const AsyncAlertsList = ({
         onEdit={onEdit}
         onDuplicate={onDuplicate}
       />
-      <Button onClick={onAdd} style={{ marginTop: "2em" }}>
+      <Button onClick={onAdd} style={{ marginTop: "1em" }}>
         Add Alert
       </Button>
     </Card>
@@ -83,23 +84,25 @@ const AlertsBody = () => {
 
   return (
     <AlertsProvider userId={sessionState.data.id}>
-      {alertToEdit ? (
-        <Card>
-          <AlertEditor
-            alertToEdit={alertToEdit}
-            onSave={() => setAlertToEdit(undefined)}
-            onCancel={() => setAlertToEdit(undefined)}
+      <AlertPreferencesProvider userId={sessionState.data.id}>
+        {alertToEdit ? (
+          <Card>
+            <AlertEditor
+              alertToEdit={alertToEdit}
+              onSave={() => setAlertToEdit(undefined)}
+              onCancel={() => setAlertToEdit(undefined)}
+            />
+          </Card>
+        ) : (
+          <AsyncAlertsList
+            onAdd={() => setAlertToEdit({})}
+            onEdit={(alert) => setAlertToEdit(alert)}
+            onDuplicate={(alert: Alert) =>
+              setAlertToEdit({ ...alert, id: undefined, created: undefined })
+            }
           />
-        </Card>
-      ) : (
-        <AsyncAlertsList
-          onAdd={() => setAlertToEdit({})}
-          onEdit={(alert) => setAlertToEdit(alert)}
-          onDuplicate={(alert: Alert) =>
-            setAlertToEdit({ ...alert, id: null as any })
-          }
-        />
-      )}
+        )}
+      </AlertPreferencesProvider>
     </AlertsProvider>
   );
 };
