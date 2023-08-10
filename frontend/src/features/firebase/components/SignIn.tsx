@@ -30,8 +30,12 @@ export const SignIn = () => {
               provider: EmailAuthProvider.PROVIDER_ID,
               signInMethod: EmailAuthProvider.EMAIL_PASSWORD_SIGN_IN_METHOD,
             },
-            GoogleAuthProvider.PROVIDER_ID,
+            {
+              provider: GoogleAuthProvider.PROVIDER_ID,
+              signInMethod: GoogleAuthProvider.GOOGLE_SIGN_IN_METHOD,
+            },
           ],
+          signInFlow: "popup",
           callbacks: {
             signInSuccessWithAuthResult: () => {
               navigate(Paths.CLASS_LIST);
