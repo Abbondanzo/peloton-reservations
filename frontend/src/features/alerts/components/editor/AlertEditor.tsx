@@ -1,22 +1,22 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { STUDIOS } from "../../class-list/constants/studios";
-import { selectStudioId } from "../../class-list/selectors/selectStudioId";
-import { fetchClassList } from "../../class-list/slices/classListSlice";
-import { StudioGroup } from "../../filters/components/StudioGroup";
-import { selectUserId } from "../../session/selectors/selectUserId";
-import { useAppDispatch, useAppSelector } from "../../store/hooks/useStore";
-import { Padding } from "../../theme/components/Padding";
-import { SectionTitle } from "../../theme/components/SectionTitle";
-import { DAY_NAMES } from "../constants/days";
-import { DEFAULT_TIME_RANGE } from "../constants/timeRanges";
-import { addAlert } from "../firebase/addAlert";
-import { editAlert } from "../firebase/editAlert";
-import { Alert, TimeRange } from "../types/Alert";
-import { Button, SecondaryButton } from "./atoms/Button";
-import { DayPicker } from "./editor/DayPicker";
-import { DisciplinesPicker } from "./editor/DisciplinesPicker";
-import { InstructorsPicker } from "./editor/InstructorsPicker";
+import { STUDIOS } from "../../../class-list/constants/studios";
+import { selectStudioId } from "../../../class-list/selectors/selectStudioId";
+import { fetchClassList } from "../../../class-list/slices/classListSlice";
+import { StudioGroup } from "../../../filters/components/StudioGroup";
+import { selectUserId } from "../../../session/selectors/selectUserId";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks/useStore";
+import { Padding } from "../../../theme/components/Padding";
+import { SectionTitle } from "../../../theme/components/SectionTitle";
+import { DAY_NAMES } from "../../constants/days";
+import { DEFAULT_TIME_RANGE } from "../../constants/timeRanges";
+import { addAlert } from "../../firebase/addAlert";
+import { editAlert } from "../../firebase/editAlert";
+import { Alert, TimeRange } from "../../types/Alert";
+import { Button, SecondaryButton } from "../atoms/Button";
+import { DayPicker } from "./DayPicker";
+import { DisciplinesPicker } from "./DisciplinesPicker";
+import { InstructorsPicker } from "./InstructorsPicker";
 
 const SaveFooter = styled(Padding)`
   text-align: center;
@@ -121,7 +121,9 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
       </Padding>
       <SaveFooter>
         <SecondaryButton onClick={onCancel}>Cancel</SecondaryButton>
-        <Button onClick={handleSave}>Save</Button>
+        <Button type="button" onClick={handleSave}>
+          Save
+        </Button>
       </SaveFooter>
     </form>
   );

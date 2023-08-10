@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import { Alert } from "../types/Alert";
-import { AlertsListItem } from "./list/AlertsListItem";
+import { Alert } from "../../types/Alert";
+import { AlertsListItem } from "./AlertsListItem";
 
 const ListWrapper = styled.ul`
   list-style: none;

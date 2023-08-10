@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { NavbarProvider } from "../../navigation/components/NavbarProvider";
@@ -6,13 +6,11 @@ import { Paths } from "../../navigation/constants/paths";
 import { selectSession } from "../../session/selectors/selectSession";
 import { useAppSelector } from "../../store/hooks/useStore";
 import { Card } from "../../theme/components/Card";
-import { AlertsContext } from "../context/AlertsContext";
 import { AlertPreferencesProvider } from "../providers/AlertPreferencesProvider";
 import { AlertsProvider } from "../providers/AlertsProvider";
 import { Alert } from "../types/Alert";
-import { AlertEditor } from "./AlertEditor";
-import { AlertsList } from "./AlertsList";
-import { Button } from "./atoms/Button";
+import { AlertEditor } from "./editor/AlertEditor";
+import { AsyncAlertsList } from "./list/AsyncAlertsList";
 
 const Content = styled.div`
   margin: 0 auto;
@@ -25,60 +23,26 @@ const OverflowWrapper = styled.div`
   height: 100%;
 `;
 
-const AlertsLoading = () => {
-  return <p>Loading...</p>;
-};
-
-interface AsyncAlertsListProps {
-  onAdd: () => void;
-  onEdit: (alert: Alert) => void;
-  onDuplicate: (alert: Alert) => void;
-}
-
-const AsyncAlertsList = ({
-  onAdd,
-  onEdit,
-  onDuplicate,
-}: AsyncAlertsListProps) => {
-  const alertsState = useContext(AlertsContext);
-
-  if (alertsState.state === "loading" || alertsState.state === "idle") {
-    return <AlertsLoading />;
-  }
-
-  if (alertsState.state === "failed") {
-    return <p>Failed to load: {alertsState.error.message}</p>;
-  }
-
-  return (
-    <Card>
-      <h1>Alerts</h1>
-      <AlertsList
-        alerts={alertsState.data}
-        onEdit={onEdit}
-        onDuplicate={onDuplicate}
-      />
-      <Button onClick={onAdd} style={{ marginTop: "1em" }}>
-        Add Alert
-      </Button>
-    </Card>
-  );
-};
-
 const AlertsBody = () => {
   const sessionState = useAppSelector(selectSession);
   const [alertToEdit, setAlertToEdit] = useState<Partial<Alert>>();
 
   if (sessionState.state === "loading") {
-    return <AlertsLoading />;
+    return (
+      <Card>
+        <p>Loading...</p>
+      </Card>
+    );
   }
 
   if (sessionState.state !== "fulfilled" || !sessionState.data) {
     return (
-      <p>
-        You need to be logged in to create alerts. Sign in or create an account
-        by <Link to={Paths.SIGN_IN}>clicking here</Link>.
-      </p>
+      <Card>
+        <p>
+          You need to be logged in to create alerts. Sign in or create an
+          account by <Link to={Paths.SIGN_IN}>clicking here</Link>.
+        </p>
+      </Card>
     );
   }
 
