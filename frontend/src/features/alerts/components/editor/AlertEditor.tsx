@@ -120,7 +120,9 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
         <DayPicker timeRanges={timeRanges} setTimeRanges={setTimeRanges} />
       </Padding>
       <SaveFooter>
-        <SecondaryButton onClick={onCancel}>Cancel</SecondaryButton>
+        <SecondaryButton type="button" onClick={onCancel}>
+          Cancel
+        </SecondaryButton>
         <Button type="button" onClick={handleSave}>
           Save
         </Button>

@@ -114,6 +114,7 @@ export const ClassListRoot = () => {
           }}
         >
           <FiltersButton
+            type="button"
             onClick={(e: MouseEvent<HTMLButtonElement>) => {
               setSidebarVisible(true);
               e.stopPropagation();

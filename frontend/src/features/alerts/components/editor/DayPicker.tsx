@@ -164,6 +164,7 @@ export const DayPicker = ({ timeRanges, setTimeRanges }: Props) => {
 
               {timeRange && isFirstEditableTimeRange(timeRanges, index) && (
                 <CopyToAllButton
+                  type="button"
                   onClick={() => {
                     const newTimeRanges = timeRanges.map((tr) =>
                       tr ? timeRange : null

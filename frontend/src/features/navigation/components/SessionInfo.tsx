@@ -58,11 +58,11 @@ export const SessionInfo = () => {
 
   return (
     <ButtonWrapper>
-      <SignInButton onClick={() => setShowPopover(true)}>
+      <SignInButton type="button" onClick={() => setShowPopover(true)}>
         {sessionState.data.displayName}
       </SignInButton>
       <Popover open={showPopover} onClose={() => setShowPopover(false)}>
-        <TextButtonWrapper onClick={() => auth?.signOut()}>
+        <TextButtonWrapper type="button" onClick={() => auth?.signOut()}>
           Sign Out
         </TextButtonWrapper>
       </Popover>

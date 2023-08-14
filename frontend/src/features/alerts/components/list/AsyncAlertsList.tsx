@@ -47,7 +47,7 @@ export const AsyncAlertsList = ({ onAdd, onEdit, onDuplicate }: Props) => {
           onEdit={onEdit}
           onDuplicate={onDuplicate}
         />
-        <Button onClick={onAdd} style={{ marginTop: "1em" }}>
+        <Button type="button" onClick={onAdd} style={{ marginTop: "1em" }}>
           Add Alert
         </Button>
       </Card>

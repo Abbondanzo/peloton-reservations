@@ -93,9 +93,16 @@ export const AlertsListItem = ({ alert, onDuplicate, onEdit }: Props) => {
             </Subtitle>
           </Metadata>
           <EditorButtons>
-            <button onClick={() => onDuplicate()}>Duplicate</button>
-            <button onClick={() => onEdit()}>Edit</button>
-            <button onClick={() => userId && deleteAlert(userId, alert.id)}>
+            <button type="button" onClick={() => onDuplicate()}>
+              Duplicate
+            </button>
+            <button type="button" onClick={() => onEdit()}>
+              Edit
+            </button>
+            <button
+              type="button"
+              onClick={() => userId && deleteAlert(userId, alert.id)}
+            >
               Delete
             </button>
           </EditorButtons>
