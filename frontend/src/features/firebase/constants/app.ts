@@ -2,7 +2,7 @@ import { FirebaseOptions, initializeApp } from "firebase/app";
 import { safeInit } from "./../operators/safeInit";
 
 const firebaseConfig: FirebaseOptions = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  apiKey: "AIzaSyAMtG6b23AqO2WbJ2ad8SKMXD1X4tfALtc",
   authDomain: "peloton-alerts.firebaseapp.com",
   projectId: "peloton-alerts",
   storageBucket: "peloton-alerts.appspot.com",

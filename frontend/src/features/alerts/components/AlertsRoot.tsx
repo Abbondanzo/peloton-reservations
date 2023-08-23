@@ -9,6 +9,7 @@ import { Card } from "../../theme/components/Card";
 import { AlertPreferencesProvider } from "../providers/AlertPreferencesProvider";
 import { AlertsProvider } from "../providers/AlertsProvider";
 import { Alert } from "../types/Alert";
+import { NotificationRequester } from "./NotificationRequester";
 import { AlertEditor } from "./editor/AlertEditor";
 import { AsyncAlertsList } from "./list/AsyncAlertsList";
 
@@ -49,6 +50,7 @@ const AlertsBody = () => {
   return (
     <AlertsProvider userId={sessionState.data.id}>
       <AlertPreferencesProvider userId={sessionState.data.id}>
+        <NotificationRequester />
         {alertToEdit ? (
           <Card>
             <AlertEditor
