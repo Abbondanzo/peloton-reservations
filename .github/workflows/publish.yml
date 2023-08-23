@@ -53,7 +53,7 @@ jobs:
       - name: Upload sourcemaps
         run: npm run sentry-sourcemaps
         env:
-          SENTRY_AUTH_TOKEN: ${{ vars.SENTRY_AUTH_TOKEN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         working-directory: ./frontend
       - name: Upload artifacts
         uses: actions/upload-pages-artifact@v1
