@@ -1,12 +1,12 @@
 import * as Sentry from "@sentry/react";
 
 export const initialize = () => {
+  if (process.env.NODE_ENV === "development") {
+    return;
+  }
+
   const sampleRate =
-    "SAMPLE_RATE" in process.env
-      ? Number(process.env.SAMPLE_RATE)
-      : process.env.NODE_ENV === "development"
-      ? 1.0
-      : 0.1;
+    "SAMPLE_RATE" in process.env ? Number(process.env.SAMPLE_RATE) : 0.1;
 
   Sentry.init({
     environment: process.env.NODE_ENV,
