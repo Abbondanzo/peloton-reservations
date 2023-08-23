@@ -1,6 +1,7 @@
 import { Provider } from "react-redux";
 import { RouterProvider } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
+import { MessagingProvider } from "./features/alerts/providers/MessagingProvider";
 import { router } from "./features/navigation/constants/router";
 import { SessionProvider } from "./features/session/components/SessionProvider";
 import { store } from "./features/store/constants/store";
@@ -11,7 +12,9 @@ function App() {
     <ThemeProvider theme={theme}>
       <Provider store={store}>
         <SessionProvider>
-          <RouterProvider router={router} />
+          <MessagingProvider>
+            <RouterProvider router={router} />
+          </MessagingProvider>
         </SessionProvider>
       </Provider>
     </ThemeProvider>
