@@ -3,6 +3,7 @@ import { useCallback, useState } from "react";
 import styled from "styled-components";
 import { Card } from "../../theme/components/Card";
 import { Button } from "./atoms/Button";
+import { isIOS } from "../../messaging/operators/isIOS";
 
 const CardWithBottomMargin = styled(Card)`
   margin-bottom: 1em;
@@ -10,6 +11,10 @@ const CardWithBottomMargin = styled(Card)`
 
 const ButtonWithTopMargin = styled(Button)`
   margin-top: 1em;
+`;
+
+const WarningTitle = styled.h2`
+  color: ${(props) => props.theme.colors.accent};
 `;
 
 export const NotificationRequester = () => {
@@ -33,13 +38,27 @@ export const NotificationRequester = () => {
     }
   }, []);
 
-  if (permission === undefined) {
+  if (permission === undefined || !("serviceWorker" in navigator)) {
+    if (isIOS()) {
+      return (
+        <CardWithBottomMargin>
+          <WarningTitle>Unsupported Browser</WarningTitle>
+          <p>
+            Notifications are not supported by iOS's Safari browser. In order to
+            receive notifications, you must add this app to your home screen.
+            Alerts for new classes will only display if you keep this tab open.
+          </p>
+        </CardWithBottomMargin>
+      );
+    }
+
     return (
       <CardWithBottomMargin>
-        <h2>Unsupported Browser</h2>
+        <WarningTitle>Unsupported Browser</WarningTitle>
         <p>
-          This browser does not support the notification API and we cannot
-          notify you using it
+          This browser does not support sending you notifications in the
+          background. Alerts for new classes will only display if you keep this
+          tab open.
         </p>
       </CardWithBottomMargin>
     );

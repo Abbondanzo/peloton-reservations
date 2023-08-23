@@ -63,7 +63,11 @@ export async function register(): Promise<ServiceWorkerRegistration> {
       return registerValidSW(swUrl);
     }
   } else {
-    return Promise.reject(new Error("serviceWorker not found in navigator"));
+    return Promise.reject(
+      new Error(
+        "Browser does not support service workers: serviceWorker not found in navigator"
+      )
+    );
   }
 }
 

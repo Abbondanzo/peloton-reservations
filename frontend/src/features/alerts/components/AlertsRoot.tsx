@@ -50,7 +50,6 @@ const AlertsBody = () => {
   return (
     <AlertsProvider userId={sessionState.data.id}>
       <AlertPreferencesProvider userId={sessionState.data.id}>
-        <NotificationRequester />
         {alertToEdit ? (
           <Card>
             <AlertEditor
@@ -78,6 +77,7 @@ export const AlertsRoot = () => {
     <NavbarProvider>
       <OverflowWrapper>
         <Content>
+          <NotificationRequester />
           <AlertsBody />
         </Content>
       </OverflowWrapper>
