@@ -29,7 +29,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "service-worker": "npm run build && ln build/service-worker.js public/service-worker.js"
+    "service-worker": "npm run build && ln build/service-worker.js public/service-worker.js",
+    "sentry-sourcemaps": "sentry-cli sourcemaps inject --org titus-design --project peloton-reservations ./build && sentry-cli sourcemaps upload --org titus-design --project peloton-reservations ./build"
   },
   "eslintConfig": {
     "extends": [

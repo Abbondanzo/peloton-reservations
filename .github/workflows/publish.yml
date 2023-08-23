@@ -50,6 +50,9 @@ jobs:
       - name: Build project
         run: npm run build
         working-directory: ./frontend
+      - name: Upload sourcemaps
+        run: npm run sentry-sourcemaps
+        working-directory: ./frontend
       - name: Upload artifacts
         uses: actions/upload-pages-artifact@v1
         with:

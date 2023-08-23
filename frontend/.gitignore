@@ -25,3 +25,6 @@ yarn-error.log*
 
 # Environment variables
 .env
+
+# Sentry Auth Token
+.sentryclirc
