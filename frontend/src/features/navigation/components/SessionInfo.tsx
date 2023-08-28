@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { auth } from "../../firebase/constants/auth";
@@ -6,6 +6,7 @@ import { selectSession } from "../../session/selectors/selectSession";
 import { useAppSelector } from "../../store/hooks/useStore";
 import { Popover } from "../../theme/components/Popover";
 import { Paths } from "../constants/paths";
+import { MessagingContext } from "../../messaging/context/MessagingContext";
 
 const SignInButton = styled.button`
   background-color: transparent;
@@ -43,6 +44,12 @@ const TextButtonWrapper = styled.button`
 export const SessionInfo = () => {
   const sessionState = useAppSelector(selectSession);
   const [showPopover, setShowPopover] = useState(false);
+  const { deleteToken } = useContext(MessagingContext);
+
+  const onSignOut = useCallback(async () => {
+    await deleteToken();
+    await auth?.signOut();
+  }, [deleteToken]);
 
   if (sessionState.state === "loading") {
     return <p>Loading...</p>;
@@ -62,7 +69,7 @@ export const SessionInfo = () => {
         {sessionState.data.displayName}
       </SignInButton>
       <Popover open={showPopover} onClose={() => setShowPopover(false)}>
-        <TextButtonWrapper type="button" onClick={() => auth?.signOut()}>
+        <TextButtonWrapper type="button" onClick={onSignOut}>
           Sign Out
         </TextButtonWrapper>
       </Popover>
