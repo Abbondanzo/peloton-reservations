@@ -1,4 +1,4 @@
-import { set, ref } from "@firebase/database";
+import { ref, set } from "@firebase/database";
 import { database } from "../../firebase/constants/database";
 
 export const setToken = async (

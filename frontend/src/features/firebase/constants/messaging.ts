@@ -7,9 +7,18 @@ export const messaging = safeInit(() => getMessaging(app));
 
 let asyncServiceWorkerRegistration = register();
 
+const hasNotificationSupport =
+  "serviceWorker" in navigator &&
+  "PushManager" in window &&
+  "Notification" in window &&
+  "fetch" in window;
+
 export const getAppToken = async () => {
   if (!messaging) {
     throw new Error("Messaging is not set up");
+  }
+  if (!hasNotificationSupport) {
+    throw new Error("Browser environment does not allow messaging");
   }
   let registration: ServiceWorkerRegistration;
   try {

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { NotificationRequester } from "../../messaging/components/NotificationRequester";
 import { NavbarProvider } from "../../navigation/components/NavbarProvider";
 import { Paths } from "../../navigation/constants/paths";
 import { selectSession } from "../../session/selectors/selectSession";
@@ -9,7 +10,6 @@ import { Card } from "../../theme/components/Card";
 import { AlertPreferencesProvider } from "../providers/AlertPreferencesProvider";
 import { AlertsProvider } from "../providers/AlertsProvider";
 import { Alert } from "../types/Alert";
-import { NotificationRequester } from "./NotificationRequester";
 import { AlertEditor } from "./editor/AlertEditor";
 import { AsyncAlertsList } from "./list/AsyncAlertsList";
 
@@ -50,7 +50,6 @@ const AlertsBody = () => {
   return (
     <AlertsProvider userId={sessionState.data.id}>
       <AlertPreferencesProvider userId={sessionState.data.id}>
-        <NotificationRequester />
         {alertToEdit ? (
           <Card>
             <AlertEditor
@@ -78,6 +77,7 @@ export const AlertsRoot = () => {
     <NavbarProvider>
       <OverflowWrapper>
         <Content>
+          <NotificationRequester />
           <AlertsBody />
         </Content>
       </OverflowWrapper>
