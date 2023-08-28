@@ -88,14 +88,15 @@ if (app) {
       "[firebase-messaging-sw.js] Received background message ",
       payload
     );
-    // Customize notification here
-    if (!payload.notification) return;
-    const { title, body } = payload.notification;
+    // FCM will automatically display notifications. Do not handle them
+    if (payload.notification) return;
+    // Check for data-based notifications
+    if (!payload.data) return;
+    const { title, body } = payload.data;
     if (!title) return;
     const notificationOptions = {
       body,
     };
-
     self.registration.showNotification(title, notificationOptions);
   });
 }
