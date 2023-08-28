@@ -1,7 +1,7 @@
-import { ref, set } from "@firebase/database";
+import { ref, remove } from "@firebase/database";
 import { database } from "../../firebase/constants/database";
 
-export const setToken = async (
+export const deleteToken = async (
   userId: string,
   token: string
 ): Promise<void> => {
@@ -10,7 +10,5 @@ export const setToken = async (
     throw new Error("No Firebase database connection to use");
   }
   const tokenRef = ref(db, `messagingTokens/${userId}/${token}`);
-  await set(tokenRef, {
-    timestamp: new Date().getTime(),
-  });
+  await remove(tokenRef,);
 };
