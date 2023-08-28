@@ -1,9 +1,10 @@
 import { captureException } from "@sentry/react";
-import { useCallback, useState } from "react";
+import { useCallback, useContext, useState } from "react";
 import styled from "styled-components";
+import { Button } from "../../alerts/components/atoms/Button";
 import { Card } from "../../theme/components/Card";
-import { Button } from "./atoms/Button";
-import { isIOS } from "../../messaging/operators/isIOS";
+import { MessagingContext } from "../context/MessagingContext";
+import { isIOS } from "../operators/isIOS";
 
 const CardWithBottomMargin = styled(Card)`
   margin-bottom: 1em;
@@ -21,6 +22,7 @@ export const NotificationRequester = () => {
   const [permission, setPermission] = useState<
     NotificationPermission | undefined
   >(window.Notification ? window.Notification.permission : undefined);
+  const { refreshToken } = useContext(MessagingContext);
 
   const requestPermission = useCallback(() => {
     if (
@@ -30,13 +32,16 @@ export const NotificationRequester = () => {
       window.Notification.requestPermission()
         .then((permission) => {
           setPermission(permission);
+          if (permission === "granted") {
+            refreshToken();
+          }
         })
         .catch((error) => {
           console.error(error);
           captureException(error);
         });
     }
-  }, []);
+  }, [refreshToken]);
 
   if (permission === undefined || !("serviceWorker" in navigator)) {
     if (isIOS()) {
