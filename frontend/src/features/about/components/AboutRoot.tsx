@@ -5,10 +5,14 @@ import { Link } from "react-router-dom";
 import { Paths } from "../../navigation/constants/paths";
 
 const BodyWrapper = styled.div`
-  padding: 1em;
   margin: 0 auto;
   max-width: 960px;
   line-height: 1.5;
+  padding: 16px;
+  @media only screen and (max-width: ${(props) =>
+      props.theme.widths.mobile}px) {
+    padding: 8px;
+  }
 `;
 
 export const AboutRoot = () => {

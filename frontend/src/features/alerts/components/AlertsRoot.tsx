@@ -16,7 +16,11 @@ import { AsyncAlertsList } from "./list/AsyncAlertsList";
 const Content = styled.div`
   margin: 0 auto;
   max-width: 960px;
-  padding: 1em 0;
+  padding: 16px;
+  @media only screen and (max-width: ${(props) =>
+      props.theme.widths.mobile}px) {
+    padding: 8px;
+  }
 `;
 
 const OverflowWrapper = styled.div`
