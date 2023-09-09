@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { Paths } from "../constants/paths";
+import { MobileSidebar } from "./MobileSidebar";
 import { SessionInfo } from "./SessionInfo";
 // import { SessionInfo } from "./SessionInfo";
 
@@ -33,7 +35,7 @@ const Title = styled.h1`
   font-size: 20px;
 `;
 
-const RightGap = styled.div`
+const RouteWrapper = styled.div`
   display: flex;
   column-gap: 4em;
   align-items: center;
@@ -47,7 +49,57 @@ const Routes = styled.ul`
   column-gap: 1.5em;
 `;
 
+const IconWrapper = styled.div`
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+`;
+
+const MenuIcon = styled.span`
+  display: block;
+  position: relative;
+
+  &,
+  &:before,
+  &:after {
+    width: 100%;
+    display: block;
+    height: 2px;
+    background-color: #fff;
+  }
+  &:before,
+  &:after {
+    content: "";
+    position: absolute;
+  }
+  &:before {
+    top: -6px;
+  }
+  &:after {
+    top: 6px;
+  }
+`;
+
+const ShowOnTablet = styled.div`
+  display: none;
+  @media only screen and (max-width: ${(props) =>
+      props.theme.widths.tablet}px) {
+    display: block;
+  }
+`;
+
+const HideOnTablet = styled.div`
+  @media only screen and (max-width: ${(props) =>
+      props.theme.widths.tablet}px) {
+    display: none;
+  }
+`;
+
 export const Navbar = () => {
+  const [sidebarVisible, setSidebarVisible] = useState(false);
+
   return (
     <Wrapper>
       <Link to={Paths.CLASS_LIST}>
@@ -56,14 +108,25 @@ export const Navbar = () => {
           <Title>Peloton Alerts</Title>
         </HorizontalFlex>
       </Link>
-      <RightGap>
-        <Routes>
-          <Link to={Paths.CLASS_LIST}>Class List</Link>
-          <Link to={Paths.ALERTS}>Alerts</Link>
-          <Link to={Paths.ABOUT}>FAQ</Link>
-        </Routes>
-        <SessionInfo />
-      </RightGap>
+      <HideOnTablet>
+        <RouteWrapper>
+          <Routes>
+            <Link to={Paths.CLASS_LIST}>Class List</Link>
+            <Link to={Paths.ALERTS}>Alerts</Link>
+            <Link to={Paths.ABOUT}>FAQ</Link>
+          </Routes>
+          <SessionInfo />
+        </RouteWrapper>
+      </HideOnTablet>
+      <ShowOnTablet>
+        <IconWrapper onClick={() => setSidebarVisible(true)}>
+          <MenuIcon />
+        </IconWrapper>
+        <MobileSidebar
+          open={sidebarVisible}
+          onClose={() => setSidebarVisible(false)}
+        />
+      </ShowOnTablet>
     </Wrapper>
   );
 };
