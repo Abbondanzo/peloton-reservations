@@ -19,6 +19,16 @@ const Wrapper = styled.nav`
   }
 `;
 
+const HorizontalFlex = styled.div`
+  display: flex;
+  column-gap: 8px;
+`;
+
+const Logo = styled.img`
+  width: 24px;
+  height: auto;
+`;
+
 const Title = styled.h1`
   font-size: 20px;
 `;
@@ -41,7 +51,10 @@ export const Navbar = () => {
   return (
     <Wrapper>
       <Link to={Paths.CLASS_LIST}>
-        <Title>Peloton Alerts</Title>
+        <HorizontalFlex>
+          <Logo src={`${process.env.PUBLIC_URL}/icon.svg`} alt="Logo" />
+          <Title>Peloton Alerts</Title>
+        </HorizontalFlex>
       </Link>
       <RightGap>
         <Routes>
