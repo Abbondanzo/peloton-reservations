@@ -1,6 +1,6 @@
 {
-  "short_name": "Peloton Reservations",
-  "name": "Peloton Reservations",
+  "short_name": "Peloton Alerts",
+  "name": "Peloton Alerts",
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",
