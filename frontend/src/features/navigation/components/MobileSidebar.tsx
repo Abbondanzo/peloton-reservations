@@ -1,6 +1,7 @@
 import { MouseEvent } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { CloseButton } from "../../theme/components/CloseButton";
 import { Paths } from "../constants/paths";
 import { MobileSessionInfo } from "./MobileSessionInfo";
 
@@ -40,33 +41,10 @@ const SidebarWrapper = styled.div<ToggleProps>`
   background-color: ${(props) => props.theme.colors.mainSurface};
 `;
 
-const CloseIcon = styled.span`
-  width: 24px;
-  height: 24px;
-  margin: 16px;
-  float: right;
-  display: block;
-  position: relative;
-  cursor: pointer;
-  align-self: flex-end;
-
-  &:before,
-  &:after {
-    content: "";
-    display: block;
-    position: absolute;
-    width: 100%;
-    top: 50%;
-    height: 2px;
-    background-color: ${(props) => props.theme.colors.main};
-    transition-duration: 0.25s;
-  }
-  &:before {
-    transform: rotate(45deg);
-  }
-  &:after {
-    transform: rotate(-45deg);
-  }
+const AbsoluteCloseButton = styled(CloseButton)`
+  position: absolute;
+  top: 0;
+  right: 0;
 `;
 
 const RoutesTitle = styled.h2`
@@ -115,7 +93,7 @@ export const MobileSidebar = ({ open, onClose }: Props) => {
           e.stopPropagation();
         }}
       >
-        <CloseIcon onClick={() => onClose()} />
+        <AbsoluteCloseButton onClick={() => onClose()} />
         <RoutesTitle>Links</RoutesTitle>
         <Routes onClick={() => onClose()}>
           <RouteItem to={Paths.CLASS_LIST} onClick={console.log}>
