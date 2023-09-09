@@ -69,6 +69,11 @@ const CloseIcon = styled.span`
   }
 `;
 
+const RoutesTitle = styled.h2`
+  padding: 16px;
+  margin: 0;
+`;
+
 const Routes = styled.ul`
   list-style: none;
   margin: 0;
@@ -86,6 +91,7 @@ const RouteItem = styled(Link)`
 
 const SessionInfoWrapper = styled.div`
   margin: 16px;
+  margin-top: 32px;
   display: flex;
   flex-direction: column;
 `;
@@ -110,6 +116,7 @@ export const MobileSidebar = ({ open, onClose }: Props) => {
         }}
       >
         <CloseIcon onClick={() => onClose()} />
+        <RoutesTitle>Links</RoutesTitle>
         <Routes onClick={() => onClose()}>
           <RouteItem to={Paths.CLASS_LIST} onClick={console.log}>
             Class List

@@ -24,6 +24,15 @@ const SignInButton = styled.button`
   }
 `;
 
+const SignedInWrapper = styled.div``;
+
+const InfoWrapper = styled.div`
+  margin-bottom: 8px;
+  text-align: center;
+  font-size: 12px;
+  color: ${(props) => props.theme.colors.secondary};
+`;
+
 export const MobileSessionInfo = () => {
   const sessionState = useAppSelector(selectSession);
   const { deleteToken } = useContext(MessagingContext);
@@ -46,8 +55,11 @@ export const MobileSessionInfo = () => {
   }
 
   return (
-    <SignInButton type="button" onClick={onSignOut}>
-      Sign Out
-    </SignInButton>
+    <SignedInWrapper>
+      <InfoWrapper>Signed in as: {sessionState.data.displayName}</InfoWrapper>
+      <SignInButton type="button" onClick={onSignOut}>
+        Sign Out
+      </SignInButton>
+    </SignedInWrapper>
   );
 };
