@@ -82,17 +82,19 @@ const MenuIcon = styled.span`
   }
 `;
 
-const ShowOnTablet = styled.div`
+const WIDTH_PADDING = 120;
+
+const ShowExpandingMenu = styled.div`
   display: none;
   @media only screen and (max-width: ${(props) =>
-      props.theme.widths.tablet}px) {
+      props.theme.widths.mobile + WIDTH_PADDING}px) {
     display: block;
   }
 `;
 
-const HideOnTablet = styled.div`
+const HideExpandingMenu = styled.div`
   @media only screen and (max-width: ${(props) =>
-      props.theme.widths.tablet}px) {
+      props.theme.widths.mobile + WIDTH_PADDING}px) {
     display: none;
   }
 `;
@@ -108,7 +110,7 @@ export const Navbar = () => {
           <Title>Peloton Alerts</Title>
         </HorizontalFlex>
       </Link>
-      <HideOnTablet>
+      <HideExpandingMenu>
         <RouteWrapper>
           <Routes>
             <Link to={Paths.CLASS_LIST}>Class List</Link>
@@ -117,8 +119,8 @@ export const Navbar = () => {
           </Routes>
           <SessionInfo />
         </RouteWrapper>
-      </HideOnTablet>
-      <ShowOnTablet>
+      </HideExpandingMenu>
+      <ShowExpandingMenu>
         <IconWrapper onClick={() => setSidebarVisible(true)}>
           <MenuIcon />
         </IconWrapper>
@@ -126,7 +128,7 @@ export const Navbar = () => {
           open={sidebarVisible}
           onClose={() => setSidebarVisible(false)}
         />
-      </ShowOnTablet>
+      </ShowExpandingMenu>
     </Wrapper>
   );
 };
