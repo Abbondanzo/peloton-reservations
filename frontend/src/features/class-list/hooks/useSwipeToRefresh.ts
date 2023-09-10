@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 
 // Amount of pixels to drag from the top to trigger a refetch
-const REFRESH_THRESHOLD = 100;
+const REFRESH_THRESHOLD = 200;
 
 interface Options {
   refresh: () => Promise<void>;
@@ -17,7 +17,8 @@ export const useSwipeToRefresh = ({ refresh }: Options) => {
   const requiresSwipeToRefresh = useMemo(() => {
     return (
       !!(navigator as any).standalone ||
-      window.matchMedia("(display-mode: standalone)").matches
+      window.matchMedia("(display-mode: standalone)").matches ||
+      process.env.NODE_ENV === "development"
     );
   }, []);
 
@@ -38,12 +39,14 @@ export const useSwipeToRefresh = ({ refresh }: Options) => {
       const touchY = event.touches[0].clientY;
       const touchDiff = touchY - touchStartY;
       if (touchDiff >= 0) {
+        const opacity = Math.pow(Math.min(touchDiff / REFRESH_THRESHOLD, 1), 2);
         const angle = Math.floor((touchDiff / REFRESH_THRESHOLD) * 360);
         if (currentSpinnerRef) {
           currentSpinnerRef.style.transform = `translateY(${Math.min(
             touchDiff,
             spinnerHeight + 8
           )}px) rotate(${angle}deg) `;
+          currentSpinnerRef.style.opacity = `${opacity}`;
         }
       }
       shouldRefresh = touchDiff > REFRESH_THRESHOLD;

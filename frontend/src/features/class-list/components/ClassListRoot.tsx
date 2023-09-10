@@ -74,7 +74,7 @@ const SpinnerContainer = styled.div`
   position: absolute;
   left: 0;
   width: 100%;
-  top: -${SPINNER_SIZE + 10}px;
+  top: -50px;
   text-align: center;
 `;
 
