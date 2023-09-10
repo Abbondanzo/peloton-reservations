@@ -9,7 +9,7 @@ const initialState: AlertState = {
   alerts: [],
 };
 
-export const alertsSlice = createSlice({
+const alertsSlice = createSlice({
   name: "alerts",
   initialState,
   // The `reducers` field lets us define reducers and generate associated actions

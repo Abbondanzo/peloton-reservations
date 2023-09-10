@@ -24,7 +24,7 @@ const initialState: FilterState = {
   selectedDisciplines: getDisciplinesSearchParams([]),
 };
 
-export const filtersSlice = createSlice({
+const filtersSlice = createSlice({
   name: "filters",
   initialState,
   // The `reducers` field lets us define reducers and generate associated actions

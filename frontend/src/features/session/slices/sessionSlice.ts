@@ -6,7 +6,7 @@ const initialState = {
   state: "idle",
 } as AsyncData<Session | null>;
 
-export const sessionSlice = createSlice({
+const sessionSlice = createSlice({
   name: "session",
   initialState,
   reducers: {
