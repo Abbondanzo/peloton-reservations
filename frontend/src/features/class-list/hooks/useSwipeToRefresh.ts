@@ -27,8 +27,7 @@ export const useSwipeToRefresh = ({ refresh }: Options) => {
       const touchY = event.touches[0].clientY;
       const touchDiff = touchY - touchStartY;
       if (touchDiff >= 0) {
-        const pct = Math.min(touchDiff / REFRESH_THRESHOLD, 1);
-        const angle = Math.floor(pct * 360);
+        const angle = Math.floor((touchDiff / REFRESH_THRESHOLD) * 360);
         if (currentSpinnerRef) {
           currentSpinnerRef.style.transform = `translateY(${Math.min(
             touchDiff,
@@ -38,7 +37,7 @@ export const useSwipeToRefresh = ({ refresh }: Options) => {
       }
       shouldRefresh = touchDiff > REFRESH_THRESHOLD && window.scrollY === 0;
     };
-    const touchEnd = (event: TouchEvent) => {
+    const touchEnd = () => {
       if (shouldRefresh) {
         if (currentSpinnerRef) {
           currentSpinnerRef.classList.add("animate");
