@@ -19,6 +19,7 @@ const BodyWrapper = styled.div`
   flex: 1;
   height: calc(100% - ${HEIGHT}px);
   background-color: ${(props) => props.theme.colors.secondarySurface};
+  overflow-y: auto;
 `;
 
 interface Props {

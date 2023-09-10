@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getClasses } from "../api/getClasses";
+import { STUDIOS } from "../constants/studios";
 import { Class } from "../types/Class";
 import { Discipline } from "../types/Discipline";
 import { Instructor } from "../types/Instructor";
@@ -24,11 +25,14 @@ interface FailedState {
 type FetchState = LoadingState | FulfilledState | FailedState;
 
 export interface ClassListState {
-  studioId?: string;
+  studioId: string;
   classLists: { [key: string]: FetchState };
 }
 
 const initialState: ClassListState = {
+  studioId: Object.entries(STUDIOS).find(
+    ([_, value]) => value.location === "New York"
+  )![0],
   classLists: {},
 };
 
@@ -70,7 +74,7 @@ export const fetchClassList = createAsyncThunk(
   }
 );
 
-export const classListSlice = createSlice({
+const classListSlice = createSlice({
   name: "classList",
   initialState,
   // The `reducers` field lets us define reducers and generate associated actions
