@@ -6,12 +6,7 @@ import { useHydrateClassList } from "../hooks/useHydrateClassList";
 import { useSwipeToRefresh } from "../hooks/useSwipeToRefresh";
 import { ClassListWrapper } from "./ClassListWrapper";
 
-const BodyWrapper = styled.div`
-  flex: 1;
-  display: flex;
-  height: 100%;
-  min-height: 100%;
-`;
+const BodyWrapper = styled.div``;
 
 interface ToggleProps {
   $toggleVisible: boolean;
@@ -22,9 +17,12 @@ const SIDEBAR_WIDTH = 320;
 const Sidebar = styled.aside<ToggleProps>`
   max-width: 100%;
   width: ${SIDEBAR_WIDTH}px;
-  overflow: auto;
+  top: 60px;
+  bottom: 0;
+  overflow-y: auto;
   background-color: ${(props) => props.theme.colors.mainSurface};
   z-index: 1;
+  position: fixed;
 
   @media only screen and (max-width: ${(props) =>
       props.theme.widths.tablet}px) {
@@ -39,14 +37,15 @@ const Sidebar = styled.aside<ToggleProps>`
 
 const MainContent = styled.div<ToggleProps>`
   flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
   background-color: ${(props) => props.theme.colors.secondarySurface};
   padding: 16px;
   position: relative;
+  margin-left: ${SIDEBAR_WIDTH}px;
 
   @media only screen and (max-width: ${(props) =>
       props.theme.widths.tablet}px) {
+    margin-left: 0;
+
     &:before {
       content: "";
       position: fixed;
@@ -73,7 +72,7 @@ const SpinnerContainer = styled.div`
   padding-top: 10px;
   position: absolute;
   left: 0;
-  width: 100vw;
+  width: 100%;
   top: -${SPINNER_SIZE + 10}px;
   text-align: center;
 `;
