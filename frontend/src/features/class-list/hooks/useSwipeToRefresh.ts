@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 // Amount of pixels to drag from the top to trigger a refetch
 const REFRESH_THRESHOLD = 100;
@@ -7,11 +7,22 @@ interface Options {
   refresh: () => Promise<void>;
 }
 
+/**
+ * iOS disables swipe-to-refresh on PWAs added to the home screen, so we have to compute it ourselves.
+ */
 export const useSwipeToRefresh = ({ refresh }: Options) => {
   const swipeRef = useRef<HTMLDivElement>(null);
   const spinnerRef = useRef<HTMLDivElement>(null);
 
+  const requiresSwipeToRefresh = useMemo(() => {
+    return (
+      !!(navigator as any).standalone ||
+      window.matchMedia("(display-mode: standalone)").matches
+    );
+  }, []);
+
   useEffect(() => {
+    if (!requiresSwipeToRefresh) return () => {};
     const currentRef = swipeRef.current;
     const currentSpinnerRef = spinnerRef.current;
     const spinnerHeight = currentSpinnerRef
@@ -62,7 +73,7 @@ export const useSwipeToRefresh = ({ refresh }: Options) => {
       currentRef?.removeEventListener("touchmove", touchMove);
       currentRef?.removeEventListener("touchend", touchEnd);
     };
-  }, [refresh]);
+  }, [refresh, requiresSwipeToRefresh]);
 
   return { swipeRef, spinnerRef };
 };
