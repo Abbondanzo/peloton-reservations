@@ -50,6 +50,7 @@ export const useSwipeToRefresh = ({ refresh }: Options) => {
     };
     const touchEnd = () => {
       if (shouldRefresh) {
+        shouldRefresh = false;
         if (currentSpinnerRef) {
           currentSpinnerRef.classList.add("animate");
         }
