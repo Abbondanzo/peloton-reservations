@@ -22,6 +22,7 @@ const Wrapper = styled.div<ToggleProps>`
     right: 0;
     bottom: 0;
     pointer-events: ${(props) => (props.$open ? "all" : "none")};
+    z-index: 1;
   }
 `;
 
@@ -39,6 +40,7 @@ const SidebarWrapper = styled.div<ToggleProps>`
   width: ${SIDEBAR_WIDTH}px;
   overflow: auto;
   background-color: ${(props) => props.theme.colors.mainSurface};
+  z-index: 2;
 `;
 
 const AbsoluteCloseButton = styled(CloseButton)`

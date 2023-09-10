@@ -1,10 +1,9 @@
-import { useEffect, useState, MouseEvent } from "react";
+import { MouseEvent, useState } from "react";
 import styled from "styled-components";
 import { FiltersWrapper } from "../../filters/components/FiltersWrapper";
 import { NavbarProvider } from "../../navigation/components/NavbarProvider";
-import { useAppDispatch } from "../../store/hooks/useStore";
-import { STUDIOS } from "../constants/studios";
-import { fetchClassList } from "../slices/classListSlice";
+import { useHydrateClassList } from "../hooks/useHydrateClassList";
+import { useSwipeToRefresh } from "../hooks/useSwipeToRefresh";
 import { ClassListWrapper } from "./ClassListWrapper";
 
 const BodyWrapper = styled.div`
@@ -34,14 +33,17 @@ const Sidebar = styled.aside<ToggleProps>`
     left: ${(props) => (props.$toggleVisible ? 0 : -SIDEBAR_WIDTH)}px;
     top: 0;
     bottom: 0;
+    z-index: 1;
   }
 `;
 
 const MainContent = styled.div<ToggleProps>`
   flex: 1;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   background-color: ${(props) => props.theme.colors.secondarySurface};
   padding: 16px;
+  position: relative;
 
   @media only screen and (max-width: ${(props) =>
       props.theme.widths.tablet}px) {
@@ -53,8 +55,8 @@ const MainContent = styled.div<ToggleProps>`
       opacity: ${(props) => (props.$toggleVisible ? 1 : 0)};
       top: 0;
       left: 0;
-      right: 0;
-      bottom: 0;
+      height: 100vh;
+      width: 100vw;
       pointer-events: ${(props) => (props.$toggleVisible ? "all" : "none")};
     }
   }
@@ -62,6 +64,63 @@ const MainContent = styled.div<ToggleProps>`
   @media only screen and (max-width: ${(props) =>
       props.theme.widths.mobile}px) {
     padding: 8px;
+  }
+`;
+
+const SPINNER_SIZE = 40;
+
+const SpinnerContainer = styled.div`
+  padding-top: 10px;
+  position: absolute;
+  left: 0;
+  width: 100vw;
+  top: -${SPINNER_SIZE + 10}px;
+  text-align: center;
+`;
+
+const Spinner = styled.div`
+  display: inline-block;
+  position: relative;
+  width: ${SPINNER_SIZE}px;
+  height: ${SPINNER_SIZE}px;
+  transform-origin: center;
+  transition: transform 0.1s;
+
+  --sp-color: ${(props) => props.theme.colors.accent};
+
+  &.animate div {
+    animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1);
+    border-color: var(--sp-color) transparent transparent transparent;
+  }
+
+  & div {
+    box-sizing: border-box;
+    display: block;
+    position: absolute;
+    width: ${SPINNER_SIZE}px;
+    height: ${SPINNER_SIZE}px;
+    border: 6px solid var(--sp-color);
+    border-radius: 50%;
+    border-color: var(--sp-color) var(--sp-color) var(--sp-color) transparent;
+
+    &:nth-child(1) {
+      animation-delay: -0.45s;
+    }
+    &:nth-child(2) {
+      animation-delay: -0.3s;
+    }
+    &:nth-child(3) {
+      animation-delay: -0.15s;
+    }
+  }
+
+  @keyframes lds-ring {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 `;
 
@@ -87,13 +146,8 @@ const FiltersButton = styled.button`
 `;
 
 export const ClassListRoot = () => {
-  const dispatch = useAppDispatch();
-  useEffect(() => {
-    const [classId] = Object.entries(STUDIOS).find(
-      ([_, value]) => value.location === "New York"
-    )!;
-    dispatch(fetchClassList(classId));
-  }, [dispatch]);
+  const { refresh } = useHydrateClassList();
+  const { swipeRef, spinnerRef } = useSwipeToRefresh({ refresh });
 
   const [sidebarVisible, setSidebarVisible] = useState(false);
 
@@ -112,7 +166,15 @@ export const ClassListRoot = () => {
           onClick={() => {
             setSidebarVisible(false);
           }}
+          ref={swipeRef}
         >
+          <SpinnerContainer>
+            <Spinner ref={spinnerRef}>
+              <div />
+              <div />
+              <div />
+            </Spinner>
+          </SpinnerContainer>
           <FiltersButton
             type="button"
             onClick={(e: MouseEvent<HTMLButtonElement>) => {

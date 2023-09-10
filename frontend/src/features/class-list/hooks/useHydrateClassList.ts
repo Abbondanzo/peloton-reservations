@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/hooks/useStore";
 import { selectActiveClassList } from "../selectors/selectActiveClassList";
 import { selectStudioId } from "../selectors/selectStudioId";
@@ -20,4 +20,12 @@ export const useHydrateClassList = () => {
       dispatch(fetchClassList(currentStudioId));
     }
   }, [currentStatus, currentStudioId, dispatch]);
+
+  const handleRefresh = useCallback(async () => {
+    await dispatch(fetchClassList(currentStudioId));
+  }, [currentStudioId, dispatch]);
+
+  return {
+    refresh: handleRefresh,
+  };
 };
