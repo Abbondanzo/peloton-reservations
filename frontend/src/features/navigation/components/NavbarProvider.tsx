@@ -7,19 +7,18 @@ const HEIGHT = 60;
 const Wrapper = styled.div`
   height: 100%;
   min-height: 100%;
-  display: flex;
-  flex-direction: column;
 `;
 
 const NavWrapper = styled.div`
+  position: sticky;
   height: ${HEIGHT}px;
+  top: 0;
+  z-index: 1;
 `;
 
 const BodyWrapper = styled.div`
-  flex: 1;
-  height: calc(100% - ${HEIGHT}px);
   background-color: ${(props) => props.theme.colors.secondarySurface};
-  overflow-y: auto;
+  height: calc(100% - ${HEIGHT}px);
 `;
 
 interface Props {

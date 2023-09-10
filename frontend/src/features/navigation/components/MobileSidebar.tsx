@@ -31,7 +31,7 @@ const SIDEBAR_WIDTH = 320;
 const SidebarWrapper = styled.div<ToggleProps>`
   display: flex;
   flex-direction: column;
-  position: absolute;
+  position: fixed;
   transition: right 0.25s;
   right: ${(props) => (props.$open ? 0 : -SIDEBAR_WIDTH)}px;
   top: 0;
