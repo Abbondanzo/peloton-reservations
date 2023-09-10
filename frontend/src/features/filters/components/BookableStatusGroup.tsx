@@ -44,7 +44,7 @@ export const BookableStatusGroup = () => {
               checked={bookableStatuses.includes(option.status)}
               readOnly
             />
-            <Label>{option.label}</Label>
+            <Label htmlFor={`bookable-${option.status}`}>{option.label}</Label>
           </ListItem>
         ))}
       </List>

@@ -4,6 +4,7 @@ import { STUDIOS } from "../../../class-list/constants/studios";
 import { selectStudioId } from "../../../class-list/selectors/selectStudioId";
 import { fetchClassList } from "../../../class-list/slices/classListSlice";
 import { StudioGroup } from "../../../filters/components/StudioGroup";
+import { BookableStatus } from "../../../filters/types/BookableStatus";
 import { selectUserId } from "../../../session/selectors/selectUserId";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks/useStore";
 import { Padding } from "../../../theme/components/Padding";
@@ -17,6 +18,14 @@ import { Button, SecondaryButton } from "../atoms/Button";
 import { DayPicker } from "./DayPicker";
 import { DisciplinesPicker } from "./DisciplinesPicker";
 import { InstructorsPicker } from "./InstructorsPicker";
+import { StatusPicker } from "./StatusPicker";
+
+const GridWrapper = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  column-gap: 1em;
+  row-gap: 1em;
+`;
 
 const SaveFooter = styled(Padding)`
   text-align: center;
@@ -56,7 +65,10 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
     Optional<string[]>
   >(alertToEdit.disciplines || null);
   const [timeRanges, setTimeRanges] = useState<Optional<TimeRange>[]>(
-    alertToEdit.timeRanges || DAY_NAMES.map(() => DEFAULT_TIME_RANGE)
+    () => alertToEdit.timeRanges || DAY_NAMES.map(() => DEFAULT_TIME_RANGE)
+  );
+  const [maxStatus, setMaxStatus] = useState<BookableStatus>(
+    alertToEdit.maxStatus || "free"
   );
 
   // TODO: Reset all picked disciplines and instructors when the studio selection changes
@@ -83,7 +95,7 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
       instructors: selectedInstructors,
       disciplines: selectedDisciplines,
       timeRanges,
-      maxStatus: "free",
+      maxStatus,
       numberOfWeeks: 3,
     };
     const promise = alert.id
@@ -100,7 +112,10 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
     <form>
       <h2>{alertToEdit.id ? "Edit" : "Add"} an alert</h2>
       <p>Pick from the following settings and hit "Save" when you're done.</p>
-      <StudioGroup />
+      <GridWrapper>
+        <StudioGroup />
+        <StatusPicker status={maxStatus} setStatus={setMaxStatus} />
+      </GridWrapper>
       <Padding>
         <SectionTitle>Instructors</SectionTitle>
         <InstructorsPicker
