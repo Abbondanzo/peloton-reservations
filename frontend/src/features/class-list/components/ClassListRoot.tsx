@@ -2,6 +2,7 @@ import { MouseEvent, useState } from "react";
 import styled from "styled-components";
 import { FiltersWrapper } from "../../filters/components/FiltersWrapper";
 import { NavbarProvider } from "../../navigation/components/NavbarProvider";
+import { NAV_HEIGHT } from "../../navigation/constants/height";
 import { useHydrateClassList } from "../hooks/useHydrateClassList";
 import { useSwipeToRefresh } from "../hooks/useSwipeToRefresh";
 import { ClassListWrapper } from "./ClassListWrapper";
@@ -17,7 +18,7 @@ const SIDEBAR_WIDTH = 320;
 const Sidebar = styled.aside<ToggleProps>`
   max-width: 100%;
   width: ${SIDEBAR_WIDTH}px;
-  top: 60px;
+  top: ${NAV_HEIGHT}px;
   bottom: 0;
   overflow-y: auto;
   background-color: ${(props) => props.theme.colors.mainSurface};

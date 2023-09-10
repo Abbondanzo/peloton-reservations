@@ -1,8 +1,7 @@
 import { ReactNode } from "react";
 import styled from "styled-components";
+import { NAV_HEIGHT } from "../constants/height";
 import { Navbar } from "./Navbar";
-
-const HEIGHT = 60;
 
 const Wrapper = styled.div`
   height: 100%;
@@ -11,14 +10,13 @@ const Wrapper = styled.div`
 
 const NavWrapper = styled.div`
   position: sticky;
-  height: ${HEIGHT}px;
+  height: ${NAV_HEIGHT}px;
   top: 0;
   z-index: 1;
 `;
 
 const BodyWrapper = styled.div`
   background-color: ${(props) => props.theme.colors.secondarySurface};
-  height: calc(100% - ${HEIGHT}px);
 `;
 
 interface Props {
