@@ -19,9 +19,9 @@ export const useSwipeToRefresh = ({ refresh }: Options) => {
       : 100;
     let touchStartY = 0;
     let shouldRefresh = false;
-    let animationTimeout: number | undefined;
     const touchStart = (event: TouchEvent) => {
-      touchStartY = event.touches[0].clientY;
+      touchStartY =
+        event.touches[0].clientY + document.documentElement.scrollTop;
     };
     const touchMove = (event: TouchEvent) => {
       const touchY = event.touches[0].clientY;
@@ -35,7 +35,7 @@ export const useSwipeToRefresh = ({ refresh }: Options) => {
           )}px) rotate(${angle}deg) `;
         }
       }
-      shouldRefresh = touchDiff > REFRESH_THRESHOLD && window.scrollY === 0;
+      shouldRefresh = touchDiff > REFRESH_THRESHOLD;
     };
     const touchEnd = () => {
       if (shouldRefresh) {
@@ -61,7 +61,6 @@ export const useSwipeToRefresh = ({ refresh }: Options) => {
       currentRef?.removeEventListener("touchstart", touchStart);
       currentRef?.removeEventListener("touchmove", touchMove);
       currentRef?.removeEventListener("touchend", touchEnd);
-      clearTimeout(animationTimeout);
     };
   }, [refresh]);
 
