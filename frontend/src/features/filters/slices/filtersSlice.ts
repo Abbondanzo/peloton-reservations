@@ -8,7 +8,7 @@ import {
   setStoredDisciplines,
   setStoredInstructors,
 } from '../operators/filterStorage';
-import { BookableStatus } from './../types/BookableStatus';
+import { BookableStatus } from '../types/BookableStatus';
 
 export interface FilterState {
   selectedBookableStatuses: BookableStatus[];
