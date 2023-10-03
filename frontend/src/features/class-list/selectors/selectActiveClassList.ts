@@ -1,10 +1,9 @@
-import { RootState } from "./../../store/constants/store";
-import { createSelector } from "@reduxjs/toolkit";
+import { createSelector } from '@reduxjs/toolkit';
+import { selectAsyncActiveClassList } from './selectAsyncActiveClassList';
 
 export const selectActiveClassList = createSelector(
-  [(state: RootState) => state.classList],
-  (classList) => {
-    if (!classList.studioId) return undefined;
-    return classList.classLists[classList.studioId];
+  [selectAsyncActiveClassList],
+  (asyncClassList) => {
+    return asyncClassList.data;
   }
 );

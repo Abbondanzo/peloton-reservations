@@ -1,11 +1,11 @@
-import { MouseEvent, useState } from "react";
-import styled from "styled-components";
-import { FiltersWrapper } from "../../filters/components/FiltersWrapper";
-import { NavbarProvider } from "../../navigation/components/NavbarProvider";
-import { NAV_HEIGHT } from "../../navigation/constants/height";
-import { useHydrateClassList } from "../hooks/useHydrateClassList";
-import { useSwipeToRefresh } from "../hooks/useSwipeToRefresh";
-import { ClassListWrapper } from "./ClassListWrapper";
+import { MouseEvent, useState } from 'react';
+import styled from 'styled-components';
+import { FiltersWrapper } from '../../filters/components/FiltersWrapper';
+import { NavbarProvider } from '../../navigation/components/NavbarProvider';
+import { NAV_HEIGHT } from '../../navigation/constants/height';
+import { useCurrentClassList } from '../hooks/useCurrentClassList';
+import { useSwipeToRefresh } from '../hooks/useSwipeToRefresh';
+import { ClassListWrapper } from './ClassListWrapper';
 
 const BodyWrapper = styled.div``;
 
@@ -48,7 +48,7 @@ const MainContent = styled.div<ToggleProps>`
     margin-left: 0;
 
     &:before {
-      content: "";
+      content: '';
       position: fixed;
       background-color: rgba(0, 0, 0, 0.25);
       transition: opacity 0.25s;
@@ -57,7 +57,7 @@ const MainContent = styled.div<ToggleProps>`
       left: 0;
       height: 100vh;
       width: 100vw;
-      pointer-events: ${(props) => (props.$toggleVisible ? "all" : "none")};
+      pointer-events: ${(props) => (props.$toggleVisible ? 'all' : 'none')};
     }
   }
 
@@ -130,7 +130,7 @@ const FiltersButton = styled.button`
   height: 40px;
   line-height: 0;
   padding: 1.5em;
-  font-family: "Inter";
+  font-family: 'Inter';
   border-color: ${(props) => props.theme.colors.secondary};
   border-style: solid;
   border-radius: ${(props) => props.theme.borderRadius};
@@ -146,8 +146,8 @@ const FiltersButton = styled.button`
 `;
 
 export const ClassListRoot = () => {
-  const { refresh } = useHydrateClassList();
-  const { swipeRef, spinnerRef } = useSwipeToRefresh({ refresh });
+  const { refetch } = useCurrentClassList();
+  const { swipeRef, spinnerRef } = useSwipeToRefresh({ refresh: refetch });
 
   const [sidebarVisible, setSidebarVisible] = useState(false);
 

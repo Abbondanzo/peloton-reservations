@@ -1,12 +1,13 @@
-import { useAppSelector } from "../../store/hooks/useStore";
-import { Card } from "../../theme/components/Card";
-import { selectActiveClassList } from "../selectors/selectActiveClassList";
-import { ClassList } from "./ClassList";
+import { useAppSelector } from '../../store/hooks/useStore';
+import { Card } from '../../theme/components/Card';
+import { getFriendlyError } from '../operators/getFriendlyError';
+import { selectAsyncActiveClassList } from '../selectors/selectAsyncActiveClassList';
+import { ClassList } from './ClassList';
 
 export const ClassListWrapper = () => {
-  const state = useAppSelector(selectActiveClassList);
+  const { data, status, error } = useAppSelector(selectAsyncActiveClassList);
 
-  if (!state || state.status === "loading") {
+  if (!data || status === 'pending') {
     return (
       <Card>
         <p>Loading...</p>
@@ -14,15 +15,15 @@ export const ClassListWrapper = () => {
     );
   }
 
-  if (state.status === "failed") {
+  if (status === 'rejected') {
     return (
       <Card>
         <p>
-          Error! <code>{state.error.message}</code>
+          Error! <code>{getFriendlyError(error)}</code>
         </p>
       </Card>
     );
   }
 
-  return <ClassList classes={state.classes} />;
+  return <ClassList classes={data.classes} />;
 };
