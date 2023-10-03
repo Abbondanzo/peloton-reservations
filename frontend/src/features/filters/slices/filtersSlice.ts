@@ -1,16 +1,14 @@
+import { createSlice } from '@reduxjs/toolkit';
+import { PayloadAction } from '@reduxjs/toolkit/src/createAction';
 import {
-  getDisciplinesSearchParams,
-  setDisciplinesSearchParams,
-} from "./../operators/disciplineSearchParams";
-import {
-  getInstructorsSearchParams,
-  setInstructorsSearchParams,
-} from "./../operators/instructorSearchParams";
-import { createSlice } from "@reduxjs/toolkit";
-import { PayloadAction } from "@reduxjs/toolkit/src/createAction";
-import { getBookableStatusSearchParams } from "../operators/bookableStatusSearchParams";
-import { setBookableStatusSearchParams } from "./../operators/bookableStatusSearchParams";
-import { BookableStatus } from "./../types/BookableStatus";
+  getStoredBookableStatus,
+  getStoredDisciplines,
+  getStoredInstructors,
+  setStoredBookableStatus,
+  setStoredDisciplines,
+  setStoredInstructors,
+} from '../operators/filterStorage';
+import { BookableStatus } from './../types/BookableStatus';
 
 export interface FilterState {
   selectedBookableStatuses: BookableStatus[];
@@ -19,13 +17,13 @@ export interface FilterState {
 }
 
 const initialState: FilterState = {
-  selectedBookableStatuses: getBookableStatusSearchParams(["free", "waitlist"]),
-  selectedInstructors: getInstructorsSearchParams([]),
-  selectedDisciplines: getDisciplinesSearchParams([]),
+  selectedBookableStatuses: getStoredBookableStatus(['free', 'waitlist']),
+  selectedInstructors: getStoredInstructors([]),
+  selectedDisciplines: getStoredDisciplines([]),
 };
 
 const filtersSlice = createSlice({
-  name: "filters",
+  name: 'filters',
   initialState,
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
@@ -40,7 +38,7 @@ const filtersSlice = createSlice({
           action.payload,
         ];
       }
-      setBookableStatusSearchParams(state.selectedBookableStatuses);
+      setStoredBookableStatus(state.selectedBookableStatuses);
     },
     toggleInstructor(state, action: PayloadAction<string>) {
       if (state.selectedInstructors.includes(action.payload)) {
@@ -53,11 +51,11 @@ const filtersSlice = createSlice({
           action.payload,
         ];
       }
-      setInstructorsSearchParams(state.selectedInstructors);
+      setStoredInstructors(state.selectedInstructors);
     },
     resetInstructors(state) {
       state.selectedInstructors = [];
-      setInstructorsSearchParams(state.selectedInstructors);
+      setStoredInstructors(state.selectedInstructors);
     },
     toggleDiscipline(state, action: PayloadAction<string>) {
       if (state.selectedDisciplines.includes(action.payload)) {
@@ -70,11 +68,11 @@ const filtersSlice = createSlice({
           action.payload,
         ];
       }
-      setDisciplinesSearchParams(state.selectedDisciplines);
+      setStoredDisciplines(state.selectedDisciplines);
     },
     resetDisciplines(state) {
       state.selectedDisciplines = [];
-      setDisciplinesSearchParams(state.selectedDisciplines);
+      setStoredDisciplines(state.selectedDisciplines);
     },
   },
 });
