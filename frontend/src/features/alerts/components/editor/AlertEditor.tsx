@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { STUDIOS } from "../../../class-list/constants/studios";
+import { DEFAULT_STUDIO_ID } from "../../../class-list/constants/studios";
+import { getStoredStudioId } from "../../../class-list/operators/studioStorage";
 import { selectStudioId } from "../../../class-list/selectors/selectStudioId";
 import { fetchClassList } from "../../../class-list/slices/classListSlice";
 import { StudioGroup } from "../../../filters/components/StudioGroup";
@@ -49,10 +50,8 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
     if (alertToEdit.studioId) {
       dispatch(fetchClassList(alertToEdit.studioId));
     } else {
-      const [classId] = Object.entries(STUDIOS).find(
-        ([_, value]) => value.location === "New York"
-      )!;
-      dispatch(fetchClassList(classId));
+      const studioId = getStoredStudioId(DEFAULT_STUDIO_ID);
+      dispatch(fetchClassList(studioId));
     }
   }, [alertToEdit.studioId, dispatch]);
   const selectedStudioId = useAppSelector(selectStudioId);

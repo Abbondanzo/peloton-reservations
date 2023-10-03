@@ -15,3 +15,5 @@ export const STUDIOS: { [key: string]: Studio } = {
     timezone: "Europe/London",
   },
 };
+
+export const DEFAULT_STUDIO_ID = "25900000001";

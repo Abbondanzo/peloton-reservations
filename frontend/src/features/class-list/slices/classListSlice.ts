@@ -1,6 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getClasses } from "../api/getClasses";
-import { STUDIOS } from "../constants/studios";
+import { DEFAULT_STUDIO_ID } from "../constants/studios";
+import {
+  getStoredStudioId,
+  setStoredStudioId,
+} from "../operators/studioStorage";
 import { Class } from "../types/Class";
 import { Discipline } from "../types/Discipline";
 import { Instructor } from "../types/Instructor";
@@ -30,9 +34,7 @@ export interface ClassListState {
 }
 
 const initialState: ClassListState = {
-  studioId: Object.entries(STUDIOS).find(
-    ([_, value]) => value.location === "New York"
-  )![0],
+  studioId: getStoredStudioId(DEFAULT_STUDIO_ID),
   classLists: {},
 };
 
@@ -85,6 +87,7 @@ const classListSlice = createSlice({
     builder
       .addCase(fetchClassList.pending, (state, action) => {
         state.studioId = action.meta.arg;
+        setStoredStudioId(action.meta.arg);
         state.classLists[action.meta.arg] = { status: "loading" };
       })
       .addCase(fetchClassList.fulfilled, (state, action) => {
