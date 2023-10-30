@@ -152,7 +152,7 @@ const Button = styled.button<InteractiveProps>`
         }
         `
       : `
-        background-color: transparent;  
+        background-color: transparent;
         `}
 
   ${mediaMobile`
@@ -179,6 +179,10 @@ export const ClassListItem = ({ clazz }: Props) => {
         return "";
     }
   }, [clazz.id, studio?.location]);
+  const time = useMemo(() => {
+    const classStart = new Date(clazz.start * 1000);
+    return getLocalTime(classStart, studio?.timezone);
+  }, [clazz.start, studio?.timezone]);
   return (
     <Anchor
       $interactive={interactive}
@@ -188,7 +192,7 @@ export const ClassListItem = ({ clazz }: Props) => {
       <InteractiveCard $interactive={interactive}>
         <ContentWrapper>
           <TimeWrapper>
-            <Time>{getLocalTime(clazz, studio?.timezone || "")} </Time>
+            <Time>{time} </Time>
             <Duration>{clazz.duration / 60} mins</Duration>
           </TimeWrapper>
           <HiddenMobile>
