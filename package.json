@@ -10,7 +10,8 @@
   "homepage": "https://github.com/Abbondanzo/peloton-reservations#readme",
   "workspaces": [
     "backend",
-    "frontend"
+    "frontend",
+    "shared"
   ],
   "dependencies": {
     "typescript": "5.2.2"

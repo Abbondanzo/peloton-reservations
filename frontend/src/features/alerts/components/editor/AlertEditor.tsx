@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
+import { DEFAULT_STUDIO_ID } from "shared";
 import styled from "styled-components";
-import { DEFAULT_STUDIO_ID } from "../../../class-list/constants/studios";
 import { getStoredStudioId } from "../../../class-list/operators/studioStorage";
 import { selectStudioId } from "../../../class-list/selectors/selectStudioId";
 import { fetchClassList } from "../../../class-list/slices/classListSlice";

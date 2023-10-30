@@ -1,6 +1,6 @@
 import { useMemo } from "react";
+import { STUDIOS } from "shared";
 import styled from "styled-components";
-import { STUDIOS } from "../../../class-list/constants/studios";
 import { selectUserId } from "../../../session/selectors/selectUserId";
 import { useAppSelector } from "../../../store/hooks/useStore";
 import { Card } from "../../../theme/components/Card";

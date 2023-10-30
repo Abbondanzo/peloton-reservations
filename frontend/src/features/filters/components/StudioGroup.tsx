@@ -1,5 +1,5 @@
+import { STUDIOS } from "shared";
 import styled from "styled-components";
-import { STUDIOS } from "../../class-list/constants/studios";
 import { fetchClassList } from "../../class-list/slices/classListSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks/useStore";
 import { List } from "../../theme/components/List";
