@@ -1,20 +1,8 @@
 {
   "name": "peloton-reservations",
-  "version": "0.1.0",
+  "description": "Frontend code for interacting with Peloton schedule and user account",
+  "version": "0.0.0",
   "private": true,
-  "dependencies": {
-    "@reduxjs/toolkit": "1.9.5",
-    "@sentry/react": "7.68.0",
-    "firebase": "10.3.1",
-    "firebaseui": "6.1.0",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "react-redux": "8.1.2",
-    "react-router": "6.15.0",
-    "react-router-dom": "6.15.0",
-    "styled-components": "6.0.7",
-    "web-vitals": "3.4.0"
-  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -41,17 +29,29 @@
       "last 1 safari version"
     ]
   },
+  "dependencies": {
+    "@reduxjs/toolkit": "1.9.7",
+    "@sentry/react": "7.76.0",
+    "firebase": "10.5.2",
+    "firebaseui": "6.1.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-redux": "8.1.3",
+    "react-router": "6.17.0",
+    "react-router-dom": "6.17.0",
+    "styled-components": "6.1.0",
+    "web-vitals": "3.5.0"
+  },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "7.21.11",
-    "@sentry/cli": "2.20.7",
-    "@testing-library/jest-dom": "6.1.3",
+    "@sentry/cli": "2.21.2",
+    "@testing-library/jest-dom": "6.1.4",
     "@testing-library/react": "14.0.0",
-    "@testing-library/user-event": "14.4.3",
-    "@types/jest": "29.5.4",
+    "@testing-library/user-event": "14.5.1",
+    "@types/jest": "29.5.6",
     "@types/node": "16.18.36",
-    "@types/react": "18.2.21",
-    "@types/react-dom": "18.2.7",
-    "react-scripts": "5.0.1",
-    "typescript": "4.9.5"
+    "@types/react": "18.2.33",
+    "@types/react-dom": "18.2.14",
+    "react-scripts": "5.0.1"
   }
 }
