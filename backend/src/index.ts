@@ -1,8 +1,14 @@
-import { Schedule } from './schedule';
+import { Manager } from './manager';
 
 const run = async () => {
-  const schedule = new Schedule();
-  await schedule.initialize();
+  // Start
+  const manager = new Manager();
+  await manager.initialize();
+
+  // Loop
+  await manager.loop();
+
+  // End
 };
 
 run()
