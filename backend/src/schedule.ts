@@ -25,6 +25,9 @@ export class Schedule {
   }
 
   async diff(): Promise<ScrapeResult> {
+    if (!this.data) {
+      throw new Error('Called diff before initializing schedule');
+    }
     const response = await this.fetchClass();
     const comparison = this.compareClasses(
       this.data.classes,
