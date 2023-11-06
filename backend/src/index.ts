@@ -1,9 +1,11 @@
+import { logger } from './logger';
 import { Manager } from './manager';
 
 const run = async () => {
   // Start
   const manager = new Manager();
   await manager.initialize();
+  logger.log('Manager initialized');
 
   // Loop
   await manager.loop();
@@ -13,9 +15,9 @@ const run = async () => {
 
 run()
   .then(() => {
-    console.log('Process finished');
+    logger.log('Process finished');
   })
   .catch((error) => {
-    console.error(error);
+    logger.error(error);
     process.exit(1);
   });
