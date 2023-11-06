@@ -1,5 +1,6 @@
 import { STUDIOS } from 'shared';
 import { Schedule } from './schedule';
+import { logger } from './logger';
 
 export class Manager {
   private readonly schedules: { [key: string]: Schedule } = {};
@@ -21,11 +22,13 @@ export class Manager {
       for (const [studioId, schedule] of Object.entries(this.schedules)) {
         try {
           const diff = await schedule.diff();
-          console.log(
-            `Diff for ${studioId}: added ${diff.added.length} changed ${diff.changed.length} removed ${diff.removed.length}`
-          );
+          if (diff.added.length || diff.changed.length || diff.removed.length) {
+            logger.log(
+              `Diff for ${studioId}: added ${diff.added.length} changed ${diff.changed.length} removed ${diff.removed.length}`
+            );
+          }
         } catch (error) {
-          console.error(error);
+          logger.error(error);
         }
       }
       await this.wait(this.getRandomTimeout());
