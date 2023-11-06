@@ -11,11 +11,6 @@ interface ScrapeResult {
   removed: RawClass[];
 }
 
-interface ChangelogEntry {
-  updated: Date;
-  result: ScrapeResult;
-}
-
 export class Schedule {
   private readonly studioId: string;
   private data: RawClassResponse['data'];
