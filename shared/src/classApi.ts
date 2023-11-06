@@ -3,7 +3,7 @@ interface RawDiscipline {
   name: string;
 }
 
-interface RawClass {
+export interface RawClass {
   id: string;
   room_id: string;
   name: string | null;
