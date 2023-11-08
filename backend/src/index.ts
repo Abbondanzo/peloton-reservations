@@ -11,6 +11,11 @@ const run = async () => {
   await manager.loop();
 
   // End
+  process.on('SIGINT', () => {
+    logger.log('Terminating control loop');
+    manager.cancel();
+    process.exit(0);
+  });
 };
 
 run()

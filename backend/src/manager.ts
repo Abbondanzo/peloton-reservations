@@ -7,6 +7,12 @@ export class Manager {
 
   private running = true;
 
+  private readonly abortController: AbortController;
+
+  constructor() {
+    this.abortController = new AbortController();
+  }
+
   async initialize() {
     const promises: Promise<void>[] = [];
     Object.keys(STUDIOS).forEach((studioId) => {
@@ -35,9 +41,20 @@ export class Manager {
     }
   }
 
+  cancel() {
+    this.running = false;
+    this.abortController.abort();
+  }
+
   private wait(time: number) {
-    return new Promise<void>((resolve) => {
-      setTimeout(() => resolve(), time);
+    return new Promise<void>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        resolve();
+      }, time);
+      this.abortController.signal.onabort = () => {
+        clearTimeout(timeout);
+        reject();
+      };
     });
   }
 
