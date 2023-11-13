@@ -1,10 +1,10 @@
 import { onValue, ref } from "firebase/database";
 import { ReactNode, useEffect, useState } from "react";
+import { Alert } from "shared";
 import { database } from "../../firebase/constants/database";
 import { AsyncData } from "../../store/types/AsyncData";
 import { DAY_NAMES } from "../constants/days";
 import { AlertsContext } from "../context/AlertsContext";
-import { Alert } from "../types/Alert";
 
 interface Props {
   children: ReactNode;

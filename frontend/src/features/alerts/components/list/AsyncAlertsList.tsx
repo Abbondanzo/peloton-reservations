@@ -1,8 +1,8 @@
 import { useContext } from "react";
+import { Alert } from "shared";
 import styled from "styled-components";
 import { Card } from "../../../theme/components/Card";
 import { AlertsContext } from "../../context/AlertsContext";
-import { Alert } from "../../types/Alert";
 import { Button } from "../atoms/Button";
 import { AlertPreferencesEditor } from "./AlertPreferencesEditor";
 import { AlertsList } from "./AlertsList";

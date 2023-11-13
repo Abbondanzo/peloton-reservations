@@ -1,4 +1,6 @@
-import { BookableStatus } from "../../filters/types/BookableStatus";
+type Optional<T> = T | null;
+
+export type BookableStatus = 'free' | 'waitlist' | 'full';
 
 export interface TimeRange {
   startMin: number;
@@ -14,4 +16,9 @@ export interface Alert {
   numberOfWeeks: number;
   timeRanges: Optional<TimeRange>[];
   studioId: string;
+}
+
+export interface AlertPreferences {
+  lastUpdated: number;
+  notificationDelayMin: number;
 }

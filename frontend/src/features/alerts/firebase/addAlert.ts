@@ -1,6 +1,6 @@
 import { push, ref } from "firebase/database";
+import { Alert } from "shared";
 import { database } from "../../firebase/constants/database";
-import { Alert } from "../types/Alert";
 
 export const addAlert = async (
   userId: string,
