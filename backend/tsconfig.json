@@ -7,7 +7,9 @@
     "outDir": "build",
     "allowJs": true,
     "lib": ["dom", "es6"],
-    "baseUrl": "./src"
+    "baseUrl": "./src",
+    "esModuleInterop": true,
+    "resolveJsonModule": true
   },
   "exclude": ["node_modules", "build"],
   "include": ["src/**/*.ts"],
