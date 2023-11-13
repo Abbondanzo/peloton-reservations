@@ -1,6 +1,6 @@
 type Optional<T> = T | null;
 
-export type BookableStatus = 'free' | 'waitlist' | 'full';
+export type BookableStatus = "free" | "waitlist" | "full";
 
 export interface TimeRange {
   startMin: number;

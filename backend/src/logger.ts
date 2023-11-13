@@ -5,6 +5,6 @@ class Prefix {
 }
 
 export const logger = {
-  log: console.log.bind(console, '%s', new Prefix()),
-  error: console.error.bind(console, '%s', new Prefix()),
+  log: console.log.bind(console, "%s", new Prefix()),
+  error: console.error.bind(console, "%s", new Prefix()),
 };

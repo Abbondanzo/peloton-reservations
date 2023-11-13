@@ -1,4 +1,4 @@
-import { RawClass, RawClassResponse } from 'shared';
+import { RawClass, RawClassResponse } from "shared";
 
 interface Diff {
   old: RawClass;
@@ -13,7 +13,7 @@ interface ScrapeResult {
 
 export class Schedule {
   private readonly studioId: string;
-  private data: RawClassResponse['data'];
+  private data: RawClassResponse["data"];
 
   constructor(studioId: string) {
     this.studioId = studioId;
@@ -26,7 +26,7 @@ export class Schedule {
 
   async diff(): Promise<ScrapeResult> {
     if (!this.data) {
-      throw new Error('Called diff before initializing schedule');
+      throw new Error("Called diff before initializing schedule");
     }
     const response = await this.fetchClass();
     const comparison = this.compareClasses(
@@ -79,11 +79,11 @@ export class Schedule {
 
   private compareClass(oldClass: RawClass, newClass: RawClass) {
     const keysToCheck: (keyof RawClass)[] = [
-      'bookable',
-      'cancelled',
-      'free',
-      'full',
-      'waitlist_full',
+      "bookable",
+      "cancelled",
+      "free",
+      "full",
+      "waitlist_full",
     ];
     return keysToCheck.some((key) => {
       return oldClass[key] !== newClass[key];

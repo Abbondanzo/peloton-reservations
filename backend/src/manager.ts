@@ -1,6 +1,6 @@
-import { RawClass, STUDIOS } from 'shared';
-import { logger } from './logger';
-import { Schedule } from './schedule';
+import { RawClass, STUDIOS } from "shared";
+import { logger } from "./logger";
+import { Schedule } from "./schedule";
 
 export interface DiffDelegate {
   handleAddition(studioId: string, classes: RawClass[]): void;
