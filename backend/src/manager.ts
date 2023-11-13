@@ -1,6 +1,14 @@
-import { STUDIOS } from 'shared';
-import { Schedule } from './schedule';
+import { RawClass, STUDIOS } from 'shared';
 import { logger } from './logger';
+import { Schedule } from './schedule';
+
+export interface DiffDelegate {
+  handleAddition(studioId: string, classes: RawClass[]): void;
+  handleChange(
+    studioId: string,
+    classes: { new: RawClass; old: RawClass }[]
+  ): void;
+}
 
 export class Manager {
   private readonly schedules: { [key: string]: Schedule } = {};
@@ -8,9 +16,11 @@ export class Manager {
   private running = true;
 
   private readonly abortController: AbortController;
+  private readonly delegate: DiffDelegate;
 
-  constructor() {
+  constructor(delegate: DiffDelegate) {
     this.abortController = new AbortController();
+    this.delegate = delegate;
   }
 
   async initialize() {
@@ -32,6 +42,12 @@ export class Manager {
             logger.log(
               `Diff for ${studioId}: added ${diff.added.length} changed ${diff.changed.length} removed ${diff.removed.length}`
             );
+          }
+          if (diff.added.length > 0) {
+            this.delegate.handleAddition(studioId, diff.added);
+          }
+          if (diff.changed.length > 0) {
+            this.delegate.handleChange(studioId, diff.changed);
           }
         } catch (error) {
           logger.error(error);

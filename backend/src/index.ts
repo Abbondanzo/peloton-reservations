@@ -1,9 +1,14 @@
+import { Alerter } from './alerter';
 import { logger } from './logger';
 import { Manager } from './manager';
 
 const run = async () => {
   // Start
-  const manager = new Manager();
+  const alerter = new Alerter();
+  await alerter.initialize();
+  logger.log('Alerter initialized');
+
+  const manager = new Manager(alerter);
   await manager.initialize();
   logger.log('Manager initialized');
 
