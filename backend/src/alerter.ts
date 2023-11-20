@@ -1,8 +1,8 @@
 import admin from "firebase-admin";
 import { Alert, AlertPreferences, RawClass, STUDIOS } from "shared";
 import firebase from "../firebase.json";
-import { DiffDelegate } from "./manager";
 import { logger } from "./logger";
+import { DiffDelegate } from "./manager";
 
 type StudioGroup = { [key: string]: Alert[] };
 
@@ -56,12 +56,34 @@ export class Alerter implements DiffDelegate {
       logger.log(`Notifying ${usersToNotify.size} users of new classes`);
       logger.log(usersToNotify);
     }
+    throw new Error("Method not implemented.");
   }
 
   handleChange(
     studioId: string,
     classes: { new: RawClass; old: RawClass }[]
   ): void {
+    if (!this.alertGroups[studioId]) {
+      return;
+    }
+    const usersToNotify = new Set<string>();
+    for (const entry of classes) {
+      for (const [userId, alerts] of Object.entries(
+        this.alertGroups[studioId]
+      )) {
+        if (
+          alerts.some((alert) =>
+            this.matchesChange(alert, entry.old, entry.new)
+          )
+        ) {
+          usersToNotify.add(userId);
+        }
+      }
+    }
+    if (usersToNotify.size > 0) {
+      logger.log(`Notifying ${usersToNotify.size} users of new classes`);
+      logger.log(usersToNotify);
+    }
     throw new Error("Method not implemented.");
   }
 
@@ -158,5 +180,29 @@ export class Alerter implements DiffDelegate {
       }
     }
     return true;
+  }
+
+  private matchesChange(alert: Alert, oldClass: RawClass, newClass: RawClass) {
+    if (!this.matchesAlert(newClass, alert)) {
+      return false;
+    }
+    if (alert.maxStatus === "free" && !oldClass.free && newClass.free) {
+      return true;
+    }
+    if (
+      alert.maxStatus === "waitlist" &&
+      oldClass.waitlist_full &&
+      !newClass.waitlist_full
+    ) {
+      return true;
+    }
+    if (
+      alert.maxStatus === "full" &&
+      oldClass.cancelled &&
+      !newClass.cancelled
+    ) {
+      return true;
+    }
+    return false;
   }
 }
