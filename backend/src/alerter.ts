@@ -81,7 +81,7 @@ export class Alerter implements DiffDelegate {
       }
     }
     if (usersToNotify.size > 0) {
-      logger.log(`Notifying ${usersToNotify.size} users of new classes`);
+      logger.log(`Notifying ${usersToNotify.size} users of changed classes`);
       logger.log(usersToNotify);
     }
     throw new Error("Method not implemented.");
