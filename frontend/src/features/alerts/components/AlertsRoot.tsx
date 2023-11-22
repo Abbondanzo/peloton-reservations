@@ -1,90 +1,54 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Alert } from "shared";
 import styled from "styled-components";
-import { NotificationRequester } from "../../messaging/components/NotificationRequester";
-import { NavbarProvider } from "../../navigation/components/NavbarProvider";
 import { Paths } from "../../navigation/constants/paths";
-import { selectSession } from "../../session/selectors/selectSession";
-import { useAppSelector } from "../../store/hooks/useStore";
 import { Card } from "../../theme/components/Card";
 import { AlertPreferencesProvider } from "../providers/AlertPreferencesProvider";
 import { AlertsProvider } from "../providers/AlertsProvider";
-import { AlertEditor } from "./editor/AlertEditor";
+import { SharedRoot } from "./SharedRoot";
+import { AlertPreferencesEditor } from "./editor/AlertPreferencesEditor";
 import { AsyncAlertsList } from "./list/AsyncAlertsList";
 
-const Content = styled.div`
-  margin: 0 auto;
-  max-width: 960px;
-  padding: 16px;
-  @media only screen and (max-width: ${(props) =>
-      props.theme.widths.mobile}px) {
-    padding: 8px;
-  }
+const GapWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  row-gap: 1em;
 `;
 
-const OverflowWrapper = styled.div`
-  overflow: auto;
-  height: 100%;
-`;
+interface Props {
+  userId: string;
+}
 
-const AlertsBody = () => {
-  const sessionState = useAppSelector(selectSession);
-  const [alertToEdit, setAlertToEdit] = useState<Partial<Alert>>();
-
-  if (sessionState.state === "loading") {
-    return (
-      <Card>
-        <p>Loading...</p>
-      </Card>
-    );
-  }
-
-  if (sessionState.state !== "fulfilled" || !sessionState.data) {
-    return (
-      <Card>
-        <p>
-          You need to be logged in to create alerts. Sign in or create an
-          account by <Link to={Paths.SIGN_IN}>clicking here</Link>.
-        </p>
-      </Card>
-    );
-  }
+const AlertsBody = ({ userId }: Props) => {
+  const navigate = useNavigate();
 
   return (
-    <AlertsProvider userId={sessionState.data.id}>
-      <AlertPreferencesProvider userId={sessionState.data.id}>
-        {alertToEdit ? (
-          <Card>
-            <AlertEditor
-              alertToEdit={alertToEdit}
-              onSave={() => setAlertToEdit(undefined)}
-              onCancel={() => setAlertToEdit(undefined)}
-            />
-          </Card>
-        ) : (
+    <AlertsProvider userId={userId}>
+      <AlertPreferencesProvider userId={userId}>
+        <GapWrapper>
           <AsyncAlertsList
-            onAdd={() => setAlertToEdit({})}
-            onEdit={(alert) => setAlertToEdit(alert)}
-            onDuplicate={(alert: Alert) =>
-              setAlertToEdit({ ...alert, id: undefined, created: undefined })
-            }
+            onAdd={() => {
+              navigate(Paths.ALERTS_EDITOR, { state: {} });
+            }}
+            onEdit={(alert) => {
+              navigate(Paths.ALERTS_EDITOR, { state: alert });
+            }}
+            onDuplicate={(alert: Alert) => {
+              navigate(Paths.ALERTS_EDITOR, {
+                state: { ...alert, id: undefined, created: undefined },
+              });
+            }}
           />
-        )}
+          <Card>
+            <h1>Preferences</h1>
+            <AlertPreferencesEditor />
+          </Card>
+        </GapWrapper>
       </AlertPreferencesProvider>
     </AlertsProvider>
   );
 };
 
 export const AlertsRoot = () => {
-  return (
-    <NavbarProvider>
-      <OverflowWrapper>
-        <Content>
-          <NotificationRequester />
-          <AlertsBody />
-        </Content>
-      </OverflowWrapper>
-    </NavbarProvider>
-  );
+  return <SharedRoot>{(userId) => <AlertsBody userId={userId} />}</SharedRoot>;
 };
