@@ -60,7 +60,7 @@ export const MessagingProvider = ({ children }: Props): JSX.Element => {
     }
   }, [token, userId]);
   return (
-    <MessagingContext.Provider value={{ refreshToken, deleteToken }}>
+    <MessagingContext.Provider value={{ token, refreshToken, deleteToken }}>
       {children}
     </MessagingContext.Provider>
   );

@@ -7,7 +7,9 @@ import { AlertPreferencesProvider } from "../providers/AlertPreferencesProvider"
 import { AlertsProvider } from "../providers/AlertsProvider";
 import { SharedRoot } from "./SharedRoot";
 import { AlertPreferencesEditor } from "./editor/AlertPreferencesEditor";
+import { RegisteredDevicesEditor } from "./editor/RegisteredDevicesEditor";
 import { AsyncAlertsList } from "./list/AsyncAlertsList";
+import { RegisteredDevicesProvider } from "../../messaging/providers/RegisteredDevicesProvider";
 
 const GapWrapper = styled.div`
   display: flex;
@@ -25,25 +27,36 @@ const AlertsBody = ({ userId }: Props) => {
   return (
     <AlertsProvider userId={userId}>
       <AlertPreferencesProvider userId={userId}>
-        <GapWrapper>
-          <AsyncAlertsList
-            onAdd={() => {
-              navigate(Paths.ALERTS_EDITOR, { state: {} });
-            }}
-            onEdit={(alert) => {
-              navigate(Paths.ALERTS_EDITOR, { state: alert });
-            }}
-            onDuplicate={(alert: Alert) => {
-              navigate(Paths.ALERTS_EDITOR, {
-                state: { ...alert, id: undefined, created: undefined },
-              });
-            }}
-          />
-          <Card>
-            <h1>Preferences</h1>
-            <AlertPreferencesEditor />
-          </Card>
-        </GapWrapper>
+        <RegisteredDevicesProvider userId={userId}>
+          <GapWrapper>
+            <AsyncAlertsList
+              onAdd={() => {
+                navigate(Paths.ALERTS_EDITOR, { state: {} });
+              }}
+              onEdit={(alert) => {
+                navigate(Paths.ALERTS_EDITOR, { state: alert });
+              }}
+              onDuplicate={(alert: Alert) => {
+                navigate(Paths.ALERTS_EDITOR, {
+                  state: { ...alert, id: undefined, created: undefined },
+                });
+              }}
+            />
+            <Card>
+              <h1>Preferences</h1>
+              <AlertPreferencesEditor />
+            </Card>
+            <Card>
+              <h1>Registered Devices</h1>
+              <p style={{ marginBottom: 12 }}>
+                All of these devices are registered to receive notifications. If
+                you remove any one device, it will automatically re-register
+                itself upon a later visit.
+              </p>
+              <RegisteredDevicesEditor />
+            </Card>
+          </GapWrapper>
+        </RegisteredDevicesProvider>
       </AlertPreferencesProvider>
     </AlertsProvider>
   );
