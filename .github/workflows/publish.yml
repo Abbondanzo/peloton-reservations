@@ -45,6 +45,8 @@ jobs:
           cache-dependency-path: package-lock.json
       - name: Install dependencies
         run: npm ci
+      - name: Build shared project
+        run: npm run build
         working-directory: ./frontend
       - name: Build project
         run: npm run build
