@@ -1,6 +1,7 @@
 import { createContext } from "react";
 
 interface Context {
+  token?: string;
   refreshToken: () => void;
   deleteToken: () => Promise<void>;
 }

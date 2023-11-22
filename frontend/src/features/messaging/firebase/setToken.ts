@@ -1,5 +1,6 @@
 import { ref, set } from "@firebase/database";
 import { database } from "../../firebase/constants/database";
+import { RegisteredDevice } from "../types/RegisteredDevice";
 
 export const setToken = async (
   userId: string,
@@ -10,7 +11,9 @@ export const setToken = async (
     throw new Error("No Firebase database connection to use");
   }
   const tokenRef = ref(db, `messagingTokens/${userId}/${token}`);
-  await set(tokenRef, {
+  const registeredDevice: RegisteredDevice = {
     timestamp: new Date().getTime(),
-  });
+    userAgent: navigator.userAgent,
+  };
+  await set(tokenRef, registeredDevice);
 };
