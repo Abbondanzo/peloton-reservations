@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
+import { Alert, DEFAULT_STUDIO_ID, TimeRange } from "shared";
 import styled from "styled-components";
-import { DEFAULT_STUDIO_ID } from "../../../class-list/constants/studios";
 import { getStoredStudioId } from "../../../class-list/operators/studioStorage";
 import { selectStudioId } from "../../../class-list/selectors/selectStudioId";
 import { fetchClassList } from "../../../class-list/slices/classListSlice";
@@ -14,7 +14,6 @@ import { DAY_NAMES } from "../../constants/days";
 import { DEFAULT_TIME_RANGE } from "../../constants/timeRanges";
 import { addAlert } from "../../firebase/addAlert";
 import { editAlert } from "../../firebase/editAlert";
-import { Alert, TimeRange } from "../../types/Alert";
 import { Button, SecondaryButton } from "../atoms/Button";
 import { DayPicker } from "./DayPicker";
 import { DisciplinesPicker } from "./DisciplinesPicker";

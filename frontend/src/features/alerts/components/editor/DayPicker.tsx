@@ -1,4 +1,5 @@
 import { ChangeEvent } from "react";
+import { TimeRange } from "shared";
 import styled from "styled-components";
 import { List } from "../../../theme/components/List";
 import { mediaMobile } from "../../../theme/constants/queries";
@@ -9,7 +10,6 @@ import {
   TIME_RANGE_VALUES,
 } from "../../constants/timeRanges";
 import { isFirstEditableTimeRange } from "../../operators/isFirstEditableTimeRange";
-import { TimeRange } from "../../types/Alert";
 
 const ListItemWrapper = styled.li`
   display: flex;

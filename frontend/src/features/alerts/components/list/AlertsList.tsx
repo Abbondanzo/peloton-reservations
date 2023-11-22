@@ -1,5 +1,5 @@
+import { Alert } from "shared";
 import styled from "styled-components";
-import { Alert } from "../../types/Alert";
 import { AlertsListItem } from "./AlertsListItem";
 
 const ListWrapper = styled.ul`

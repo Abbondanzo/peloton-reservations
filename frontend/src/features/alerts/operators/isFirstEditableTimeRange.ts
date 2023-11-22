@@ -1,4 +1,4 @@
-import { TimeRange } from "./../types/Alert";
+import { TimeRange } from "shared";
 
 export const isFirstEditableTimeRange = (
   timeRanges: Optional<TimeRange>[],

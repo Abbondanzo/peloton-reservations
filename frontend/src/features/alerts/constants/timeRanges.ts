@@ -1,4 +1,4 @@
-import { TimeRange } from "./../types/Alert";
+import { TimeRange } from "shared";
 
 export const DEFAULT_TIME_RANGE: TimeRange = {
   startMin: 7 * 60,

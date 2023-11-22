@@ -1,0 +1,16 @@
+{
+  "name": "backend",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Backend comparison service for sending notifications",
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "firebase-admin": "11.11.0"
+  },
+  "devDependencies": {
+    "ts-node": "10.9.1"
+  }
+}

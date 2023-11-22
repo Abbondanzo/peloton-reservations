@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { DEFAULT_STUDIO_ID } from "shared";
 import { getClasses } from "../api/getClasses";
-import { DEFAULT_STUDIO_ID } from "../constants/studios";
 import {
   getStoredStudioId,
   setStoredStudioId,

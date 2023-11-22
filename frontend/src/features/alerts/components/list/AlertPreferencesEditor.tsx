@@ -1,10 +1,10 @@
 import { useContext, useState } from "react";
+import { AlertPreferences } from "shared";
 import { selectUserId } from "../../../session/selectors/selectUserId";
 import { useAppSelector } from "../../../store/hooks/useStore";
 import { TextInput } from "../../../theme/components/TextInput";
 import { AlertPreferencesContext } from "../../context/AlertPreferencesContext";
 import { setPreferences } from "../../firebase/setPreferences";
-import { AlertPreferences } from "../../types/AlertPreferences";
 import { Button } from "../atoms/Button";
 
 interface EditorProps {

@@ -1,0 +1,19 @@
+{
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Abbondanzo/peloton-reservations.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Abbondanzo/peloton-reservations/issues"
+  },
+  "homepage": "https://github.com/Abbondanzo/peloton-reservations#readme",
+  "workspaces": [
+    "backend",
+    "frontend",
+    "shared"
+  ],
+  "dependencies": {
+    "typescript": "5.2.2"
+  }
+}

@@ -1,12 +1,11 @@
 import { useMemo } from "react";
+import { Alert, STUDIOS } from "shared";
 import styled from "styled-components";
-import { STUDIOS } from "../../../class-list/constants/studios";
 import { selectUserId } from "../../../session/selectors/selectUserId";
 import { useAppSelector } from "../../../store/hooks/useStore";
 import { Card } from "../../../theme/components/Card";
 import { deleteAlert } from "../../firebase/deleteAlert";
 import { getFriendlyTitle } from "../../operators/getFriendlyTitle";
-import { Alert } from "../../types/Alert";
 
 const Wrapper = styled.li`
   &:not(:last-child) {

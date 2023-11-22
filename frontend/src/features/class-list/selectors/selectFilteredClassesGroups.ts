@@ -16,11 +16,19 @@ export const selectFilteredClassesGroups = createSelector(
     const timeZone = studio?.timezone || "";
     const groups: ClassGroup[] = [];
     let i = 1;
-    let formattedDate = getLocalDate(filteredClasses[0], timeZone, true);
+    let formattedDate = getLocalDate(
+      new Date(filteredClasses[0].start * 1000),
+      timeZone,
+      true
+    );
     let classGroup: Class[] = [filteredClasses[0]];
     while (i < filteredClasses.length) {
       const currentClass = filteredClasses[i];
-      const currentFormattedDate = getLocalDate(currentClass, timeZone, true);
+      const currentFormattedDate = getLocalDate(
+        new Date(currentClass.start * 1000),
+        timeZone,
+        true
+      );
       if (currentFormattedDate === formattedDate) {
         classGroup.push(currentClass);
       } else {
