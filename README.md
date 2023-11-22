@@ -4,4 +4,4 @@ A better interface for seeing what classes are available for reservation. Filter
 
 ## Preview
 
-![preview](https://github.com/Abbondanzo/peloton-reservations/assets/10366495/273fb0b4-7047-46f8-a439-51a51b1f720a)
+![preview](https://github.com/Abbondanzo/peloton-reservations/assets/10366495/c76197da-0251-409c-82ce-da269911cb70)
