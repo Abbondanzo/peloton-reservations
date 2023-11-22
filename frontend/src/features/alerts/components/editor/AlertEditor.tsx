@@ -94,7 +94,6 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
       disciplines: selectedDisciplines,
       timeRanges,
       maxStatus,
-      numberOfWeeks: 3,
     };
     const promise = alert.id
       ? editAlert(userId, alert)

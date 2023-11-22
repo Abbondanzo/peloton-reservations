@@ -99,10 +99,8 @@ export class Alerter implements DiffDelegate {
       }
       // Push alerts
       for (const alert of Object.values(alerts)) {
-        if (!this.isAlertExpired(alert)) {
-          this.initializeUser(alert.studioId, userId);
-          this.alertGroups[alert.studioId][userId].push(alert);
-        }
+        this.initializeUser(alert.studioId, userId);
+        this.alertGroups[alert.studioId][userId].push(alert);
       }
     }
   }
@@ -120,14 +118,6 @@ export class Alerter implements DiffDelegate {
     [key: string]: AlertPreferences;
   }) {
     this.alertPreferences = alertPreferencesSchema;
-  }
-
-  private isAlertExpired(alert: Alert) {
-    const now = new Date();
-    const then = new Date(alert.created);
-    const diff = now.getTime() - then.getTime();
-    const diffInWeeks = diff / ONE_WEEK_MS;
-    return diffInWeeks > alert.numberOfWeeks;
   }
 
   private matchesAlert(rawClass: RawClass, alert: Alert) {

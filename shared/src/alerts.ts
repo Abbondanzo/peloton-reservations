@@ -13,7 +13,6 @@ export interface Alert {
   instructors: Optional<string[]>;
   disciplines: Optional<string[]>;
   maxStatus: BookableStatus;
-  numberOfWeeks: number;
   timeRanges: Optional<TimeRange>[];
   studioId: string;
 }
