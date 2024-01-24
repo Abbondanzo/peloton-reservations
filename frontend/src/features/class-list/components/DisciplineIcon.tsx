@@ -10,6 +10,7 @@ import { Strength } from "./icons/Strength";
 import { Tread } from "./icons/Tread";
 import { Walking } from "./icons/Walking";
 import { Yoga } from "./icons/Yoga";
+import { Rowing } from "./icons/Rowing";
 
 interface IconConfig {
   color: string;
@@ -17,35 +18,39 @@ interface IconConfig {
 }
 
 const ICON_MAP: { [key: string]: IconConfig } = {
-  "1065951803872380843": {
+  "711-B": {
     color: "#d8ec43",
     svg: Cardio,
   },
-  "1065951721060042565": {
+  "694": {
     color: "#bbd4f4",
     svg: Cycling,
   },
-  "1065952163710109047": {
+  "709": {
     color: "#e6d4ff",
     svg: Meditation,
   },
-  "1065952214125643187": {
+  "712": {
+    color: "#cbf293",
+    svg: Rowing,
+  },
+  "708": {
     color: "#fde987",
     svg: Running,
   },
-  "1065952262083315203": {
+  "711": {
     color: "#ffc0d5",
     svg: Strength,
   },
-  "1860999437174703939": {
+  "710": {
     color: "#fdbe9f",
     svg: Tread,
   },
-  "1065952309244069446": {
+  "708-B": {
     color: "#ffa8a9",
     svg: Walking,
   },
-  "1065952341187888777": {
+  "709-B": {
     color: "#ceffdc",
     svg: Yoga,
   },
@@ -71,10 +76,12 @@ interface Props {
 }
 
 export const DisciplineIcon = ({ discipline, size = 32 }: Props) => {
-  const config = ICON_MAP[discipline.id] || ICON_MAP["1065951803872380843"];
+  const config = ICON_MAP[discipline.id] || ICON_MAP["711-B"];
   useEffect(() => {
     if (!ICON_MAP[discipline.id]) {
-      Sentry.captureMessage(`Received unsupported disclipine ${discipline.id}`);
+      const message = `Received unsupported discipline ${discipline.id}`;
+      console.log(message);
+      Sentry.captureMessage(message);
     }
   }, [discipline.id]);
 

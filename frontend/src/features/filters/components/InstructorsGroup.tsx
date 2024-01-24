@@ -10,6 +10,10 @@ import { useInstructorFilters } from "../hooks/useInstructorFilters";
 import { selectSortedInstructors } from "../selectors/selectSortedInstructors";
 import { resetInstructors } from "../slices/filtersSlice";
 import { ResetButton } from "./atoms/ResetButton";
+import {
+  getErrorMessage,
+  useGetInstructorsQuery,
+} from "../../class-list/services/pelotonApi";
 
 const SectionRow = styled.div`
   display: flex;
@@ -44,24 +48,26 @@ const InstructorsGroupItem = ({
 };
 
 const InstructorsGroupContent = () => {
+  const { data, isLoading, error } = useGetInstructorsQuery("7248695"); // 7248695 | 7248663
+
   const state = useAppSelector(selectSortedInstructors);
   const { selectedInstructors, toggleInstructor } = useInstructorFilters();
 
-  if (!state || state.status === "loading") {
-    return <div>Loading...</div>;
-  }
-
-  if (state.status === "failed") {
+  if (error && !isLoading) {
     return (
       <div>
-        Error! <code>{state.error.message}</code>
+        Error! <code>{getErrorMessage(error)}</code>
       </div>
     );
   }
 
+  if (!data || isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <List>
-      {state.instructors.map((instructor, index) => {
+      {data.map((instructor, index) => {
         return (
           <InstructorsGroupItem
             key={index}

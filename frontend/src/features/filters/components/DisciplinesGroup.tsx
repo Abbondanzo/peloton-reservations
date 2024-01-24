@@ -10,6 +10,10 @@ import { useDisciplineFilters } from "../hooks/useDisciplineFilters";
 import { selectSortedDisciplines } from "../selectors/selectSortedDisciplines";
 import { resetDisciplines } from "../slices/filtersSlice";
 import { ResetButton } from "./atoms/ResetButton";
+import {
+  useGetDisciplinesQuery,
+  getErrorMessage,
+} from "../../class-list/services/pelotonApi";
 
 const SectionRow = styled.div`
   display: flex;
@@ -53,24 +57,24 @@ const DisciplinesGroupItem = ({
 };
 
 const DisciplinesGroupContent = () => {
-  const state = useAppSelector(selectSortedDisciplines);
+  const { data, isLoading, error } = useGetDisciplinesQuery("7248695"); // 7248695 | 7248663
   const { selectedDisciplines, toggleDiscipline } = useDisciplineFilters();
 
-  if (!state || state.status === "loading") {
-    return <div>Loading...</div>;
-  }
-
-  if (state.status === "failed") {
+  if (error && !isLoading) {
     return (
       <div>
-        Error! <code>{state.error.message}</code>
+        Error! <code>{getErrorMessage(error)}</code>
       </div>
     );
   }
 
+  if (!data || isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <List>
-      {state.disciplines.map((discipline, index) => {
+      {data.map((discipline, index) => {
         return (
           <DisciplinesGroupItem
             key={index}
