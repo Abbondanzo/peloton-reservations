@@ -1,9 +1,9 @@
+import { useMemo } from "react";
 import styled from "styled-components";
 import { selectHasFilters } from "../../filters/selectors/selectHasFilters";
 import { useAppSelector } from "../../store/hooks/useStore";
 import { Card } from "../../theme/components/Card";
 import { selectFilteredClassesGroups } from "../selectors/selectFilteredClassesGroups";
-import { selectedLastUpdatedFormatted } from "../selectors/selectedLastUpdatedFormatted";
 import { Class } from "../types/Class";
 import { ClassListItem } from "./ClassListItem";
 
@@ -44,9 +44,10 @@ const TipText = styled.i`
 
 interface Props {
   classes: Class[];
+  fulfilledTimeStamp?: number;
 }
 
-export const ClassList = ({ classes }: Props) => {
+export const ClassList = ({ classes, fulfilledTimeStamp }: Props) => {
   const filteredGroups = useAppSelector((state) =>
     selectFilteredClassesGroups(state, classes)
   );
@@ -54,7 +55,14 @@ export const ClassList = ({ classes }: Props) => {
   const isFreeSelected = useAppSelector((state) =>
     state.filters.selectedBookableStatuses.includes("free")
   );
-  const lastUpdated = useAppSelector(selectedLastUpdatedFormatted);
+  const lastUpdated = useMemo(() => {
+    if (!fulfilledTimeStamp) return undefined;
+    const formatter = new Intl.DateTimeFormat(undefined, {
+      hour: "numeric",
+      minute: "numeric",
+    });
+    return formatter.format(fulfilledTimeStamp);
+  }, [fulfilledTimeStamp]);
 
   if (filteredGroups.length === 0) {
     return (

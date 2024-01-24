@@ -1,54 +1,18 @@
 import * as Sentry from "@sentry/react";
-import { FC, useEffect } from "react";
+import { useMemo } from "react";
 import styled from "styled-components";
 import { Discipline } from "../types/Discipline";
-import { Cardio } from "./icons/Cardio";
-import { Cycling } from "./icons/Cycling";
-import { Meditation } from "./icons/Meditation";
-import { Running } from "./icons/Running";
-import { Strength } from "./icons/Strength";
-import { Tread } from "./icons/Tread";
-import { Walking } from "./icons/Walking";
-import { Yoga } from "./icons/Yoga";
 
-interface IconConfig {
-  color: string;
-  svg: FC<{ size: number }>;
-}
-
-const ICON_MAP: { [key: string]: IconConfig } = {
-  "1065951803872380843": {
-    color: "#d8ec43",
-    svg: Cardio,
-  },
-  "1065951721060042565": {
-    color: "#bbd4f4",
-    svg: Cycling,
-  },
-  "1065952163710109047": {
-    color: "#e6d4ff",
-    svg: Meditation,
-  },
-  "1065952214125643187": {
-    color: "#fde987",
-    svg: Running,
-  },
-  "1065952262083315203": {
-    color: "#ffc0d5",
-    svg: Strength,
-  },
-  "1860999437174703939": {
-    color: "#fdbe9f",
-    svg: Tread,
-  },
-  "1065952309244069446": {
-    color: "#ffa8a9",
-    svg: Walking,
-  },
-  "1065952341187888777": {
-    color: "#ceffdc",
-    svg: Yoga,
-  },
+const COLOR_MAP: { [key: string]: string } = {
+  Cardio: "#d8ec43",
+  Cycling: "#bbd4f4",
+  Meditation: "#e6d4ff",
+  Rowing: "#cbf293",
+  Running: "#fde987",
+  Strength: "#ffc0d5",
+  Tread: "#fdbe9f",
+  Walking: "#ffa8a9",
+  Yoga: "#ceffdc",
 };
 const PADDING = 0.2;
 
@@ -65,22 +29,40 @@ const IconWrapper = styled.div<IconWrapperProps>`
   padding: ${(props) => props.size * PADDING}px;
 `;
 
+const ImageWrapper = styled.img<IconWrapperProps>`
+  width: ${(props) => props.size - props.size * PADDING * 2}px;
+  height: ${(props) => props.size - props.size * PADDING * 2}px;
+`;
+
 interface Props {
   discipline: Discipline;
   size?: number;
 }
 
 export const DisciplineIcon = ({ discipline, size = 32 }: Props) => {
-  const config = ICON_MAP[discipline.id] || ICON_MAP["1065951803872380843"];
-  useEffect(() => {
-    if (!ICON_MAP[discipline.id]) {
-      Sentry.captureMessage(`Received unsupported disclipine ${discipline.id}`);
+  const color = useMemo(() => {
+    const maybeKey = Object.keys(COLOR_MAP).find((key) => {
+      const kLC = key.toLowerCase();
+      const dLC = discipline.name.toLowerCase();
+      return kLC.includes(dLC) || dLC.includes(kLC);
+    });
+    if (maybeKey) {
+      return COLOR_MAP[maybeKey];
+    } else {
+      const message = `Received unsupported discipline ${discipline.name}`;
+      console.log(message);
+      Sentry.captureMessage(message);
+      return "#fafafa";
     }
-  }, [discipline.id]);
-
+  }, [discipline.name]);
   return (
-    <IconWrapper color={config.color} size={size}>
-      <config.svg size={size - 2 * size * PADDING} />
+    <IconWrapper color={color} size={size}>
+      <ImageWrapper
+        alt={discipline.name}
+        src={discipline.iconUrl}
+        size={size}
+        color={color}
+      />
     </IconWrapper>
   );
 };

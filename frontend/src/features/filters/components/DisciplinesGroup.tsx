@@ -1,5 +1,10 @@
 import styled from "styled-components";
 import { DisciplineIcon } from "../../class-list/components/DisciplineIcon";
+import { selectStudioId } from "../../class-list/selectors/selectStudioId";
+import {
+  getErrorMessage,
+  useGetDisciplinesQuery,
+} from "../../class-list/services/pelotonApi";
 import { Discipline } from "../../class-list/types/Discipline";
 import { useAppDispatch, useAppSelector } from "../../store/hooks/useStore";
 import { List } from "../../theme/components/List";
@@ -7,7 +12,6 @@ import { ListItem } from "../../theme/components/ListItem";
 import { Padding } from "../../theme/components/Padding";
 import { SectionTitle } from "../../theme/components/SectionTitle";
 import { useDisciplineFilters } from "../hooks/useDisciplineFilters";
-import { selectSortedDisciplines } from "../selectors/selectSortedDisciplines";
 import { resetDisciplines } from "../slices/filtersSlice";
 import { ResetButton } from "./atoms/ResetButton";
 
@@ -53,24 +57,25 @@ const DisciplinesGroupItem = ({
 };
 
 const DisciplinesGroupContent = () => {
-  const state = useAppSelector(selectSortedDisciplines);
+  const studioId = useAppSelector(selectStudioId);
+  const { currentData, isLoading, error } = useGetDisciplinesQuery(studioId);
   const { selectedDisciplines, toggleDiscipline } = useDisciplineFilters();
 
-  if (!state || state.status === "loading") {
-    return <div>Loading...</div>;
-  }
-
-  if (state.status === "failed") {
+  if (error && !isLoading) {
     return (
       <div>
-        Error! <code>{state.error.message}</code>
+        Error! <code>{getErrorMessage(error)}</code>
       </div>
     );
   }
 
+  if (!currentData || isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <List>
-      {state.disciplines.map((discipline, index) => {
+      {currentData.map((discipline, index) => {
         return (
           <DisciplinesGroupItem
             key={index}

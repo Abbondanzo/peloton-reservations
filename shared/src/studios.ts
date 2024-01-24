@@ -6,14 +6,14 @@ export interface Studio {
 }
 
 export const STUDIOS: { [key: string]: Studio } = {
-  "25900000001": {
+  "7248695": {
     location: "New York",
     timezone: "America/New_York",
   },
-  "927437471153653374": {
+  "7248663": {
     location: "London",
     timezone: "Europe/London",
   },
 };
 
-export const DEFAULT_STUDIO_ID = "25900000001";
+export const DEFAULT_STUDIO_ID = "7248695";

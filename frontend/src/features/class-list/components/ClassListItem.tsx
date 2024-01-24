@@ -167,7 +167,7 @@ interface Props {
 
 export const ClassListItem = ({ clazz }: Props) => {
   const studio = useAppSelector(selectStudio);
-  const interactive = clazz.free || !clazz.waitlistFull;
+  const interactive = clazz.status === "free" || clazz.status === "waitlist";
   const slug = useMemo(() => {
     switch (studio?.location) {
       case "New York":
@@ -179,9 +179,20 @@ export const ClassListItem = ({ clazz }: Props) => {
         return "";
     }
   }, [clazz.id, studio?.location]);
+  const buttonText = useMemo(() => {
+    switch (clazz.status) {
+      case "free":
+        return "Book";
+      case "waitlist":
+        return "Waitlist";
+      case "full":
+        return "Class Full";
+      default:
+        return "Unable to Book";
+    }
+  }, [clazz.status]);
   const time = useMemo(() => {
-    const classStart = new Date(clazz.start * 1000);
-    return getLocalTime(classStart, studio?.timezone);
+    return getLocalTime(clazz.start, studio?.timezone);
   }, [clazz.start, studio?.timezone]);
   return (
     <Anchor
@@ -211,11 +222,7 @@ export const ClassListItem = ({ clazz }: Props) => {
           </Metadata>
         </ContentWrapper>
         <Button $interactive={interactive} disabled={!interactive}>
-          {clazz.free
-            ? "Book"
-            : !clazz.waitlistFull
-            ? "Waitlist"
-            : "Class Full"}
+          {buttonText}
         </Button>
       </InteractiveCard>
     </Anchor>

@@ -2,10 +2,13 @@ const CORS_BYPASS = "https://cors.abbondanzo.workers.dev";
 
 const doSend =
   (method: "GET" | "POST", bypass: boolean = false) =>
-  async (destination: string, body?: BodyInit) => {
+  async <T>(
+    destination: string,
+    request: Omit<RequestInit, "method"> = {}
+  ): Promise<T> => {
     const resp = await fetch(
       bypass ? `${CORS_BYPASS}/${destination}` : destination,
-      { method, body }
+      { method, ...request }
     );
     const json = await resp.json();
     if (resp.status >= 200 && resp.status < 300) {

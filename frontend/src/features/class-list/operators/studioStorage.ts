@@ -1,4 +1,5 @@
 import { captureException } from "@sentry/react";
+import { STUDIOS } from "shared";
 
 const getStored = (key: string): string | null => {
   try {
@@ -24,7 +25,10 @@ export const getStoredStudioId = (defaultValue: string): string => {
   if (value === null) {
     return defaultValue;
   }
-  return value;
+  if (Object.keys(STUDIOS).includes(value)) {
+    return value;
+  }
+  return defaultValue;
 };
 
 export const setStoredStudioId = (studioId: string) => {

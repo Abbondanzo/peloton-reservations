@@ -1,7 +1,8 @@
 import styled from "styled-components";
 import { DisciplineIcon } from "../../../class-list/components/DisciplineIcon";
+import { selectStudioId } from "../../../class-list/selectors/selectStudioId";
+import { useGetDisciplinesQuery } from "../../../class-list/services/pelotonApi";
 import { Discipline } from "../../../class-list/types/Discipline";
-import { selectSortedDisciplines } from "../../../filters/selectors/selectSortedDisciplines";
 import { useAppSelector } from "../../../store/hooks/useStore";
 import { Card } from "../../../theme/components/Card";
 import { List } from "../../../theme/components/List";
@@ -63,17 +64,18 @@ const DisciplinesListPicker = ({
   selectedDisciplines,
   setSelectedDisciplines,
 }: Props) => {
-  const state = useAppSelector(selectSortedDisciplines);
+  const studioId = useAppSelector(selectStudioId);
+  const { currentData, isLoading, error } = useGetDisciplinesQuery(studioId);
   const disabled = isEmpty(selectedDisciplines);
 
-  if (!state || state.status === "loading") {
+  if (!currentData || isLoading) {
     return <div>Loading...</div>;
   }
 
-  if (state.status === "failed") {
+  if (error) {
     return (
       <div>
-        Error! <code>{state.error.message}</code>
+        Error! <code>{JSON.stringify(error)}</code>
       </div>
     );
   }
@@ -85,7 +87,7 @@ const DisciplinesListPicker = ({
         pointerEvents: disabled ? "none" : "all",
       }}
     >
-      {state.disciplines.map((discipline, index) => {
+      {currentData.map((discipline, index) => {
         const toggleDiscipline = () => {
           if (isNotEmpty(selectedDisciplines)) {
             const hasDiscipline = selectedDisciplines.includes(discipline.id);

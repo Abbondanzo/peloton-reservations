@@ -1,21 +1,22 @@
 export const getLocalDate = (
-  classStart: Date,
+  classStart: string,
   studioTimeZone: string,
   long: boolean
 ) => {
+  const classStartDate = new Date(classStart);
   const month = new Intl.DateTimeFormat(undefined, {
     month: long ? "long" : "short",
     timeZone: studioTimeZone,
-  }).format(classStart);
+  }).format(classStartDate);
   const day = new Intl.DateTimeFormat(undefined, {
     day: "numeric",
     timeZone: studioTimeZone,
-  }).format(classStart);
+  }).format(classStartDate);
   if (long) {
     const dayOfWeek = new Intl.DateTimeFormat(undefined, {
       weekday: "long",
       timeZone: studioTimeZone,
-    }).format(classStart);
+    }).format(classStartDate);
     return `${dayOfWeek}, ${month} ${day}`;
   }
   return `${month} ${day}`;

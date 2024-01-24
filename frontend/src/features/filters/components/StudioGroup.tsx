@@ -1,6 +1,7 @@
 import { STUDIOS } from "shared";
 import styled from "styled-components";
-import { fetchClassList } from "../../class-list/slices/classListSlice";
+import { selectStudioId } from "../../class-list/selectors/selectStudioId";
+import { setStudioId } from "../../class-list/slices/studioSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks/useStore";
 import { List } from "../../theme/components/List";
 import { ListItem } from "../../theme/components/ListItem";
@@ -24,7 +25,7 @@ const Label = styled.label`
 
 export const StudioGroup = () => {
   const dispatch = useAppDispatch();
-  const selectedStudioId = useAppSelector((state) => state.classList.studioId);
+  const selectedStudioId = useAppSelector(selectStudioId);
   return (
     <Padding>
       <legend>
@@ -36,7 +37,7 @@ export const StudioGroup = () => {
             key={index}
             onClick={() => {
               if (option.id !== selectedStudioId) {
-                dispatch(fetchClassList(option.id));
+                dispatch(setStudioId(option.id));
               }
             }}
           >
