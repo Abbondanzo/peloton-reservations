@@ -4,6 +4,7 @@ import { pelotonApi } from "../../class-list/services/pelotonApi";
 import classListReducer from "../../class-list/slices/classListSlice";
 import filtersReducer from "../../filters/slices/filtersSlice";
 import sessionReducer from "../../session/slices/sessionSlice";
+import { studioSlice } from "../../class-list/slices/studioSlice";
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     filters: filtersReducer,
     session: sessionReducer,
     [pelotonApi.reducerPath]: pelotonApi.reducer,
+    [studioSlice.name]: studioSlice.reducer,
   },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware().concat(pelotonApi.middleware);

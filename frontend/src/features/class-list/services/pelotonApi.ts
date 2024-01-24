@@ -4,9 +4,14 @@ import {
   createApi,
   fetchBaseQuery,
 } from "@reduxjs/toolkit/query/react";
+import {
+  mapClasses,
+  mapDisciplines,
+  mapInstructors,
+} from "../operators/pelotonApiMapper";
+import { Class } from "../types/Class";
 import { Discipline } from "../types/Discipline";
 import { Instructor } from "../types/Instructor";
-import { Class } from "../types/Class";
 
 const CORS_BYPASS = "https://cors.abbondanzo.workers.dev";
 
@@ -34,14 +39,9 @@ export const pelotonApi = createApi({
           "waiting_count",
           "active_registration_status",
           "category.name",
-          // "offering_type.background_color",
-          // "offering_type.waitlist_max",
-          // "offering_type.schedule_type",
-          // "offering_type.category.name",
           "venue",
           "customer_url",
           "description",
-          "suggested_booking_action",
         ];
         const expandProperties = [
           "instructors",
@@ -53,7 +53,7 @@ export const pelotonApi = createApi({
           "suggested_booking_action",
         ];
         const queryParams = new URLSearchParams({
-          // fields: fields.join(","),
+          fields: fields.join(","),
           expand: expandProperties.join(","),
           local_starts_at_gte: new Date().toISOString().replace("Z", ""),
           page_size: "100",
@@ -66,32 +66,7 @@ export const pelotonApi = createApi({
         };
       },
       transformResponse: (response: any): Class[] => {
-        const unsortedClasses: Class[] = response.results.map(
-          (rawClass: any) => ({
-            id: rawClass.id,
-            name: rawClass.name,
-            start: new Date(rawClass.starts_at).getTime() / 1000,
-            fff: rawClass.suggested_booking_action,
-            discipline: {
-              id: rawClass.offering_type.category.id,
-              name: rawClass.offering_type.category.name,
-            },
-            instructor: {
-              id: rawClass.instructors[0].id,
-              name: rawClass.instructors[0].name,
-              imageUrl: rawClass.instructors[0].picture_url,
-            },
-            ...rawClass,
-          })
-        );
-        console.log(
-          unsortedClasses.find(
-            (clazz: any) =>
-              clazz.occupancy < clazz.max_occupancy || clazz.waiting_count < 10
-          )
-        );
-        return unsortedClasses;
-        // return unsortedClasses.sort((a, b) => a.name.localeCompare(b.name));
+        return mapClasses(response);
       },
     }),
     getDisciplines: builder.query({
@@ -106,13 +81,7 @@ export const pelotonApi = createApi({
         };
       },
       transformResponse: (response: any): Discipline[] => {
-        const unsortedDisciplines: Discipline[] = response.results.map(
-          (rawDiscipline: any) => ({
-            id: rawDiscipline.id,
-            name: rawDiscipline.name,
-          })
-        );
-        return unsortedDisciplines.sort((a, b) => a.name.localeCompare(b.name));
+        return mapDisciplines(response);
       },
     }),
     getInstructors: builder.query({
@@ -127,15 +96,7 @@ export const pelotonApi = createApi({
         };
       },
       transformResponse: (response: any): Instructor[] => {
-        const unsortedInstructors: Instructor[] = response.results.map(
-          (rawInstructor: any) => ({
-            id: rawInstructor.id,
-            name: rawInstructor.name,
-            imageUrl: rawInstructor.picture_url,
-            display: true,
-          })
-        );
-        return unsortedInstructors.sort((a, b) => a.name.localeCompare(b.name));
+        return mapInstructors(response);
       },
     }),
   }),

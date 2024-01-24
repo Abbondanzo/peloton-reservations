@@ -66,7 +66,8 @@ export const fetchClassList = createAsyncThunk(
         ...clazz,
         name:
           clazz.name || `${clazz.duration / 60} min ${instructor.name} Class`,
-        waitlistFull: clazz.waitlist_full,
+        status: "full",
+        start: new Date(clazz.start * 1000).toISOString(),
         instructor,
         discipline: clazz.disciplines[0] || { id: "0", name: "No Discipline" },
       };

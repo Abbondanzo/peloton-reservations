@@ -6,7 +6,6 @@ import { selectFilteredClassesGroups } from "../selectors/selectFilteredClassesG
 import { selectedLastUpdatedFormatted } from "../selectors/selectedLastUpdatedFormatted";
 import { Class } from "../types/Class";
 import { ClassListItem } from "./ClassListItem";
-import { useGetClassesQuery } from "../services/pelotonApi";
 
 const Wrapper = styled.div`
   & > *:not(:last-child) {
@@ -48,9 +47,6 @@ interface Props {
 }
 
 export const ClassList = ({ classes }: Props) => {
-  const { data, isLoading, error } = useGetClassesQuery("7248695"); // 7248695 | 7248663
-  console.log(data, error);
-
   const filteredGroups = useAppSelector((state) =>
     selectFilteredClassesGroups(state, classes)
   );
@@ -60,26 +56,26 @@ export const ClassList = ({ classes }: Props) => {
   );
   const lastUpdated = useAppSelector(selectedLastUpdatedFormatted);
 
-  // if (filteredGroups.length === 0) {
-  //   return (
-  //     <Card>
-  //       <p>No classes!</p>
-  //       {hasFilters && (
-  //         <TipText>
-  //           Tip: Try resetting your filters or selecting more options in the
-  //           sidebar.
-  //         </TipText>
-  //       )}
-  //       {isFreeSelected && !hasFilters && (
-  //         <TipText>
-  //           Tip: Try checking back exactly at 12:00 pm on Mondays and Thursdays
-  //           (in your studio's timezone). This is usually when new classes open
-  //           up.
-  //         </TipText>
-  //       )}
-  //     </Card>
-  //   );
-  // }
+  if (filteredGroups.length === 0) {
+    return (
+      <Card>
+        <p>No classes!</p>
+        {hasFilters && (
+          <TipText>
+            Tip: Try resetting your filters or selecting more options in the
+            sidebar.
+          </TipText>
+        )}
+        {isFreeSelected && !hasFilters && (
+          <TipText>
+            Tip: Try checking back exactly at 12:00 pm on Mondays and Thursdays
+            (in your studio's timezone). This is usually when new classes open
+            up.
+          </TipText>
+        )}
+      </Card>
+    );
+  }
 
   return (
     <Wrapper>

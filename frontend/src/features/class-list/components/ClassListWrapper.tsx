@@ -1,9 +1,12 @@
+import { useAppSelector } from "../../store/hooks/useStore";
 import { Card } from "../../theme/components/Card";
+import { selectStudioId } from "../selectors/selectStudioId";
 import { getErrorMessage, useGetClassesQuery } from "../services/pelotonApi";
 import { ClassList } from "./ClassList";
 
 export const ClassListWrapper = () => {
-  const { data, isLoading, error } = useGetClassesQuery("7248695"); // 7248695 | 7248663
+  const studioId = useAppSelector(selectStudioId);
+  const { currentData, isLoading, error } = useGetClassesQuery(studioId);
 
   if (error && !isLoading) {
     return (
@@ -13,7 +16,7 @@ export const ClassListWrapper = () => {
     );
   }
 
-  if (!data || isLoading) {
+  if (!currentData || isLoading) {
     return (
       <Card>
         <p>Loading...</p>
@@ -21,5 +24,5 @@ export const ClassListWrapper = () => {
     );
   }
 
-  return <ClassList classes={data} />;
+  return <ClassList classes={currentData} />;
 };

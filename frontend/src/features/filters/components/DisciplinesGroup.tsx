@@ -1,5 +1,10 @@
 import styled from "styled-components";
 import { DisciplineIcon } from "../../class-list/components/DisciplineIcon";
+import { selectStudioId } from "../../class-list/selectors/selectStudioId";
+import {
+  getErrorMessage,
+  useGetDisciplinesQuery,
+} from "../../class-list/services/pelotonApi";
 import { Discipline } from "../../class-list/types/Discipline";
 import { useAppDispatch, useAppSelector } from "../../store/hooks/useStore";
 import { List } from "../../theme/components/List";
@@ -7,13 +12,8 @@ import { ListItem } from "../../theme/components/ListItem";
 import { Padding } from "../../theme/components/Padding";
 import { SectionTitle } from "../../theme/components/SectionTitle";
 import { useDisciplineFilters } from "../hooks/useDisciplineFilters";
-import { selectSortedDisciplines } from "../selectors/selectSortedDisciplines";
 import { resetDisciplines } from "../slices/filtersSlice";
 import { ResetButton } from "./atoms/ResetButton";
-import {
-  useGetDisciplinesQuery,
-  getErrorMessage,
-} from "../../class-list/services/pelotonApi";
 
 const SectionRow = styled.div`
   display: flex;
@@ -57,7 +57,8 @@ const DisciplinesGroupItem = ({
 };
 
 const DisciplinesGroupContent = () => {
-  const { data, isLoading, error } = useGetDisciplinesQuery("7248695"); // 7248695 | 7248663
+  const studioId = useAppSelector(selectStudioId);
+  const { currentData, isLoading, error } = useGetDisciplinesQuery(studioId);
   const { selectedDisciplines, toggleDiscipline } = useDisciplineFilters();
 
   if (error && !isLoading) {
@@ -68,13 +69,13 @@ const DisciplinesGroupContent = () => {
     );
   }
 
-  if (!data || isLoading) {
+  if (!currentData || isLoading) {
     return <div>Loading...</div>;
   }
 
   return (
     <List>
-      {data.map((discipline, index) => {
+      {currentData.map((discipline, index) => {
         return (
           <DisciplinesGroupItem
             key={index}

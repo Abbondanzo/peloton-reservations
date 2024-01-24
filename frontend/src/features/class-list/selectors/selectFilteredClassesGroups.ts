@@ -16,16 +16,12 @@ export const selectFilteredClassesGroups = createSelector(
     const timeZone = studio?.timezone || "";
     const groups: ClassGroup[] = [];
     let i = 1;
-    let formattedDate = getLocalDate(
-      new Date(filteredClasses[0].start * 1000),
-      timeZone,
-      true
-    );
+    let formattedDate = getLocalDate(filteredClasses[0].start, timeZone, true);
     let classGroup: Class[] = [filteredClasses[0]];
     while (i < filteredClasses.length) {
       const currentClass = filteredClasses[i];
       const currentFormattedDate = getLocalDate(
-        new Date(currentClass.start * 1000),
+        currentClass.start,
         timeZone,
         true
       );

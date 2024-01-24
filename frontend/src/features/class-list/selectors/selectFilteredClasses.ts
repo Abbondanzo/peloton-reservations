@@ -1,4 +1,3 @@
-import { classToStatus } from "./../operators/classToStatus";
 import { createSelector } from "@reduxjs/toolkit";
 import { RootState } from "../../store/constants/store";
 import { Class } from "../types/Class";
@@ -19,8 +18,7 @@ export const selectFilteredClasses = createSelector(
   (bookableStatuses, selectedDisciplines, selectedInstructors, classes) => {
     return classes
       .filter((clazz) => {
-        const status = classToStatus(clazz);
-        return status && bookableStatuses.includes(status);
+        return bookableStatuses.includes(clazz.status);
       })
       .filter((clazz) => {
         if (selectedInstructors.length > 0) {

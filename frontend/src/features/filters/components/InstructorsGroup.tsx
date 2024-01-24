@@ -1,5 +1,10 @@
 import styled from "styled-components";
 import { InstructorIcon } from "../../class-list/components/InstructorIcon";
+import { selectStudioId } from "../../class-list/selectors/selectStudioId";
+import {
+  getErrorMessage,
+  useGetInstructorsQuery,
+} from "../../class-list/services/pelotonApi";
 import { Instructor } from "../../class-list/types/Instructor";
 import { useAppDispatch, useAppSelector } from "../../store/hooks/useStore";
 import { List } from "../../theme/components/List";
@@ -7,13 +12,8 @@ import { ListItem } from "../../theme/components/ListItem";
 import { Padding } from "../../theme/components/Padding";
 import { SectionTitle } from "../../theme/components/SectionTitle";
 import { useInstructorFilters } from "../hooks/useInstructorFilters";
-import { selectSortedInstructors } from "../selectors/selectSortedInstructors";
 import { resetInstructors } from "../slices/filtersSlice";
 import { ResetButton } from "./atoms/ResetButton";
-import {
-  getErrorMessage,
-  useGetInstructorsQuery,
-} from "../../class-list/services/pelotonApi";
 
 const SectionRow = styled.div`
   display: flex;
@@ -48,9 +48,8 @@ const InstructorsGroupItem = ({
 };
 
 const InstructorsGroupContent = () => {
-  const { data, isLoading, error } = useGetInstructorsQuery("7248695"); // 7248695 | 7248663
-
-  const state = useAppSelector(selectSortedInstructors);
+  const studioId = useAppSelector(selectStudioId);
+  const { currentData, isLoading, error } = useGetInstructorsQuery(studioId);
   const { selectedInstructors, toggleInstructor } = useInstructorFilters();
 
   if (error && !isLoading) {
@@ -61,13 +60,13 @@ const InstructorsGroupContent = () => {
     );
   }
 
-  if (!data || isLoading) {
+  if (!currentData || isLoading) {
     return <div>Loading...</div>;
   }
 
   return (
     <List>
-      {data.map((instructor, index) => {
+      {currentData.map((instructor, index) => {
         return (
           <InstructorsGroupItem
             key={index}
