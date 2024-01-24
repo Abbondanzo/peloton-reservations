@@ -7,7 +7,7 @@ import { ClassList } from "./ClassList";
 export const ClassListWrapper = () => {
   const studioId = useAppSelector(selectStudioId);
   const { currentData, isLoading, error, fulfilledTimeStamp } =
-    useGetClassesQuery(studioId);
+    useGetClassesQuery(studioId, { refetchOnMountOrArgChange: true });
 
   if (error && !isLoading) {
     return (
