@@ -6,7 +6,8 @@ import { ClassList } from "./ClassList";
 
 export const ClassListWrapper = () => {
   const studioId = useAppSelector(selectStudioId);
-  const { currentData, isLoading, error } = useGetClassesQuery(studioId);
+  const { currentData, isLoading, error, fulfilledTimeStamp } =
+    useGetClassesQuery(studioId);
 
   if (error && !isLoading) {
     return (
@@ -24,5 +25,7 @@ export const ClassListWrapper = () => {
     );
   }
 
-  return <ClassList classes={currentData} />;
+  return (
+    <ClassList classes={currentData} fulfilledTimeStamp={fulfilledTimeStamp} />
+  );
 };

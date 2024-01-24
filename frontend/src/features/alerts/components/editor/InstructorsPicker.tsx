@@ -1,7 +1,8 @@
 import styled from "styled-components";
 import { InstructorIcon } from "../../../class-list/components/InstructorIcon";
+import { selectStudioId } from "../../../class-list/selectors/selectStudioId";
+import { useGetInstructorsQuery } from "../../../class-list/services/pelotonApi";
 import { Instructor } from "../../../class-list/types/Instructor";
-import { selectSortedInstructors } from "../../../filters/selectors/selectSortedInstructors";
 import { useAppSelector } from "../../../store/hooks/useStore";
 import { Card } from "../../../theme/components/Card";
 import { List } from "../../../theme/components/List";
@@ -54,17 +55,18 @@ const InstructorsListPicker = ({
   selectedInstructors,
   setSelectedInstructors,
 }: Props) => {
-  const state = useAppSelector(selectSortedInstructors);
+  const studioId = useAppSelector(selectStudioId);
+  const { currentData, isLoading, error } = useGetInstructorsQuery(studioId);
   const disabled = isEmpty(selectedInstructors);
 
-  if (!state || state.status === "loading") {
+  if (!currentData || isLoading) {
     return <div>Loading...</div>;
   }
 
-  if (state.status === "failed") {
+  if (error) {
     return (
       <div>
-        Error! <code>{state.error.message}</code>
+        Error! <code>{JSON.stringify(error)}</code>
       </div>
     );
   }
@@ -76,7 +78,7 @@ const InstructorsListPicker = ({
         pointerEvents: disabled ? "none" : "all",
       }}
     >
-      {state.instructors.map((instructor, index) => {
+      {currentData.map((instructor, index) => {
         const toggleInstructor = () => {
           if (isNotEmpty(selectedInstructors)) {
             const hasInstructor = selectedInstructors.includes(instructor.id);

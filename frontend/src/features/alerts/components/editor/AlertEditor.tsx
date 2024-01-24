@@ -3,7 +3,7 @@ import { Alert, DEFAULT_STUDIO_ID, TimeRange } from "shared";
 import styled from "styled-components";
 import { getStoredStudioId } from "../../../class-list/operators/studioStorage";
 import { selectStudioId } from "../../../class-list/selectors/selectStudioId";
-import { fetchClassList } from "../../../class-list/slices/classListSlice";
+import { setStudioId } from "../../../class-list/slices/studioSlice";
 import { StudioGroup } from "../../../filters/components/StudioGroup";
 import { BookableStatus } from "../../../filters/types/BookableStatus";
 import { selectUserId } from "../../../session/selectors/selectUserId";
@@ -47,10 +47,10 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
   const dispatch = useAppDispatch();
   useEffect(() => {
     if (alertToEdit.studioId) {
-      dispatch(fetchClassList(alertToEdit.studioId));
+      dispatch(setStudioId(alertToEdit.studioId));
     } else {
       const studioId = getStoredStudioId(DEFAULT_STUDIO_ID);
-      dispatch(fetchClassList(studioId));
+      dispatch(setStudioId(studioId));
     }
   }, [alertToEdit.studioId, dispatch]);
   const selectedStudioId = useAppSelector(selectStudioId);

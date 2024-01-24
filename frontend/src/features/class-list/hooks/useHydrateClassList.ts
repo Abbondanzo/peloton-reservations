@@ -1,29 +1,15 @@
-import { useCallback, useEffect, useRef } from "react";
-import { useAppDispatch, useAppSelector } from "../../store/hooks/useStore";
-import { selectActiveClassList } from "../selectors/selectActiveClassList";
+import { useCallback } from "react";
+import { useAppSelector } from "../../store/hooks/useStore";
 import { selectStudioId } from "../selectors/selectStudioId";
-import { fetchClassList } from "../slices/classListSlice";
+import { useGetClassesQuery } from "../services/pelotonApi";
 
 export const useHydrateClassList = () => {
-  const dispatch = useAppDispatch();
-  const currentStudioId = useAppSelector(selectStudioId);
-  const currentState = useAppSelector(selectActiveClassList);
-  const currentStatus = currentState?.status;
-  const hasFetchedRef = useRef(false);
+  const studioId = useAppSelector(selectStudioId);
+  const { refetch } = useGetClassesQuery(studioId);
 
-  useEffect(() => {
-    if (
-      !hasFetchedRef.current &&
-      (!currentStatus || currentStatus !== "loading")
-    ) {
-      hasFetchedRef.current = true;
-      dispatch(fetchClassList(currentStudioId));
-    }
-  }, [currentStatus, currentStudioId, dispatch]);
-
-  const handleRefresh = useCallback(async () => {
-    await dispatch(fetchClassList(currentStudioId));
-  }, [currentStudioId, dispatch]);
+  const handleRefresh = useCallback((): Promise<void> => {
+    return refetch() as any;
+  }, [refetch]);
 
   return {
     refresh: handleRefresh,

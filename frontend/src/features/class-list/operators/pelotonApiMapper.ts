@@ -19,9 +19,14 @@ export const mapInstructors = (response: any): Instructor[] => {
 };
 
 const mapDiscipline = (rawDiscipline: any): Discipline => {
+  const height = rawDiscipline.image.original_height || 48;
+  const width = rawDiscipline.image.original_width || 48;
   return {
     id: rawDiscipline.id,
     name: rawDiscipline.name,
+    iconUrl: rawDiscipline.image.url
+      .replace("{height}", height)
+      .replace("{width}", width),
   };
 };
 
