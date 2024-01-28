@@ -16,6 +16,9 @@ import { registerRoute } from "workbox-routing";
 import { StaleWhileRevalidate } from "workbox-strategies";
 import { app } from "./features/firebase/constants/app";
 
+const MANIFEST_VERSION = 1;
+console.log(`Running manifest v${MANIFEST_VERSION}`);
+
 declare const self: ServiceWorkerGlobalScope;
 
 clientsClaim();
