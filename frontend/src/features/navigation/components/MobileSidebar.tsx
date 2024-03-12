@@ -101,7 +101,6 @@ export const MobileSidebar = ({ open, onClose }: Props) => {
           <RouteItem to={Paths.CLASS_LIST} onClick={console.log}>
             Class List
           </RouteItem>
-          <RouteItem to={Paths.ALERTS}>Alerts</RouteItem>
           <RouteItem to={Paths.ABOUT}>FAQ</RouteItem>
         </Routes>
         <SessionInfoWrapper>

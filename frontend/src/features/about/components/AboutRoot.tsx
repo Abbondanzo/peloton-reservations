@@ -42,12 +42,9 @@ export const AboutRoot = () => {
             >
               Peloton Studios
             </a>
-            . The website you are on now serves two purposes. First, it provides
-            a quicker and smarter version of that Peloton Studios class
-            reservation website, with additional filters like checking by
-            waitlist status. Second, it provides the ability to set up push
-            notifications to know the exact second when a class that you want
-            has opened up.
+            . It provides a quicker and smarter version of that Peloton Studios
+            class reservation website, with additional filters like checking by
+            waitlist status.
           </p>
           <h2>How do you view classes?</h2>
           <p>
