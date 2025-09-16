@@ -13,7 +13,13 @@
     "frontend",
     "shared"
   ],
+  "scripts": {
+    "prettier": "prettier --write ."
+  },
   "dependencies": {
     "typescript": "5.9.2"
+  },
+  "devDependencies": {
+    "prettier": "3.6.2"
   }
 }
