@@ -1,4 +1,4 @@
-import { Alert, BookableStatus } from "shared";
+import type { Alert, BookableStatus } from "shared";
 import { isNotEmpty } from "../../utils/optional";
 
 const getFriendlyStatus = (status: BookableStatus) => {

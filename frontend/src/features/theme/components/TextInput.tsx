@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from "react";
+import { type ChangeEvent, useState } from "react";
 import styled from "styled-components";
 import { border } from "../constants/styles";
 

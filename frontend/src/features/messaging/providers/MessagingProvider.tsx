@@ -1,6 +1,6 @@
 import { captureException } from "@sentry/react";
 import { onMessage } from "firebase/messaging";
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useState } from "react";
 import { getAppToken, messaging } from "../../firebase/constants/messaging";
 import { selectUserId } from "../../session/selectors/selectUserId";
 import { useAppSelector } from "../../store/hooks/useStore";
@@ -12,7 +12,7 @@ interface Props {
   children: ReactNode;
 }
 
-export const MessagingProvider = ({ children }: Props): JSX.Element => {
+export const MessagingProvider = ({ children }: Props) => {
   const [token, setToken] = useState<string>();
   useEffect(() => {
     if (messaging) {

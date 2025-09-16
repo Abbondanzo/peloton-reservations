@@ -1,6 +1,6 @@
 import { createContext } from "react";
-import { AlertPreferences } from "shared";
-import { AsyncData } from "../../store/types/AsyncData";
+import type { AlertPreferences } from "shared";
+import type { AsyncData } from "../../store/types/AsyncData";
 
 export const AlertPreferencesContext = createContext<
   AsyncData<Partial<AlertPreferences>>

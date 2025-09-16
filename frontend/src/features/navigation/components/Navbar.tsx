@@ -4,7 +4,6 @@ import styled from "styled-components";
 import { Paths } from "../constants/paths";
 import { MobileSidebar } from "./MobileSidebar";
 import { SessionInfo } from "./SessionInfo";
-// import { SessionInfo } from "./SessionInfo";
 
 const Wrapper = styled.nav`
   height: inherit;

@@ -1,6 +1,6 @@
 import { createContext } from "react";
-import { Alert } from "shared";
-import { AsyncData } from "../../store/types/AsyncData";
+import type { Alert } from "shared";
+import type { AsyncData } from "../../store/types/AsyncData";
 
 export const AlertsContext = createContext<AsyncData<Alert[]>>({
   state: "idle",

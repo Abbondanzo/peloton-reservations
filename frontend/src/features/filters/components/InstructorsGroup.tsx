@@ -5,7 +5,7 @@ import {
   getErrorMessage,
   useGetInstructorsQuery,
 } from "../../class-list/services/pelotonApi";
-import { Instructor } from "../../class-list/types/Instructor";
+import type { Instructor } from "../../class-list/types/Instructor";
 import { useAppDispatch, useAppSelector } from "../../store/hooks/useStore";
 import { List } from "../../theme/components/List";
 import { ListItem } from "../../theme/components/ListItem";

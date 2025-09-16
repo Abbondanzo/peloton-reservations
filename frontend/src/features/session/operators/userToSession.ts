@@ -1,5 +1,5 @@
-import { User } from "firebase/auth";
-import { Session } from "../types/Session";
+import type { User } from "firebase/auth";
+import type { Session } from "../types/Session";
 
 export const userToSession = (user: User): Session => {
   return {

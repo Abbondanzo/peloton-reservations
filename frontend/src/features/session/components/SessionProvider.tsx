@@ -1,5 +1,5 @@
 import { onAuthStateChanged } from "firebase/auth";
-import { ReactNode, useEffect } from "react";
+import { type ReactNode, useEffect } from "react";
 import { auth } from "../../firebase/constants/auth";
 import { useAppDispatch } from "../../store/hooks/useStore";
 import { userToSession } from "../operators/userToSession";

@@ -2,11 +2,11 @@ import { useCallback, useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { auth } from "../../firebase/constants/auth";
+import { MessagingContext } from "../../messaging/context/MessagingContext";
 import { selectSession } from "../../session/selectors/selectSession";
 import { useAppSelector } from "../../store/hooks/useStore";
 import { Popover } from "../../theme/components/Popover";
 import { Paths } from "../constants/paths";
-import { MessagingContext } from "../../messaging/context/MessagingContext";
 
 const SignInButton = styled.button`
   background-color: transparent;

@@ -1,4 +1,4 @@
-import { RootState } from "./../../store/constants/store";
+import type { RootState } from "../../store/constants/store";
 
 export const selectHasFilters = (state: RootState) => {
   return (

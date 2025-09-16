@@ -6,7 +6,7 @@ import { Card } from "../../theme/components/Card";
 import { mediaMobile } from "../../theme/constants/queries";
 import { getLocalTime } from "../operators/getLocalTime";
 import { selectStudio } from "../selectors/selectStudio";
-import { Class } from "../types/Class";
+import type { Class } from "../types/Class";
 import { DisciplineIcon } from "./DisciplineIcon";
 import { InstructorIcon } from "./InstructorIcon";
 

@@ -1,4 +1,7 @@
-import { BOOKABLE_STATUS_KEYS, BookableStatus } from "../types/BookableStatus";
+import {
+  BOOKABLE_STATUS_KEYS,
+  type BookableStatus,
+} from "../types/BookableStatus";
 
 export const isBookableStatus = (
   maybeStatus: string

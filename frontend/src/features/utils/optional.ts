@@ -1,4 +1,4 @@
-export const isEmpty = (optional: Optional<any>): optional is null => {
+export const isEmpty = <T>(optional: Optional<T>): optional is null => {
   return optional === null || optional === undefined;
 };
 

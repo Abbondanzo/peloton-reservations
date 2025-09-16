@@ -3,56 +3,35 @@
   "description": "Frontend code for interacting with Peloton schedule and user account",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "service-worker": "npm run build && ln build/service-worker.js public/service-worker.js",
-    "sentry-sourcemaps": "sentry-cli sourcemaps inject --org titus-design --project peloton-reservations ./build && sentry-cli sourcemaps upload --org titus-design --project peloton-reservations ./build"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@reduxjs/toolkit": "2.9.0",
     "@sentry/react": "10.11.0",
     "firebase": "12.2.1",
-    "firebaseui": "6.1.0",
     "react": "19.1.1",
     "react-dom": "19.1.1",
     "react-redux": "9.2.0",
-    "react-router": "7.9.1",
     "react-router-dom": "7.9.1",
-    "shared": "file:../shared",
-    "styled-components": "6.1.19",
-    "web-vitals": "5.1.0"
+    "styled-components": "6.1.19"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "7.21.11",
-    "@sentry/cli": "2.53.0",
-    "@testing-library/jest-dom": "6.8.0",
-    "@testing-library/react": "16.3.0",
-    "@testing-library/user-event": "14.6.1",
-    "@types/jest": "30.0.0",
-    "@types/node": "24.5.0",
-    "@types/react": "19.1.13",
-    "@types/react-dom": "19.1.9",
-    "react-scripts": "^0.0.0"
+    "@eslint/js": "9.33.0",
+    "@types/react": "19.1.10",
+    "@types/react-dom": "19.1.7",
+    "@vitejs/plugin-react": "5.0.0",
+    "eslint": "9.33.0",
+    "eslint-plugin-react-hooks": "5.2.0",
+    "eslint-plugin-react-refresh": "0.4.20",
+    "globals": "16.3.0",
+    "shared": "file:../shared",
+    "typescript": "5.8.3",
+    "typescript-eslint": "8.39.1",
+    "vite": "7.1.2"
   }
 }

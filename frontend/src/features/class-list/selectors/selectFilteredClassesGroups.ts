@@ -1,6 +1,6 @@
 import { createSelector } from "@reduxjs/toolkit";
-import { Class } from "../types/Class";
-import { getLocalDate } from "./../operators/getLocalDate";
+import type { Class } from "../types/Class";
+import { getLocalDate } from "../operators/getLocalDate";
 import { selectFilteredClasses } from "./selectFilteredClasses";
 import { selectStudio } from "./selectStudio";
 

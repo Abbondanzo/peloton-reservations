@@ -1,6 +1,6 @@
 import { createContext } from "react";
-import { AsyncData } from "../../store/types/AsyncData";
-import { RegisteredDevice } from "../types/RegisteredDevice";
+import type { AsyncData } from "../../store/types/AsyncData";
+import type { RegisteredDevice } from "../types/RegisteredDevice";
 
 export const RegisteredDevicesContext = createContext<
   AsyncData<{ [key: string]: RegisteredDevice }>

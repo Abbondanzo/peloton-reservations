@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { Alert } from "shared";
+import type { Alert } from "shared";
 import { Card } from "../../../theme/components/Card";
 import { AlertsContext } from "../../context/AlertsContext";
 import { Button } from "../atoms/Button";

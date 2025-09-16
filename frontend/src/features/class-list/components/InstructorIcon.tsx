@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Instructor } from "../types/Instructor";
+import type { Instructor } from "../types/Instructor";
 
 interface InstructorImageProps {
   size: number;

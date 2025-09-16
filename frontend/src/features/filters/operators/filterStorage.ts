@@ -1,6 +1,6 @@
-import { captureException } from '@sentry/react';
-import { BookableStatus } from '../types/BookableStatus';
-import { isBookableStatus } from './isBookableStatus';
+import { captureException } from "@sentry/react";
+import type { BookableStatus } from "../types/BookableStatus";
+import { isBookableStatus } from "./isBookableStatus";
 
 const getStored = (key: string): string | null => {
   try {
@@ -27,9 +27,9 @@ const removeStored = (key: string) => {
   }
 };
 
-const BOOKABLE_STATUS_KEY = 'BOOKABLE_STATUS_FILTERS';
-const DISCIPLINE_KEY = 'DISCIPLINE_FILTERS';
-const INSTRUCTOR_KEY = 'INSTRUCTOR_FILTERS';
+const BOOKABLE_STATUS_KEY = "BOOKABLE_STATUS_FILTERS";
+const DISCIPLINE_KEY = "DISCIPLINE_FILTERS";
+const INSTRUCTOR_KEY = "INSTRUCTOR_FILTERS";
 
 export const getStoredBookableStatus = (
   defaultValue: BookableStatus[]
@@ -38,11 +38,11 @@ export const getStoredBookableStatus = (
   if (value === null) {
     return defaultValue;
   }
-  return value.split(';').filter(isBookableStatus);
+  return value.split(";").filter(isBookableStatus);
 };
 
 export const setStoredBookableStatus = (show: BookableStatus[]) => {
-  setStored(BOOKABLE_STATUS_KEY, show.join(';'));
+  setStored(BOOKABLE_STATUS_KEY, show.join(";"));
 };
 
 export const getStoredDisciplines = (defaultValue: string[]): string[] => {
@@ -50,14 +50,14 @@ export const getStoredDisciplines = (defaultValue: string[]): string[] => {
   if (value === null) {
     return defaultValue;
   }
-  return value.split(';').filter(Boolean);
+  return value.split(";").filter(Boolean);
 };
 
 export const setStoredDisciplines = (instructorIds: string[]) => {
   if (instructorIds.length === 0) {
     removeStored(DISCIPLINE_KEY);
   } else {
-    setStored(DISCIPLINE_KEY, instructorIds.join(';'));
+    setStored(DISCIPLINE_KEY, instructorIds.join(";"));
   }
 };
 
@@ -66,13 +66,13 @@ export const getStoredInstructors = (defaultValue: string[]): string[] => {
   if (value === null) {
     return defaultValue;
   }
-  return value.split(';').filter(Boolean);
+  return value.split(";").filter(Boolean);
 };
 
 export const setStoredInstructors = (instructorIds: string[]) => {
   if (instructorIds.length === 0) {
     removeStored(INSTRUCTOR_KEY);
   } else {
-    setStored(INSTRUCTOR_KEY, instructorIds.join(';'));
+    setStored(INSTRUCTOR_KEY, instructorIds.join(";"));
   }
 };

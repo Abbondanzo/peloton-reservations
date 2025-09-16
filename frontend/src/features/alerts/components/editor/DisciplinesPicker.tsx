@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { DisciplineIcon } from "../../../class-list/components/DisciplineIcon";
 import { selectStudioId } from "../../../class-list/selectors/selectStudioId";
 import { useGetDisciplinesQuery } from "../../../class-list/services/pelotonApi";
-import { Discipline } from "../../../class-list/types/Discipline";
+import type { Discipline } from "../../../class-list/types/Discipline";
 import { useAppSelector } from "../../../store/hooks/useStore";
 import { Card } from "../../../theme/components/Card";
 import { List } from "../../../theme/components/List";

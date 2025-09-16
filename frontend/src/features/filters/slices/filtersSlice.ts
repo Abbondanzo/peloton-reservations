@@ -1,5 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { PayloadAction } from '@reduxjs/toolkit/src/createAction';
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import {
   getStoredBookableStatus,
   getStoredDisciplines,
@@ -7,8 +6,8 @@ import {
   setStoredBookableStatus,
   setStoredDisciplines,
   setStoredInstructors,
-} from '../operators/filterStorage';
-import { BookableStatus } from '../types/BookableStatus';
+} from "../operators/filterStorage";
+import type { BookableStatus } from "../types/BookableStatus";
 
 export interface FilterState {
   selectedBookableStatuses: BookableStatus[];
@@ -17,13 +16,13 @@ export interface FilterState {
 }
 
 const initialState: FilterState = {
-  selectedBookableStatuses: getStoredBookableStatus(['free', 'waitlist']),
+  selectedBookableStatuses: getStoredBookableStatus(["free", "waitlist"]),
   selectedInstructors: getStoredInstructors([]),
   selectedDisciplines: getStoredDisciplines([]),
 };
 
 const filtersSlice = createSlice({
-  name: 'filters',
+  name: "filters",
   initialState,
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {

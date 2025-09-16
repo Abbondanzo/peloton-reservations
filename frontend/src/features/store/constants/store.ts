@@ -1,4 +1,8 @@
-import { Action, ThunkAction, configureStore } from "@reduxjs/toolkit";
+import {
+  type Action,
+  type ThunkAction,
+  configureStore,
+} from "@reduxjs/toolkit";
 import alertsReducer from "../../alerts/slices/alertsSlice";
 import { pelotonApi } from "../../class-list/services/pelotonApi";
 import { studioSlice } from "../../class-list/slices/studioSlice";

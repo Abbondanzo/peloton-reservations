@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 import { findDOMNode } from "react-dom";
 import styled from "styled-components";
 
@@ -23,7 +23,7 @@ const Wrapper = styled.div`
 `;
 
 export const Popover = ({ children, open, onClose }: Props) => {
-  const lastOpened = useRef<number>();
+  const lastOpened = useRef<number>(0);
   useEffect(() => {
     if (open) {
       lastOpened.current = new Date().getTime();

@@ -1,4 +1,4 @@
-import { Alert } from "shared";
+import type { Alert } from "shared";
 import styled from "styled-components";
 import { AlertsListItem } from "./AlertsListItem";
 

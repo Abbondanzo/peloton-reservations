@@ -7,8 +7,8 @@ export const useHydrateClassList = () => {
   const studioId = useAppSelector(selectStudioId);
   const { refetch } = useGetClassesQuery(studioId);
 
-  const handleRefresh = useCallback((): Promise<void> => {
-    return refetch() as any;
+  const handleRefresh = useCallback(async (): Promise<void> => {
+    await refetch();
   }, [refetch]);
 
   return {

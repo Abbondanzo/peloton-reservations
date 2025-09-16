@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Alert, STUDIOS } from "shared";
+import { type Alert, STUDIOS } from "shared";
 import styled from "styled-components";
 import { selectUserId } from "../../../session/selectors/selectUserId";
 import { useAppSelector } from "../../../store/hooks/useStore";

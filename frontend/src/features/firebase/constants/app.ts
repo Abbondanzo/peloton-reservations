@@ -1,5 +1,5 @@
-import { FirebaseOptions, initializeApp } from "firebase/app";
-import { safeInit } from "./../operators/safeInit";
+import { type FirebaseOptions, initializeApp } from "firebase/app";
+import { safeInit } from "../operators/safeInit";
 
 const firebaseConfig: FirebaseOptions = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,

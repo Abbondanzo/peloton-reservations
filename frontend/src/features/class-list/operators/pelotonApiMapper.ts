@@ -1,8 +1,8 @@
 import { captureMessage } from "@sentry/react";
-import { BookableStatus } from "../../filters/types/BookableStatus";
-import { Class } from "../types/Class";
-import { Discipline } from "../types/Discipline";
-import { Instructor } from "../types/Instructor";
+import type { BookableStatus } from "../../filters/types/BookableStatus";
+import type { Class } from "../types/Class";
+import type { Discipline } from "../types/Discipline";
+import type { Instructor } from "../types/Instructor";
 
 const mapInstructor = (rawInstructor: any): Instructor => {
   return {

@@ -1,5 +1,5 @@
-import { ChangeEvent } from "react";
-import { TimeRange } from "shared";
+import type { ChangeEvent } from "react";
+import type { TimeRange } from "shared";
 import styled from "styled-components";
 import { List } from "../../../theme/components/List";
 import { mediaMobile } from "../../../theme/constants/queries";
