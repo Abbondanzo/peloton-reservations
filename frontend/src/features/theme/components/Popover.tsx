@@ -1,5 +1,4 @@
 import { type ReactNode, useEffect, useRef } from "react";
-import { findDOMNode } from "react-dom";
 import styled from "styled-components";
 
 interface Props {
@@ -42,7 +41,7 @@ export const Popover = ({ children, open, onClose }: Props) => {
         onClose();
         return;
       }
-      const domNode = findDOMNode(ref.current);
+      const domNode = ref.current;
       if (domNode && domNode instanceof Node && domNode.contains(el)) {
         return;
       }
