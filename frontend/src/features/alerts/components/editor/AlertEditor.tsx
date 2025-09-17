@@ -87,6 +87,7 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
       return;
     }
     const alert: Alert = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       id: alertToEdit.id || (null as any),
       created: alertToEdit.created || new Date().getTime(),
       studioId: selectedStudioId,
