@@ -106,6 +106,7 @@ const Divider = styled.div`
     background: white;
     padding: 0 1rem;
     color: #666;
+    position: relative;
   }
 `;
 
