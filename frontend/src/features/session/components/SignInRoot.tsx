@@ -14,12 +14,6 @@ const Wrapper = styled.div`
   text-align: center;
 `;
 
-const MicroCopy = styled.p`
-  color: ${(props) => props.theme.colors.secondary};
-  font-size: 14px;
-  margin-bottom: 2em;
-`;
-
 export const SignInRoot = () => {
   const hasSession = useAppSelector(selectHasSession);
   if (hasSession) {
@@ -29,11 +23,6 @@ export const SignInRoot = () => {
     <NavbarProvider>
       <Wrapper>
         <Card>
-          <h1>Sign In</h1>
-          <MicroCopy>
-            Set your own alerts, persist your filters across devices, and get
-            access to beta features.
-          </MicroCopy>
           <SignIn />
         </Card>
       </Wrapper>
