@@ -1,6 +1,6 @@
 import { ref, set } from "@firebase/database";
 import { database } from "../../firebase/constants/database";
-import { RegisteredDevice } from "../types/RegisteredDevice";
+import type { RegisteredDevice } from "../types/RegisteredDevice";
 
 export const setToken = async (
   userId: string,

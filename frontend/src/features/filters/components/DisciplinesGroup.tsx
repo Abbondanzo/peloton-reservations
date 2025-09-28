@@ -5,7 +5,7 @@ import {
   getErrorMessage,
   useGetDisciplinesQuery,
 } from "../../class-list/services/pelotonApi";
-import { Discipline } from "../../class-list/types/Discipline";
+import type { Discipline } from "../../class-list/types/Discipline";
 import { useAppDispatch, useAppSelector } from "../../store/hooks/useStore";
 import { List } from "../../theme/components/List";
 import { ListItem } from "../../theme/components/ListItem";

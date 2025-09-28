@@ -4,7 +4,7 @@ import { selectHasFilters } from "../../filters/selectors/selectHasFilters";
 import { useAppSelector } from "../../store/hooks/useStore";
 import { Card } from "../../theme/components/Card";
 import { selectFilteredClassesGroups } from "../selectors/selectFilteredClassesGroups";
-import { Class } from "../types/Class";
+import type { Class } from "../types/Class";
 import { ClassListItem } from "./ClassListItem";
 
 const Wrapper = styled.div`

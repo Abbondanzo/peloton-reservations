@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { BookableStatus } from "../../../filters/types/BookableStatus";
+import type { BookableStatus } from "../../../filters/types/BookableStatus";
 import { List } from "../../../theme/components/List";
 import { ListItem } from "../../../theme/components/ListItem";
 import { Padding } from "../../../theme/components/Padding";

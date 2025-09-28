@@ -1,8 +1,8 @@
 import { onValue, ref } from "firebase/database";
-import { ReactNode, useEffect, useState } from "react";
-import { Alert } from "shared";
+import { type ReactNode, useEffect, useState } from "react";
+import type { Alert } from "shared";
 import { database } from "../../firebase/constants/database";
-import { AsyncData } from "../../store/types/AsyncData";
+import type { AsyncData } from "../../store/types/AsyncData";
 import { DAY_NAMES } from "../constants/days";
 import { AlertsContext } from "../context/AlertsContext";
 

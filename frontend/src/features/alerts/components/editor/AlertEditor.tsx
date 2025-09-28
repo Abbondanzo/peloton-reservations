@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { Alert, DEFAULT_STUDIO_ID, TimeRange } from "shared";
+import { type Alert, DEFAULT_STUDIO_ID, type TimeRange } from "shared";
 import styled from "styled-components";
 import { getStoredStudioId } from "../../../class-list/operators/studioStorage";
 import { selectStudioId } from "../../../class-list/selectors/selectStudioId";
 import { setStudioId } from "../../../class-list/slices/studioSlice";
 import { StudioGroup } from "../../../filters/components/StudioGroup";
-import { BookableStatus } from "../../../filters/types/BookableStatus";
+import type { BookableStatus } from "../../../filters/types/BookableStatus";
 import { selectUserId } from "../../../session/selectors/selectUserId";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks/useStore";
 import { Padding } from "../../../theme/components/Padding";
@@ -87,6 +87,7 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
       return;
     }
     const alert: Alert = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       id: alertToEdit.id || (null as any),
       created: alertToEdit.created || new Date().getTime(),
       studioId: selectedStudioId,

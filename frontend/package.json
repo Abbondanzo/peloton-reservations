@@ -3,55 +3,36 @@
   "description": "Frontend code for interacting with Peloton schedule and user account",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "service-worker": "npm run build && ln build/service-worker.js public/service-worker.js",
-    "sentry-sourcemaps": "sentry-cli sourcemaps inject --org titus-design --project peloton-reservations ./build && sentry-cli sourcemaps upload --org titus-design --project peloton-reservations ./build"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@reduxjs/toolkit": "1.9.7",
-    "@sentry/react": "7.76.0",
-    "firebase": "10.5.2",
-    "firebaseui": "6.1.0",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "react-redux": "8.1.3",
-    "react-router": "6.17.0",
-    "react-router-dom": "6.17.0",
-    "styled-components": "6.1.0",
-    "web-vitals": "3.5.0"
+    "@reduxjs/toolkit": "2.9.0",
+    "@sentry/react": "10.11.0",
+    "firebase": "12.2.1",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "react-redux": "9.2.0",
+    "react-router-dom": "7.9.1",
+    "styled-components": "6.1.19"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "7.21.11",
-    "@sentry/cli": "2.21.2",
-    "@testing-library/jest-dom": "6.1.4",
-    "@testing-library/react": "14.0.0",
-    "@testing-library/user-event": "14.5.1",
-    "@types/jest": "29.5.6",
-    "@types/node": "16.18.36",
-    "@types/react": "18.2.33",
-    "@types/react-dom": "18.2.14",
-    "react-scripts": "5.0.1"
+    "@eslint/js": "9.33.0",
+    "@types/react": "19.1.10",
+    "@types/react-dom": "19.1.7",
+    "@vitejs/plugin-react": "5.0.0",
+    "eslint": "9.33.0",
+    "eslint-plugin-react-hooks": "5.2.0",
+    "eslint-plugin-react-refresh": "0.4.20",
+    "globals": "16.3.0",
+    "shared": "file:../shared",
+    "typescript": "5.8.3",
+    "typescript-eslint": "8.39.1",
+    "vite": "7.1.5",
+    "vite-plugin-pwa": "1.0.3"
   }
 }

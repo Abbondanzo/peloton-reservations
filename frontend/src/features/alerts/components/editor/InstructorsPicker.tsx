@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { InstructorIcon } from "../../../class-list/components/InstructorIcon";
 import { selectStudioId } from "../../../class-list/selectors/selectStudioId";
 import { useGetInstructorsQuery } from "../../../class-list/services/pelotonApi";
-import { Instructor } from "../../../class-list/types/Instructor";
+import type { Instructor } from "../../../class-list/types/Instructor";
 import { useAppSelector } from "../../../store/hooks/useStore";
 import { Card } from "../../../theme/components/Card";
 import { List } from "../../../theme/components/List";

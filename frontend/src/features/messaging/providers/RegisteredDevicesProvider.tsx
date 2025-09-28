@@ -1,9 +1,9 @@
 import { onValue, ref } from "firebase/database";
-import { ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { database } from "../../firebase/constants/database";
-import { AsyncData } from "../../store/types/AsyncData";
+import type { AsyncData } from "../../store/types/AsyncData";
 import { RegisteredDevicesContext } from "../context/RegisteredDevicesContext";
-import { RegisteredDevice } from "../types/RegisteredDevice";
+import type { RegisteredDevice } from "../types/RegisteredDevice";
 
 interface Props {
   children: ReactNode;

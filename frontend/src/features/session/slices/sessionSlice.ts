@@ -1,6 +1,6 @@
-import { AsyncData } from "./../../store/types/AsyncData";
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import { Session } from "./../types/Session";
+import { type PayloadAction, createSlice } from "@reduxjs/toolkit";
+import type { AsyncData } from "../../store/types/AsyncData";
+import type { Session } from "../types/Session";
 
 const initialState = {
   state: "idle",

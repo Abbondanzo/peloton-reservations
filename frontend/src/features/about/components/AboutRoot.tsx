@@ -1,8 +1,8 @@
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { NavbarProvider } from "../../navigation/components/NavbarProvider";
-import { Card } from "../../theme/components/Card";
-import { Link } from "react-router-dom";
 import { Paths } from "../../navigation/constants/paths";
+import { Card } from "../../theme/components/Card";
 
 const BodyWrapper = styled.div`
   margin: 0 auto;

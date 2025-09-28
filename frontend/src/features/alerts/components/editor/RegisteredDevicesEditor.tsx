@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { MessagingContext } from "../../../messaging/context/MessagingContext";
 import { RegisteredDevicesContext } from "../../../messaging/context/RegisteredDevicesContext";
 import { deleteToken } from "../../../messaging/firebase/deleteToken";
-import { RegisteredDevice } from "../../../messaging/types/RegisteredDevice";
+import type { RegisteredDevice } from "../../../messaging/types/RegisteredDevice";
 import { selectUserId } from "../../../session/selectors/selectUserId";
 import { useAppSelector } from "../../../store/hooks/useStore";
 import { Card } from "../../../theme/components/Card";
@@ -103,7 +103,9 @@ const RegisteredDevicesList = ({ devices }: Props) => {
 
   const userId = useAppSelector(selectUserId);
   const onDelete = (deviceToken: string) => {
-    userId && deleteToken(userId, deviceToken).catch(console.error);
+    if (userId) {
+      deleteToken(userId, deviceToken).catch(console.error);
+    }
   };
 
   if (devices.length === 0) {

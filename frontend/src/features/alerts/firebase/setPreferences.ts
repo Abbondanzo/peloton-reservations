@@ -1,5 +1,5 @@
 import { ref, update } from "firebase/database";
-import { AlertPreferences } from "shared";
+import type { AlertPreferences } from "shared";
 import { database } from "../../firebase/constants/database";
 
 export const setPreferences = async (

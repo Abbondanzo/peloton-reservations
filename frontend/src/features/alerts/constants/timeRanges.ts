@@ -1,4 +1,4 @@
-import { TimeRange } from "shared";
+import type { TimeRange } from "shared";
 
 export const DEFAULT_TIME_RANGE: TimeRange = {
   startMin: 7 * 60,

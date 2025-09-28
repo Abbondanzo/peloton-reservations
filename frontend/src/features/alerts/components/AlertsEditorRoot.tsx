@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Alert } from "shared";
+import type { Alert } from "shared";
 import { Paths } from "../../navigation/constants/paths";
 import { Card } from "../../theme/components/Card";
 import { SharedRoot } from "./SharedRoot";

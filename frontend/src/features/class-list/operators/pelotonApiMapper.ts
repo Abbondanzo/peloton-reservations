@@ -1,9 +1,10 @@
 import { captureMessage } from "@sentry/react";
-import { BookableStatus } from "../../filters/types/BookableStatus";
-import { Class } from "../types/Class";
-import { Discipline } from "../types/Discipline";
-import { Instructor } from "../types/Instructor";
+import type { BookableStatus } from "../../filters/types/BookableStatus";
+import type { Class } from "../types/Class";
+import type { Discipline } from "../types/Discipline";
+import type { Instructor } from "../types/Instructor";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapInstructor = (rawInstructor: any): Instructor => {
   return {
     id: rawInstructor.id,
@@ -13,11 +14,13 @@ const mapInstructor = (rawInstructor: any): Instructor => {
   };
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const mapInstructors = (response: any): Instructor[] => {
   const unsortedInstructors: Instructor[] = response.results.map(mapInstructor);
   return unsortedInstructors.sort((a, b) => a.name.localeCompare(b.name));
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDiscipline = (rawDiscipline: any): Discipline => {
   const height = rawDiscipline.image.original_height || 48;
   const width = rawDiscipline.image.original_width || 48;
@@ -30,6 +33,7 @@ const mapDiscipline = (rawDiscipline: any): Discipline => {
   };
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const mapDisciplines = (response: any): Discipline[] => {
   const unsortedDisciplines: Discipline[] = response.results.map(mapDiscipline);
   return unsortedDisciplines.sort((a, b) => a.name.localeCompare(b.name));
@@ -37,6 +41,7 @@ export const mapDisciplines = (response: any): Discipline[] => {
 
 const MAX_WAITING_COUNT = 10;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapClass = (rawClass: any): Class => {
   const rawInstructor = rawClass.instructors[0];
   const instructor = rawInstructor
@@ -74,6 +79,7 @@ const mapClass = (rawClass: any): Class => {
   };
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const mapClasses = (response: any): Class[] => {
   return response.results.map(mapClass);
 };

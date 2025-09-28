@@ -10,5 +10,5 @@ export const deleteToken = async (
     throw new Error("No Firebase database connection to use");
   }
   const tokenRef = ref(db, `messagingTokens/${userId}/${token}`);
-  await remove(tokenRef,);
+  await remove(tokenRef);
 };

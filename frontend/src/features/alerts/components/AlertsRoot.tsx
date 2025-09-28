@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Alert } from "shared";
+import type { Alert } from "shared";
 import styled from "styled-components";
 import { Paths } from "../../navigation/constants/paths";
 import { Card } from "../../theme/components/Card";

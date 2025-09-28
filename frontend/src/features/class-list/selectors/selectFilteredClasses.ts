@@ -1,6 +1,6 @@
 import { createSelector } from "@reduxjs/toolkit";
-import { RootState } from "../../store/constants/store";
-import { Class } from "../types/Class";
+import type { RootState } from "../../store/constants/store";
+import type { Class } from "../types/Class";
 
 const selectBookableStatuses = (state: RootState) =>
   state.filters.selectedBookableStatuses;

@@ -4,7 +4,6 @@ import styled from "styled-components";
 import { Paths } from "../constants/paths";
 import { MobileSidebar } from "./MobileSidebar";
 import { SessionInfo } from "./SessionInfo";
-// import { SessionInfo } from "./SessionInfo";
 
 const Wrapper = styled.nav`
   height: inherit;
@@ -106,7 +105,7 @@ export const Navbar = () => {
     <Wrapper>
       <Link to={Paths.CLASS_LIST}>
         <HorizontalFlex>
-          <Logo src={`${process.env.PUBLIC_URL}/images/icon.svg`} alt="Logo" />
+          <Logo src={`${import.meta.env.BASE_URL}images/icon.svg`} alt="Logo" />
           <Title>Peloton Alerts</Title>
         </HorizontalFlex>
       </Link>

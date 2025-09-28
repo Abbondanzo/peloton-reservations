@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/react";
 import { useMemo } from "react";
 import styled from "styled-components";
-import { Discipline } from "../types/Discipline";
+import type { Discipline } from "../types/Discipline";
 
 const COLOR_MAP: { [key: string]: string } = {
   Cardio: "#d8ec43",

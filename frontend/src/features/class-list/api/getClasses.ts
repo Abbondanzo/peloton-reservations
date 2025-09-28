@@ -1,4 +1,4 @@
-import { RawClassResponse } from "shared";
+import type { RawClassResponse } from "shared";
 import { base } from "../../api/base";
 
 export const getClasses = (classId: string): Promise<RawClassResponse> => {

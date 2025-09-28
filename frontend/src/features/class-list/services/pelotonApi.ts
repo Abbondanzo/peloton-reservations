@@ -1,6 +1,6 @@
-import { SerializedError } from "@reduxjs/toolkit";
+import type { SerializedError } from "@reduxjs/toolkit";
 import {
-  FetchBaseQueryError,
+  type FetchBaseQueryError,
   createApi,
   fetchBaseQuery,
 } from "@reduxjs/toolkit/query/react";
@@ -9,9 +9,9 @@ import {
   mapDisciplines,
   mapInstructors,
 } from "../operators/pelotonApiMapper";
-import { Class } from "../types/Class";
-import { Discipline } from "../types/Discipline";
-import { Instructor } from "../types/Instructor";
+import type { Class } from "../types/Class";
+import type { Discipline } from "../types/Discipline";
+import type { Instructor } from "../types/Instructor";
 
 const CORS_BYPASS = "https://cors.abbondanzo.workers.dev";
 
@@ -65,7 +65,7 @@ export const pelotonApi = createApi({
           headers: getHeaders(studioId),
         };
       },
-      transformResponse: (response: any): Class[] => {
+      transformResponse: (response): Class[] => {
         return mapClasses(response);
       },
     }),
@@ -80,7 +80,7 @@ export const pelotonApi = createApi({
           headers: getHeaders(studioId),
         };
       },
-      transformResponse: (response: any): Discipline[] => {
+      transformResponse: (response): Discipline[] => {
         return mapDisciplines(response);
       },
     }),
@@ -95,7 +95,7 @@ export const pelotonApi = createApi({
           headers: getHeaders(studioId),
         };
       },
-      transformResponse: (response: any): Instructor[] => {
+      transformResponse: (response): Instructor[] => {
         return mapInstructors(response);
       },
     }),

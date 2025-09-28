@@ -1,4 +1,4 @@
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { type PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { DEFAULT_STUDIO_ID } from "shared";
 import { getStoredStudioId } from "../operators/studioStorage";
 

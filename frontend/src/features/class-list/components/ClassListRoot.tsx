@@ -1,4 +1,4 @@
-import { MouseEvent, useState } from "react";
+import { type MouseEvent, useState } from "react";
 import styled from "styled-components";
 import { FiltersWrapper } from "../../filters/components/FiltersWrapper";
 import { NavbarProvider } from "../../navigation/components/NavbarProvider";

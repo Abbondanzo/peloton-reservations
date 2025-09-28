@@ -1,5 +1,4 @@
-import { ReactNode, useEffect, useRef } from "react";
-import { findDOMNode } from "react-dom";
+import { type ReactNode, useEffect, useRef } from "react";
 import styled from "styled-components";
 
 interface Props {
@@ -23,7 +22,7 @@ const Wrapper = styled.div`
 `;
 
 export const Popover = ({ children, open, onClose }: Props) => {
-  const lastOpened = useRef<number>();
+  const lastOpened = useRef<number>(0);
   useEffect(() => {
     if (open) {
       lastOpened.current = new Date().getTime();
@@ -42,7 +41,7 @@ export const Popover = ({ children, open, onClose }: Props) => {
         onClose();
         return;
       }
-      const domNode = findDOMNode(ref.current);
+      const domNode = ref.current;
       if (domNode && domNode instanceof Node && domNode.contains(el)) {
         return;
       }

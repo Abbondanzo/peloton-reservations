@@ -16,6 +16,7 @@ export const useSwipeToRefresh = ({ refresh }: Options) => {
 
   const requiresSwipeToRefresh = useMemo(() => {
     return (
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       !!(navigator as any).standalone ||
       window.matchMedia("(display-mode: standalone)").matches ||
       process.env.NODE_ENV === "development"

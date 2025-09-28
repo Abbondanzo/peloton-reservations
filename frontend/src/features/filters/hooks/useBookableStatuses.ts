@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/hooks/useStore";
 import { toggleBookableStatus } from "../slices/filtersSlice";
-import { BookableStatus } from "../types/BookableStatus";
+import type { BookableStatus } from "../types/BookableStatus";
 
 export const useBookableStatuses = () => {
   const bookableStatuses = useAppSelector(

@@ -4,7 +4,7 @@ import { ListItem } from "../../theme/components/ListItem";
 import { Padding } from "../../theme/components/Padding";
 import { SectionTitle } from "../../theme/components/SectionTitle";
 import { useBookableStatuses } from "../hooks/useBookableStatuses";
-import { BookableStatus } from "../types/BookableStatus";
+import type { BookableStatus } from "../types/BookableStatus";
 
 interface Option {
   label: string;
