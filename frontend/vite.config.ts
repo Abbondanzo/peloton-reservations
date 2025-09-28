@@ -7,13 +7,30 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+      srcDir: "src",
+      filename: "messaging-sw.ts",
       registerType: "autoUpdate",
+      scope: "/",
+      base: "/",
+      strategies: "injectManifest",
+      injectManifest: {
+        minify: true,
+        enableWorkboxModulesLogs: true,
+        swDest: "dist/messaging-sw.js",
+      },
+      injectRegister: null,
       devOptions: {
         enabled: true,
+        type: "module",
+        navigateFallback: "index.html",
+      },
+      workbox: {
+        sourcemap: true,
       },
       manifest: {
         short_name: "Peloton Alerts",
         name: "Peloton Alerts",
+        start_url: "",
         display: "standalone",
         description: "Smarter interface for picking reservable Peloton classes",
         theme_color: "#181818",
