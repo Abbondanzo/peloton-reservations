@@ -15,7 +15,9 @@ const register = async () => {
     throw new Error("Service workers are not supported");
   }
   return navigator.serviceWorker.register(
-    import.meta.env.MODE === "production" ? "/sw.js" : "/dev-sw.js?dev-sw",
+    import.meta.env.MODE === "production"
+      ? `${import.meta.env.BASE_URL}messaging-sw.js`
+      : "/dev-sw.js?dev-sw",
     { type: import.meta.env.MODE === "production" ? "classic" : "module" }
   );
 };
