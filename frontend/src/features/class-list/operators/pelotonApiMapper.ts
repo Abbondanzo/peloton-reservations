@@ -72,6 +72,7 @@ const mapClass = (rawClass: any): Class => {
     name: rawClass.name,
     start: rawClass.starts_at,
     end: rawClass.ends_at,
+    customerUrl: rawClass.customer_url,
     duration,
     discipline: mapDiscipline(rawClass.offering_type.category),
     instructor,

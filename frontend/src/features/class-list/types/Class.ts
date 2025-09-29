@@ -9,6 +9,7 @@ export interface Class {
   start: string;
   /** Number of seconds. */
   duration: number;
+  customerUrl: string;
   status: BookableStatus;
   instructor: Instructor;
   discipline: Discipline;

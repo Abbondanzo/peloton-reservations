@@ -16,6 +16,7 @@ export interface RawClass {
    */
   duration: number;
   instructor_id: string;
+  customer_url: string;
   bookable: boolean;
   full: boolean;
   cancelled: boolean;

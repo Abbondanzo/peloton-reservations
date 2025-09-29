@@ -168,17 +168,14 @@ interface Props {
 export const ClassListItem = ({ clazz }: Props) => {
   const studio = useAppSelector(selectStudio);
   const interactive = clazz.status === "free" || clazz.status === "waitlist";
-  const slug = useMemo(() => {
-    switch (studio?.location) {
-      case "New York":
-        return `new-york/schedule/${clazz.id}/reserve`;
-      case "London":
-        return `london/schedule/${clazz.id}/reserve`;
-      default:
-        Sentry.captureMessage("Missing studio");
-        return "";
+  const reservationUrl = useMemo(() => {
+    if (!clazz.customerUrl) {
+      Sentry.captureMessage("Missing customer URL", { extra: { clazz } });
+      return "";
     }
-  }, [clazz.id, studio?.location]);
+    return new URL(clazz.customerUrl, "https://schedule.studio.onepeloton.com")
+      .href;
+  }, [clazz]);
   const buttonText = useMemo(() => {
     switch (clazz.status) {
       case "free":
@@ -195,11 +192,7 @@ export const ClassListItem = ({ clazz }: Props) => {
     return getLocalTime(clazz.start, studio?.timezone);
   }, [clazz.start, studio?.timezone]);
   return (
-    <Anchor
-      $interactive={interactive}
-      href={`https://studio.onepeloton.com/${slug}`}
-      target="_blank"
-    >
+    <Anchor $interactive={interactive} href={reservationUrl} target="_blank">
       <InteractiveCard $interactive={interactive}>
         <ContentWrapper>
           <TimeWrapper>
