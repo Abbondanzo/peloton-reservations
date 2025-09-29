@@ -8,6 +8,9 @@ export default ({ mode }: { mode: string }) => {
 
   return defineConfig({
     base: process.env.BASE_URL || "/",
+    build: {
+      sourcemap: true,
+    },
     plugins: [
       react(),
       VitePWA({
