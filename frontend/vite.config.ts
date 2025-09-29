@@ -6,8 +6,10 @@ import { VitePWA } from "vite-plugin-pwa";
 export default ({ mode }: { mode: string }) => {
   process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
 
+  const base = process.env.BASE_URL || "/";
+
   return defineConfig({
-    base: process.env.BASE_URL || "/",
+    base,
     build: {
       sourcemap: true,
     },
@@ -17,8 +19,8 @@ export default ({ mode }: { mode: string }) => {
         srcDir: "src",
         filename: "messaging-sw.ts",
         registerType: "autoUpdate",
-        scope: process.env.BASE_URL,
-        base: process.env.BASE_URL,
+        scope: base,
+        base,
         strategies: "injectManifest",
         injectManifest: {
           minify: true,
