@@ -30,7 +30,7 @@ interface Region {
   name: string;
 }
 
-interface RawInstructor {
+export interface RawInstructor {
   id: string;
   full_name: string;
   short_name: string;
@@ -46,3 +46,5 @@ export interface RawClassResponse {
     instructors: RawInstructor[];
   };
 }
+
+export type InstructorMap = Record<string, RawInstructor>;

@@ -1,12 +1,17 @@
-import { RawClass, STUDIOS } from "shared";
+import { InstructorMap, RawClass, STUDIOS } from "shared";
 import { logger } from "./logger";
 import { Schedule } from "./schedule";
 
 export interface DiffDelegate {
-  handleAddition(studioId: string, classes: RawClass[]): void;
+  handleAddition(
+    studioId: string,
+    classes: RawClass[],
+    instructors: InstructorMap
+  ): void;
   handleChange(
     studioId: string,
-    classes: { new: RawClass; old: RawClass }[]
+    classes: { new: RawClass; old: RawClass }[],
+    instructors: InstructorMap
   ): void;
 }
 
@@ -38,22 +43,23 @@ export class Manager {
       for (const [studioId, schedule] of Object.entries(this.schedules)) {
         try {
           const diff = await schedule.diff();
+          const instructors = schedule.getInstructors();
           if (diff.added.length || diff.changed.length || diff.removed.length) {
             logger.log(
               `Diff for ${studioId}: added ${diff.added.length} changed ${diff.changed.length} removed ${diff.removed.length}`
             );
           }
           if (diff.added.length > 0) {
-            this.delegate.handleAddition(studioId, diff.added);
+            this.delegate.handleAddition(studioId, diff.added, instructors);
           }
           if (diff.changed.length > 0) {
-            this.delegate.handleChange(studioId, diff.changed);
+            this.delegate.handleChange(studioId, diff.changed, instructors);
           }
         } catch (error) {
           logger.error(error);
         }
       }
-      await this.wait(this.getRandomTimeout());
+      await this.wait(this.getTimeout());
     }
   }
 
@@ -75,9 +81,9 @@ export class Manager {
   }
 
   /**
-   * Generate a random millisecond timeout between 5 and 10 seconds, in milliseconds.
+   * Poll once per minute.
    */
-  private getRandomTimeout() {
-    return 5000 + Math.floor(5000 * Math.random());
+  private getTimeout() {
+    return 60 * 1000;
   }
 }

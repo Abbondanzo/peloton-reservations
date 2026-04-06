@@ -1,4 +1,4 @@
-import { RawClass, RawClassResponse } from "shared";
+import { InstructorMap, RawClass, RawClassResponse, RawInstructor } from "shared";
 
 interface Diff {
   old: RawClass;
@@ -35,6 +35,16 @@ export class Schedule {
     );
     this.data = response.data;
     return comparison;
+  }
+
+  getInstructors(): InstructorMap {
+    if (!this.data) {
+      return {};
+    }
+    return this.data.instructors.reduce<InstructorMap>((acc, instructor) => {
+      acc[instructor.id] = instructor;
+      return acc;
+    }, {});
   }
 
   private async fetchClass(): Promise<RawClassResponse> {

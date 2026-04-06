@@ -3,10 +3,11 @@
     "module": "commonjs",
     "target": "esnext",
     "moduleResolution": "node",
+    "ignoreDeprecations": "5.0",
     "sourceMap": true,
     "outDir": "build",
     "allowJs": true,
-    "lib": ["dom", "es6"],
+    "lib": ["dom", "es2019"],
     "baseUrl": "./src",
     "esModuleInterop": true,
     "resolveJsonModule": true
