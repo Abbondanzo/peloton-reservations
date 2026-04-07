@@ -21,6 +21,9 @@ importers:
       firebase-admin:
         specifier: 13.5.0
         version: 13.5.0
+      shared:
+        specifier: workspace:*
+        version: link:../shared
     devDependencies:
       ts-node:
         specifier: 10.9.2

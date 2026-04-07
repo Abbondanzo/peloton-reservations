@@ -8,7 +8,8 @@
     "start": "ts-node src/index.ts"
   },
   "dependencies": {
-    "firebase-admin": "13.5.0"
+    "firebase-admin": "13.5.0",
+    "shared": "workspace:*"
   },
   "devDependencies": {
     "ts-node": "10.9.2"

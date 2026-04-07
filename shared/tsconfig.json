@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "nodenext",
     "target": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "sourceMap": true,
+    "rootDir": "./src",
     "outDir": "build",
     "allowJs": true,
     "lib": ["dom", "es6"],
-    "baseUrl": "./src",
     "declaration": true
   },
   "exclude": ["node_modules", "build"],
