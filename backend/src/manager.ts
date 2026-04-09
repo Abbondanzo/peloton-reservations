@@ -62,7 +62,7 @@ export class Manager {
           logger.error(error);
         }
       }
-      await this.wait(this.getRandomTimeout());
+      await this.wait(60_000);
     }
   }
 
@@ -83,10 +83,4 @@ export class Manager {
     });
   }
 
-  /**
-   * Generate a random millisecond timeout between 5 and 10 seconds, in milliseconds.
-   */
-  private getRandomTimeout() {
-    return 5000 + Math.floor(5000 * Math.random());
-  }
 }

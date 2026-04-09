@@ -1,3 +1,5 @@
+import * as fs from "fs/promises";
+import * as path from "path";
 import { RawClass, RawClassResponse } from "shared";
 
 interface Diff {
@@ -20,6 +22,11 @@ export class Schedule {
   }
 
   async initialize() {
+    const cached = await this.readCache();
+    if (cached) {
+      this.data = cached;
+      return;
+    }
     const response = await this.fetchClasses();
     if (!response.results) {
       throw new Error(
@@ -27,6 +34,7 @@ export class Schedule {
       );
     }
     this.data = response.results;
+    await this.writeCache(this.data);
   }
 
   async diff(): Promise<ScrapeResult> {
@@ -36,7 +44,30 @@ export class Schedule {
     const response = await this.fetchClasses();
     const comparison = this.compareClasses(this.data, response.results);
     this.data = response.results;
+    await this.writeCache(this.data);
     return comparison;
+  }
+
+  private get cachePath(): string {
+    return path.join(process.cwd(), "data", `${this.studioId}.json`);
+  }
+
+  private async readCache(): Promise<RawClass[] | null> {
+    try {
+      const raw = await fs.readFile(this.cachePath, "utf-8");
+      return JSON.parse(raw) as RawClass[];
+    } catch {
+      return null;
+    }
+  }
+
+  private async writeCache(data: RawClass[]): Promise<void> {
+    try {
+      await fs.mkdir(path.dirname(this.cachePath), { recursive: true });
+      await fs.writeFile(this.cachePath, JSON.stringify(data), "utf-8");
+    } catch {
+      // Non-fatal: if we can't write, we just lose persistence for this cycle
+    }
   }
 
   private async fetchClasses(): Promise<RawClassResponse> {
