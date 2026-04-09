@@ -3,6 +3,7 @@
     "type": "git",
     "url": "git+https://github.com/Abbondanzo/peloton-reservations.git"
   },
+  "packageManager": "pnpm@10.24.0",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/Abbondanzo/peloton-reservations/issues"
