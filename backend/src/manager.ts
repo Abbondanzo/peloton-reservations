@@ -12,6 +12,7 @@ export interface DiffDelegate {
 
 export class Manager {
   private static readonly SCHEDULE_INTERVAL_MS = 10_000;
+  private static readonly LOG_NO_CHANGES = false;
 
   private readonly schedules: { [key: string]: Schedule } = {};
 
@@ -51,7 +52,7 @@ export class Manager {
             logger.log(
               `Diff for ${studioId}: added ${diff.added.length} changed ${diff.changed.length} removed ${diff.removed.length}`
             );
-          } else {
+          } else if (Manager.LOG_NO_CHANGES) {
             logger.log(`No changes for ${STUDIOS[studioId].location}`);
           }
           if (diff.added.length > 0) {
