@@ -12,6 +12,7 @@
     "shared": "workspace:*"
   },
   "devDependencies": {
+    "firebase": "12.2.1",
     "ts-node": "10.9.2"
   }
 }
