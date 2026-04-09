@@ -1,2 +1,6 @@
+# AI
+.agents/
+.claude/
+
 # Firebase
 firebase.json

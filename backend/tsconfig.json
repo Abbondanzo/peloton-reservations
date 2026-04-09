@@ -1,14 +1,12 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "nodenext",
     "target": "esnext",
-    "moduleResolution": "node",
-    "ignoreDeprecations": "5.0",
+    "moduleResolution": "nodenext",
     "sourceMap": true,
     "outDir": "build",
     "allowJs": true,
-    "lib": ["dom", "es2019"],
-    "baseUrl": "./src",
+    "lib": ["dom", "es6"],
     "esModuleInterop": true,
     "resolveJsonModule": true
   },
