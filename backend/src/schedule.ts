@@ -49,7 +49,8 @@ export class Schedule {
   }
 
   private get cachePath(): string {
-    return path.join(process.cwd(), "data", `${this.studioId}.json`);
+    const dataDir = process.env.DATA_DIR ?? path.join(process.cwd(), "data");
+    return path.join(dataDir, `${this.studioId}.json`);
   }
 
   private async readCache(): Promise<RawClass[] | null> {

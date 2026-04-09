@@ -6,9 +6,6 @@ import { DiffDelegate } from "./manager";
 
 type StudioGroup = { [key: string]: Alert[] };
 
-/** Don't re-fire the same class+event within this window after sending. */
-const DEBOUNCE_MS = 60 * 60 * 1000;
-
 /** How often to flush the pending-notification queue. */
 const PENDING_CHECK_INTERVAL_MS = 30 * 1000;
 
@@ -105,12 +102,7 @@ export class Alerter implements DiffDelegate {
         for (const alert of alerts) {
           const changeType = this.getChangeType(alert, entry.old, entry.new);
           if (changeType) {
-            this.enqueueNotification(
-              userId,
-              studioId,
-              entry.new,
-              changeType
-            );
+            this.enqueueNotification(userId, studioId, entry.new, changeType);
           }
         }
       }
@@ -129,23 +121,30 @@ export class Alerter implements DiffDelegate {
   ) {
     const debounceKey = `${userId}:${classData.id}:${changeType}`;
     const now = Date.now();
+    const delayMin = this.alertPreferences[userId]?.notificationDelayMin ?? 0;
+    const delayMs = delayMin * 60 * 1000;
 
-    // Skip if this exact event was already sent within the debounce window
+    // Skip if this exact event was already sent within the user's delay window
     if (
       this.lastAlerted[debounceKey] &&
-      now - this.lastAlerted[debounceKey] < DEBOUNCE_MS
+      now - this.lastAlerted[debounceKey] < delayMs
     ) {
+      logger.log(
+        `Suppressing ${changeType} for user ${userId} on class ${classData.id}: ` +
+          `same event sent ${Math.round((now - this.lastAlerted[debounceKey]) / 1000)}s ago (delay ${delayMin}m)`
+      );
       return;
     }
 
     // Skip if already pending for this class+event
     if (this.pendingNotifications.has(debounceKey)) {
+      logger.log(
+        `Suppressing ${changeType} for user ${userId} on class ${classData.id}: already pending`
+      );
       return;
     }
 
-    const delayMin = this.alertPreferences[userId]?.notificationDelayMin ?? 0;
-    const cooldownExpiry =
-      (this.lastNotifiedAt[userId] ?? 0) + delayMin * 60 * 1000;
+    const cooldownExpiry = (this.lastNotifiedAt[userId] ?? 0) + delayMs;
     const sendAt = Math.max(now, cooldownExpiry);
 
     logger.log(
@@ -241,9 +240,7 @@ export class Alerter implements DiffDelegate {
             resp.error?.code === "messaging/invalid-registration-token")
         ) {
           const staleToken = tokens[idx];
-          logger.log(
-            `Removing stale FCM token for user ${pending.userId}`
-          );
+          logger.log(`Removing stale FCM token for user ${pending.userId}`);
           db.ref(`/messagingTokens/${pending.userId}/${staleToken}`).remove();
         }
       });
@@ -363,9 +360,7 @@ export class Alerter implements DiffDelegate {
     }
     if (
       alert.disciplines &&
-      !alert.disciplines.some(
-        (d1) => d1 === rawClass.offering_type.category.id
-      )
+      !alert.disciplines.some((d1) => d1 === rawClass.offering_type.category.id)
     ) {
       return false;
     }
