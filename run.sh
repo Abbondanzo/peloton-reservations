@@ -1,16 +1,16 @@
 #!/bin/sh
 set -e
 
-if [ ! -f /data/firebase.json ]; then
-  echo "ERROR: Firebase credentials not found."
-  echo "Place your service account key at /addon_data/peloton_reservations/firebase.json and restart."
-  exit 1
-fi
+# Write Firebase credentials from add-on options to the location the backend expects
+node -e "
+const opts = JSON.parse(require('fs').readFileSync('/data/options.json', 'utf8'));
+if (!opts.firebase_credentials) {
+  console.error('ERROR: firebase_credentials is not set. Open the add-on Configuration tab and paste your Firebase service account JSON.');
+  process.exit(1);
+}
+require('fs').writeFileSync('/app/backend/firebase.json', opts.firebase_credentials);
+"
 
-# Make credentials available where the backend expects them
-ln -sf /data/firebase.json /app/backend/firebase.json
-
-# Point the schedule cache at the persistent data volume
 export DATA_DIR=/data
 
 cd /app/backend

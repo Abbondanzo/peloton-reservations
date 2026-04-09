@@ -1,5 +1,5 @@
 name: Peloton Reservations
-version: "0.0.1"
+version: "0.0.2"
 slug: peloton_reservations
 description: Polls Peloton studio schedules and sends class availability alerts
 url: https://github.com/Abbondanzo/peloton-reservations
@@ -11,3 +11,7 @@ boot: auto
 init: false
 map:
   - data:rw
+options:
+  firebase_credentials: ""
+schema:
+  firebase_credentials: password
