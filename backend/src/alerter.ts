@@ -192,6 +192,14 @@ export class Alerter implements DiffDelegate {
       return;
     }
 
+    if (process.env.NODE_ENV !== "production") {
+      const { title, body } = this.buildNotificationContent(pending);
+      logger.log(
+        `[dev] Would send to user ${pending.userId}: "${title}" — ${body}`
+      );
+      return;
+    }
+
     const { title, body } = this.buildNotificationContent(pending);
 
     const message: admin.messaging.MulticastMessage = {
