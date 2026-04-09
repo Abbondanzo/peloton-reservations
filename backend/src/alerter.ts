@@ -1,6 +1,7 @@
 import admin from "firebase-admin";
+import fs from "fs";
+import path from "path";
 import { Alert, AlertPreferences, RawClass, STUDIOS } from "shared";
-import firebase from "../firebase.json";
 import { logger } from "./logger";
 import { DiffDelegate } from "./manager";
 
@@ -46,7 +47,7 @@ export class Alerter implements DiffDelegate {
 
   async initialize() {
     admin.initializeApp({
-      credential: admin.credential.cert(firebase as admin.ServiceAccount),
+      credential: admin.credential.cert(this.getServiceAccount()),
       databaseURL: "https://peloton-alerts-default-rtdb.firebaseio.com/",
       databaseAuthVariableOverride: {
         uid: "backend-service-worker",
@@ -67,6 +68,14 @@ export class Alerter implements DiffDelegate {
       () => this.processPendingNotifications(),
       PENDING_CHECK_INTERVAL_MS
     );
+  }
+
+  private getServiceAccount(): admin.ServiceAccount {
+    // Read firebase.json off disk
+    const serviceAccount = JSON.parse(
+      fs.readFileSync(path.join(__dirname, "..", "firebase.json"), "utf8")
+    ) as admin.ServiceAccount;
+    return serviceAccount;
   }
 
   // ---------------------------------------------------------------------------
