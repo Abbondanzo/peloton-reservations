@@ -27,8 +27,13 @@ export class Manager {
     const promises: Promise<void>[] = [];
     Object.keys(STUDIOS).forEach((studioId) => {
       const schedule = new Schedule(studioId);
-      promises.push(schedule.initialize());
       this.schedules[studioId] = schedule;
+      promises.push(
+        schedule.initialize().catch((error) => {
+          logger.error(`Skipping studio ${studioId}: ${error.message}`);
+          delete this.schedules[studioId];
+        })
+      );
     });
     await Promise.all(promises);
   }
@@ -42,6 +47,8 @@ export class Manager {
             logger.log(
               `Diff for ${studioId}: added ${diff.added.length} changed ${diff.changed.length} removed ${diff.removed.length}`
             );
+          } else {
+            logger.log(`No changes for ${studioId}`);
           }
           if (diff.added.length > 0) {
             this.delegate.handleAddition(studioId, diff.added);

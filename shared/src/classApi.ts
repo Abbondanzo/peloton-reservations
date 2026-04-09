@@ -3,46 +3,28 @@ interface RawDiscipline {
   name: string;
 }
 
-export interface RawClass {
-  id: string;
-  room_id: string;
-  name: string | null;
-  /**
-   * Start time, Unix seconds.
-   */
-  start: number;
-  /**
-   * Number of seconds.
-   */
-  duration: number;
-  instructor_id: string;
-  customer_url: string;
-  bookable: boolean;
-  full: boolean;
-  cancelled: boolean;
-  waitlist_full: boolean;
-  free: boolean;
-  disciplines: RawDiscipline[];
-}
-
-interface Region {
+export interface RawInstructor {
   id: string;
   name: string;
 }
 
-interface RawInstructor {
+export interface RawClass {
   id: string;
-  full_name: string;
-  short_name: string;
-  image_url: string;
-  region: Region;
-  display: boolean;
+  name: string | null;
+  /** ISO timestamp */
+  starts_at: string;
+  /** ISO timestamp */
+  ends_at: string;
+  max_occupancy: number;
+  occupancy: number;
+  waiting_count: number;
+  customer_url: string;
+  instructors: RawInstructor[];
+  offering_type: {
+    category: RawDiscipline;
+  };
 }
 
 export interface RawClassResponse {
-  data: {
-    classes: RawClass[];
-    disciplines: RawDiscipline[];
-    instructors: RawInstructor[];
-  };
+  results: RawClass[];
 }

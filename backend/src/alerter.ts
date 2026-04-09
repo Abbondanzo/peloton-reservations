@@ -120,27 +120,32 @@ export class Alerter implements DiffDelegate {
     this.alertPreferences = alertPreferencesSchema;
   }
 
+  private isFree(rawClass: RawClass) {
+    return rawClass.occupancy < rawClass.max_occupancy;
+  }
+
+  private isWaitlistFull(rawClass: RawClass) {
+    return rawClass.waiting_count >= 10;
+  }
+
   private matchesAlert(rawClass: RawClass, alert: Alert) {
-    if (alert.maxStatus === "free" && !rawClass.free) {
+    if (alert.maxStatus === "free" && !this.isFree(rawClass)) {
       return false;
     }
-    if (alert.maxStatus === "waitlist" && rawClass.waitlist_full) {
-      return false;
-    }
-    if (alert.maxStatus === "full" && rawClass.cancelled) {
+    if (alert.maxStatus === "waitlist" && this.isWaitlistFull(rawClass)) {
       return false;
     }
     if (
       alert.disciplines &&
-      !alert.disciplines.some((d1) =>
-        rawClass.disciplines.some((d2) => d1 === d2.id)
+      !alert.disciplines.some(
+        (d1) => d1 === rawClass.offering_type.category.id
       )
     ) {
       return false;
     }
     if (
       alert.instructors &&
-      !alert.instructors.includes(rawClass.instructor_id)
+      !rawClass.instructors.some((i) => alert.instructors!.includes(i.id))
     ) {
       return false;
     }
@@ -151,7 +156,7 @@ export class Alerter implements DiffDelegate {
         return false;
       }
       // Epoch shifting to correct for studio timezone
-      const date = new Date(rawClass.start * 1000);
+      const date = new Date(rawClass.starts_at);
       // Diff UTC from studio for offset
       const utcDate = new Date(
         date.toLocaleString("en-US", { timeZone: "UTC" })
@@ -176,20 +181,13 @@ export class Alerter implements DiffDelegate {
     if (!this.matchesAlert(newClass, alert)) {
       return false;
     }
-    if (alert.maxStatus === "free" && !oldClass.free && newClass.free) {
+    if (alert.maxStatus === "free" && !this.isFree(oldClass) && this.isFree(newClass)) {
       return true;
     }
     if (
       alert.maxStatus === "waitlist" &&
-      oldClass.waitlist_full &&
-      !newClass.waitlist_full
-    ) {
-      return true;
-    }
-    if (
-      alert.maxStatus === "full" &&
-      oldClass.cancelled &&
-      !newClass.cancelled
+      this.isWaitlistFull(oldClass) &&
+      !this.isWaitlistFull(newClass)
     ) {
       return true;
     }
