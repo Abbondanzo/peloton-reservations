@@ -1,3 +1,4 @@
+import { logger } from "./logger";
 import * as fs from "fs/promises";
 import * as path from "path";
 import { RawClass, RawClassResponse } from "shared";
@@ -24,10 +25,16 @@ export class Schedule {
   async initialize() {
     const cached = await this.readCache();
     if (cached) {
+      logger.log(
+        `Using cached schedule for ${this.studioId} with ${cached.length} classes`
+      );
       this.data = cached;
       return;
     }
     const response = await this.fetchClasses();
+    logger.log(
+      `Fetched schedule for ${this.studioId} with ${response.results?.length ?? 0} classes`
+    );
     if (!response.results) {
       throw new Error(
         `Failed to initialize schedule for studio ${this.studioId}: no results in response`
