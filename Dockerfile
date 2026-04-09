@@ -4,12 +4,14 @@ WORKDIR /app
 
 RUN npm install -g pnpm@10.24.0
 
+ENV PNPM_HOME="/pnpm"
+
 # Copy manifests first so dependency install is cached separately from source
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY shared/package.json ./shared/
 COPY backend/package.json ./backend/
 
-RUN pnpm install --frozen-lockfile
+RUN --mount=type=cache,target=/pnpm/store pnpm install --frozen-lockfile
 
 # Copy source
 COPY shared/ ./shared/
