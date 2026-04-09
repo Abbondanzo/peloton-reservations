@@ -30,7 +30,9 @@ export class Manager {
       this.schedules[studioId] = schedule;
       promises.push(
         schedule.initialize().catch((error) => {
-          logger.error(`Skipping studio ${studioId}: ${error.message}`);
+          logger.error(
+            `Skipping studio ${STUDIOS[studioId].location}: ${error.message}`
+          );
           delete this.schedules[studioId];
         })
       );
@@ -48,7 +50,7 @@ export class Manager {
               `Diff for ${studioId}: added ${diff.added.length} changed ${diff.changed.length} removed ${diff.removed.length}`
             );
           } else {
-            logger.log(`No changes for ${studioId}`);
+            logger.log(`No changes for ${STUDIOS[studioId].location}`);
           }
           if (diff.added.length > 0) {
             this.delegate.handleAddition(studioId, diff.added);
