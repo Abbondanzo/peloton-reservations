@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "firebase": "12.2.1",
-    "ts-node": "10.9.2"
+    "ts-node": "10.9.2",
+    "typescript": "5.9.2"
   }
 }
