@@ -11,6 +11,9 @@ export interface DiffDelegate {
 }
 
 export class Manager {
+  private static readonly SCHEDULE_INTERVAL_MS = 10_000;
+  private static readonly LOG_NO_CHANGES = false;
+
   private readonly schedules: { [key: string]: Schedule } = {};
 
   private running = true;
@@ -27,8 +30,15 @@ export class Manager {
     const promises: Promise<void>[] = [];
     Object.keys(STUDIOS).forEach((studioId) => {
       const schedule = new Schedule(studioId);
-      promises.push(schedule.initialize());
       this.schedules[studioId] = schedule;
+      promises.push(
+        schedule.initialize().catch((error) => {
+          logger.error(
+            `Skipping studio ${STUDIOS[studioId].location}: ${error.message}`
+          );
+          delete this.schedules[studioId];
+        })
+      );
     });
     await Promise.all(promises);
   }
@@ -42,6 +52,8 @@ export class Manager {
             logger.log(
               `Diff for ${studioId}: added ${diff.added.length} changed ${diff.changed.length} removed ${diff.removed.length}`
             );
+          } else if (Manager.LOG_NO_CHANGES) {
+            logger.log(`No changes for ${STUDIOS[studioId].location}`);
           }
           if (diff.added.length > 0) {
             this.delegate.handleAddition(studioId, diff.added);
@@ -53,7 +65,7 @@ export class Manager {
           logger.error(error);
         }
       }
-      await this.wait(this.getRandomTimeout());
+      await this.wait(Manager.SCHEDULE_INTERVAL_MS);
     }
   }
 
@@ -72,12 +84,5 @@ export class Manager {
         reject();
       };
     });
-  }
-
-  /**
-   * Generate a random millisecond timeout between 5 and 10 seconds, in milliseconds.
-   */
-  private getRandomTimeout() {
-    return 5000 + Math.floor(5000 * Math.random());
   }
 }

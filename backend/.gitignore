@@ -4,3 +4,6 @@
 
 # Firebase
 firebase.json
+
+# Generated files
+data/
