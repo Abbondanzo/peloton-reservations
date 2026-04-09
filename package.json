@@ -8,12 +8,7 @@
     "url": "https://github.com/Abbondanzo/peloton-reservations/issues"
   },
   "homepage": "https://github.com/Abbondanzo/peloton-reservations#readme",
-  "workspaces": [
-    "backend",
-    "frontend",
-    "shared"
-  ],
-  "scripts": {
+"scripts": {
     "prettier": "prettier --write ."
   },
   "dependencies": {
@@ -21,5 +16,13 @@
   },
   "devDependencies": {
     "prettier": "3.6.2"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@firebase/util",
+      "@sentry/cli",
+      "esbuild",
+      "protobufjs"
+    ]
   }
 }
