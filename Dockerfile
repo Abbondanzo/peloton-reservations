@@ -22,9 +22,7 @@ RUN pnpm run build
 # Stub firebase.json so tsc can resolve the JSON import at build time.
 # The real credentials are injected at runtime by run.sh.
 WORKDIR /app/backend
-RUN echo '{}' > firebase.json
 RUN pnpm run build
-RUN rm firebase.json
 
 # Verify the build produced the expected entry point
 RUN test -f /app/backend/build/index.js || (echo "ERROR: build/index.js not found after tsc" && exit 1)
