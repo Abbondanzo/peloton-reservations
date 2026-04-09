@@ -15,18 +15,21 @@ RUN pnpm install --frozen-lockfile
 COPY shared/ ./shared/
 COPY backend/ ./backend/
 
-# Build shared types, then the backend
-RUN cd shared && pnpm run build
+# Build shared types
+WORKDIR /app/shared
+RUN pnpm run build
 
 # Stub firebase.json so tsc can resolve the JSON import at build time.
 # The real credentials are injected at runtime by run.sh.
-RUN echo '{}' > /app/backend/firebase.json
-RUN cd backend && pnpm run build
-RUN rm /app/backend/firebase.json
+WORKDIR /app/backend
+RUN echo '{}' > firebase.json
+RUN pnpm run build
+RUN rm firebase.json
 
 # Verify the build produced the expected entry point
 RUN test -f /app/backend/build/index.js || (echo "ERROR: build/index.js not found after tsc" && exit 1)
 
+WORKDIR /app
 ENV NODE_ENV=production
 
 COPY run.sh /run.sh
