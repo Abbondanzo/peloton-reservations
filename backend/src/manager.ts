@@ -11,6 +11,8 @@ export interface DiffDelegate {
 }
 
 export class Manager {
+  private static readonly SCHEDULE_INTERVAL_MS = 10_000;
+
   private readonly schedules: { [key: string]: Schedule } = {};
 
   private running = true;
@@ -62,7 +64,7 @@ export class Manager {
           logger.error(error);
         }
       }
-      await this.wait(60_000);
+      await this.wait(Manager.SCHEDULE_INTERVAL_MS);
     }
   }
 
@@ -82,5 +84,4 @@ export class Manager {
       };
     });
   }
-
 }
