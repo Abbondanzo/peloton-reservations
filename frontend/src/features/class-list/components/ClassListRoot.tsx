@@ -28,6 +28,7 @@ const Sidebar = styled.aside<ToggleProps>`
 
   @media only screen and (max-width: ${(p) => p.theme.widths.tablet}px) {
     position: absolute;
+    border-right: none;
     transition: left 0.25s;
     left: ${(p) => (p.$toggleVisible ? 0 : -SIDEBAR_WIDTH)}px;
     top: 0;
