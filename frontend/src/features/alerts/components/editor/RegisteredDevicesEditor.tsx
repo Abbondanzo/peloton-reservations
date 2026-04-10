@@ -137,11 +137,7 @@ interface DeviceItemProps {
   onDelete: () => void;
 }
 
-const DeviceItem = ({
-  device,
-  isCurrentDevice,
-  onDelete,
-}: DeviceItemProps) => {
+const DeviceItem = ({ device, isCurrentDevice, onDelete }: DeviceItemProps) => {
   const formattedDate = useMemo(() => {
     const formatter = new Intl.DateTimeFormat(undefined, {
       month: "short",

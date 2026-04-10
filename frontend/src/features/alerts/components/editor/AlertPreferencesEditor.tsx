@@ -63,8 +63,7 @@ const Hint = styled.span`
 const SaveButton = styled.button<{ $saved?: boolean }>`
   padding: 8px 20px;
   border: 1px solid
-    ${(props) =>
-      props.$saved ? "#2e7d32" : props.theme.colors.accent};
+    ${(props) => (props.$saved ? "#2e7d32" : props.theme.colors.accent)};
   border-radius: ${(props) => props.theme.borderRadius};
   background-color: ${(props) =>
     props.$saved ? "#e8f5e9" : props.theme.colors.accent};

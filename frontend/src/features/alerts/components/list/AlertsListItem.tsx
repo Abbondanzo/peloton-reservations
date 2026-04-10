@@ -218,7 +218,10 @@ export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
             : `${alert.instructors.length} instructors`,
         title: `Filtering by ${alert.instructors.length} specific instructor${alert.instructors.length === 1 ? "" : "s"}`,
       }
-    : { label: "All instructors", title: "Matching classes from any instructor" };
+    : {
+        label: "All instructors",
+        title: "Matching classes from any instructor",
+      };
 
   const disciplineInfo = isNotEmpty(alert.disciplines)
     ? {
