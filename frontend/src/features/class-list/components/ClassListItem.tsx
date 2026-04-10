@@ -1,8 +1,7 @@
 import * as Sentry from "@sentry/react";
 import { memo, useMemo } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { useAppSelector } from "../../store/hooks/useStore";
-import { Card } from "../../theme/components/Card";
 import { mediaMobile } from "../../theme/constants/queries";
 import { getLocalTime } from "../operators/getLocalTime";
 import { selectStudio } from "../selectors/selectStudio";
@@ -10,154 +9,180 @@ import type { Class } from "../types/Class";
 import { DisciplineIcon } from "./DisciplineIcon";
 import { InstructorIcon } from "./InstructorIcon";
 
-interface InteractiveProps {
+type BookStatus = "free" | "waitlist" | "full";
+
+const STATUS_CONFIG: Record<
+  BookStatus,
+  {
+    accentColor: string;
+    buttonBg: string;
+    buttonText: string;
+    buttonBorder: string;
+    label: string;
+  }
+> = {
+  free: {
+    accentColor: "#2e7d32",
+    buttonBg: "#cb3449",
+    buttonText: "#fff",
+    buttonBorder: "#cb3449",
+    label: "Book",
+  },
+  waitlist: {
+    accentColor: "#e65100",
+    buttonBg: "transparent",
+    buttonText: "#e65100",
+    buttonBorder: "#e65100",
+    label: "Waitlist",
+  },
+  full: {
+    accentColor: "#c4c4c4",
+    buttonBg: "transparent",
+    buttonText: "#aaa",
+    buttonBorder: "#d1d1d1",
+    label: "Full",
+  },
+};
+
+interface StatusProps {
+  $status: BookStatus;
   $interactive: boolean;
 }
 
-const Anchor = styled.a<InteractiveProps>`
+const ItemAnchor = styled.a<StatusProps>`
+  display: flex;
+  align-items: center;
+  gap: 14px;
   text-decoration: none;
   color: inherit;
-  display: block;
+  background-color: ${(p) => p.theme.colors.mainSurface};
+  border: 1px solid ${(p) => p.theme.borderColor};
+  border-left: 4px solid ${(p) => STATUS_CONFIG[p.$status].accentColor};
+  border-radius: ${(p) => p.theme.borderRadius};
+  padding: 14px 18px;
+  transition: box-shadow 0.15s;
+  opacity: ${(p) => (p.$interactive ? 1 : 0.55)};
 
-  ${(props) =>
-    !props.$interactive &&
-    `
-    pointer-events: none;
-    cursor: default;
+  ${(p) =>
+    p.$interactive &&
+    css`
+      cursor: pointer;
+      &:hover {
+        box-shadow: rgba(0, 0, 0, 0.06) 0px 2px 12px;
+      }
     `}
-`;
 
-const InteractiveCard = styled(Card)<InteractiveProps>`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: rgba(0, 0, 0, 0.04) 0px 2px 4px 1px;
-  min-width: 500px;
-  overflow: hidden;
-
-  ${(props) =>
-    props.$interactive
-      ? `
-        cursor: pointer;
-        &:hover, &:active {
-          box-shadow: rgba(0, 0, 0, 0.16) 0px 2px 8px 0px;
-          cursor: pointer;
-        }
-        `
-      : `opacity: 0.5;`}
+  ${(p) =>
+    !p.$interactive &&
+    css`
+      pointer-events: none;
+    `}
 
   ${mediaMobile`
-    min-width: auto;
+    padding: 10px 12px;
+    gap: 10px;
   `}
 `;
 
-const ContentWrapper = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const TimeWrapper = styled.div`
-  margin-right: 8px;
-  width: 96px;
+const TimeColumn = styled.div`
   flex-shrink: 0;
+  width: 84px;
   ${mediaMobile`
-    width: fit-content;
+    width: 70px;
   `}
 `;
 
-const Time = styled.div`
+const TimeText = styled.div`
   font-weight: 600;
-  color: ${(props) => props.theme.colors.main};
+  font-size: 16px;
+  color: ${(p) => p.theme.colors.main};
+  white-space: nowrap;
   ${mediaMobile`
-    font-size: 12px;
+    font-size: 13px;
   `}
 `;
 
-const Duration = styled.div`
-  font-size: 12px;
-  color: ${(props) => props.theme.colors.secondary};
+const DurationText = styled.div`
+  font-size: 13px;
+  color: ${(p) => p.theme.colors.secondary};
+  margin-top: 2px;
+  ${mediaMobile`
+    font-size: 11px;
+  `}
 `;
 
-const HiddenMobile = styled.div`
+const IconsColumn = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
   ${mediaMobile`
     display: none;
   `}
 `;
 
-const Metadata = styled.div`
-  margin-left: 20px;
-  min-width: 0;
+const Meta = styled.div`
   flex: 1;
-  ${mediaMobile`
-    margin-left: 4px;
-  `}
+  min-width: 0;
 `;
 
-const ClassTitle = styled.div`
-  margin-bottom: 4px;
-  color: ${(props) => props.theme.colors.secondary};
+const ClassName = styled.div`
+  font-size: 16px;
+  font-weight: 500;
+  color: ${(p) => p.theme.colors.main};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   ${mediaMobile`
-    font-size: 12px;
+    font-size: 13px;
   `}
 `;
 
 const ClassSubtitle = styled.div`
   display: flex;
   align-items: center;
-  font-size: 12px;
-  color: ${(props) => props.theme.colors.secondary};
+  gap: 6px;
+  font-size: 14px;
+  color: ${(p) => p.theme.colors.secondary};
+  margin-top: 3px;
+  ${mediaMobile`
+    font-size: 12px;
+  `}
+`;
+
+const SubtitleDot = styled.span`
+  color: ${(p) => p.theme.borderColor};
+`;
+
+const MobileDisciplineIcon = styled.div`
+  display: none;
+  ${mediaMobile`
+    display: flex;
+    align-items: center;
+  `}
+`;
+
+const ActionButton = styled.button<{ $status: BookStatus }>`
+  flex-shrink: 0;
+  border: 1px solid ${(p) => STATUS_CONFIG[p.$status].buttonBorder};
+  border-radius: ${(p) => p.theme.borderRadius};
+  background-color: ${(p) => STATUS_CONFIG[p.$status].buttonBg};
+  color: ${(p) => STATUS_CONFIG[p.$status].buttonText};
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 7px 18px;
+  cursor: ${(p) => (p.$status === "full" ? "default" : "pointer")};
   white-space: nowrap;
-  text-overflow: ellipsis;
-  min-width: 0;
-  ${mediaMobile`
-    font-size: 10px;
-  `}
-`;
+  transition: filter 0.1s;
 
-const Spacer = styled.div`
-  width: 18px;
-  text-align: center;
-  &::before {
-    content: "•";
-    display: inline-block;
+  &:hover:not(:disabled) {
+    filter: ${(p) => (p.$status === "free" ? "brightness(94%)" : "none")};
   }
-`;
-
-const DisciplineIconWrapper = styled.div`
-  margin-left: 4px;
-  ${mediaMobile`
-    display: none;
-  `}
-`;
-
-const Button = styled.button<InteractiveProps>`
-  border: 0;
-  min-width: 180px;
-  height: 40px;
-  line-height: 0;
-  padding: 1.5em;
-  font-family: "Inter";
-  background-color: ${(props) => props.theme.colors.accent};
-  border-radius: ${(props) => props.theme.borderRadius};
-  text-transform: uppercase;
-  margin-left: 8px;
-
-  ${(props) =>
-    props.$interactive
-      ? `
-        color: #fff;
-        cursor: pointer;
-        &:hover {
-          filter: brightness(96%);
-        }
-        `
-      : `
-        background-color: transparent;
-        `}
 
   ${mediaMobile`
-    font-size: 10px;
-    min-width: fit-content;
+    font-size: 12px;
+    padding: 5px 10px;
   `}
 `;
 
@@ -167,7 +192,9 @@ interface Props {
 
 export const ClassListItem = memo(({ clazz }: Props) => {
   const studio = useAppSelector(selectStudio);
-  const interactive = clazz.status === "free" || clazz.status === "waitlist";
+  const status = clazz.status as BookStatus;
+  const interactive = status === "free" || status === "waitlist";
+
   const reservationUrl = useMemo(() => {
     if (!clazz.customerUrl) {
       Sentry.captureMessage("Missing customer URL", { extra: { clazz } });
@@ -176,52 +203,46 @@ export const ClassListItem = memo(({ clazz }: Props) => {
     return new URL(clazz.customerUrl, "https://schedule.studio.onepeloton.com")
       .href;
   }, [clazz]);
-  const buttonText = useMemo(() => {
-    switch (clazz.status) {
-      case "free":
-        return "Book";
-      case "waitlist":
-        return "Waitlist";
-      case "full":
-        return "Class Full";
-      default:
-        return "Unable to Book";
-    }
-  }, [clazz.status]);
+
   const time = useMemo(() => {
     return getLocalTime(clazz.start, studio?.timezone);
   }, [clazz.start, studio?.timezone]);
+
+  const config = STATUS_CONFIG[status] ?? STATUS_CONFIG.full;
+
   return (
-    <Anchor $interactive={interactive} href={reservationUrl} target="_blank">
-      <InteractiveCard $interactive={interactive}>
-        <ContentWrapper>
-          <TimeWrapper>
-            <Time>{time} </Time>
-            <Duration>{clazz.duration / 60} mins</Duration>
-          </TimeWrapper>
-          <HiddenMobile>
-            <InstructorIcon instructor={clazz.instructor} size={48} />
-          </HiddenMobile>
-          <Metadata>
-            <ClassTitle>{clazz.name}</ClassTitle>
-            <ClassSubtitle>
-              {clazz.instructor.name}
-              <Spacer></Spacer>
-              {clazz.discipline.name}
-              <DisciplineIconWrapper>
-                <DisciplineIcon discipline={clazz.discipline} size={24} />
-              </DisciplineIconWrapper>
-            </ClassSubtitle>
-          </Metadata>
-        </ContentWrapper>
-        <Button
-          $interactive={interactive}
-          disabled={!interactive}
-          aria-label={`${buttonText} ${clazz.name}`}
-        >
-          {buttonText}
-        </Button>
-      </InteractiveCard>
-    </Anchor>
+    <ItemAnchor
+      $status={status}
+      $interactive={interactive}
+      href={reservationUrl}
+      target="_blank"
+      aria-label={`${config.label} ${clazz.name} at ${time}`}
+    >
+      <TimeColumn>
+        <TimeText>{time}</TimeText>
+        <DurationText>{clazz.duration / 60} min</DurationText>
+      </TimeColumn>
+
+      <IconsColumn>
+        <InstructorIcon instructor={clazz.instructor} size={44} />
+        <DisciplineIcon discipline={clazz.discipline} size={36} />
+      </IconsColumn>
+
+      <Meta>
+        <ClassName>{clazz.name}</ClassName>
+        <ClassSubtitle>
+          {clazz.instructor.name}
+          <SubtitleDot>·</SubtitleDot>
+          {clazz.discipline.name}
+          <MobileDisciplineIcon>
+            <DisciplineIcon discipline={clazz.discipline} size={20} />
+          </MobileDisciplineIcon>
+        </ClassSubtitle>
+      </Meta>
+
+      <ActionButton $status={status} disabled={!interactive} tabIndex={-1}>
+        {config.label}
+      </ActionButton>
+    </ItemAnchor>
   );
 });

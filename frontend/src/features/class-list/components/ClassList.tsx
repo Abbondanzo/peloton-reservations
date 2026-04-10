@@ -2,44 +2,69 @@ import { useMemo } from "react";
 import styled from "styled-components";
 import { selectHasFilters } from "../../filters/selectors/selectHasFilters";
 import { useAppSelector } from "../../store/hooks/useStore";
-import { Card } from "../../theme/components/Card";
+import { mediaMobile } from "../../theme/constants/queries";
 import { selectFilteredClassesGroups } from "../selectors/selectFilteredClassesGroups";
 import type { Class } from "../types/Class";
 import { ClassListItem } from "./ClassListItem";
 
 const Wrapper = styled.div`
-  & > *:not(:last-child) {
-    margin-bottom: 8px;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 `;
 
 const GroupWrapper = styled.div`
-  & > *:not(:last-child) {
-    margin-bottom: 8px;
-  }
-`;
-
-const GroupTitle = styled.div`
-  padding: 8px;
-  padding-top: 16px;
   display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
+
+const GroupHeader = styled.div`
+  display: flex;
+  align-items: baseline;
   justify-content: space-between;
+  padding: 0 4px 6px;
+  border-bottom: 1px solid ${(p) => p.theme.borderColor};
+  margin-bottom: 2px;
 `;
 
-const GroupTitleText = styled.span`
-  text-transform: uppercase;
+const GroupDate = styled.h2`
   font-size: 14px;
-  color: ${(props) => props.theme.colors.main};
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: ${(p) => p.theme.colors.main};
+  margin: 0;
 `;
 
-const TimeZoneTipText = styled.em`
-  font-size: 12px;
-  color: ${(props) => props.theme.colors.secondary};
+const GroupMeta = styled.span`
+  font-size: 13px;
+  color: ${(p) => p.theme.colors.secondary};
 `;
 
-const TipText = styled.em`
-  margin-top: 4px;
-  font-size: 12px;
+const EmptyState = styled.div`
+  background-color: ${(p) => p.theme.colors.mainSurface};
+  border: 1px solid ${(p) => p.theme.borderColor};
+  border-radius: ${(p) => p.theme.borderRadius};
+  padding: 32px 24px;
+  text-align: center;
+  ${mediaMobile`
+    padding: 24px 16px;
+  `}
+`;
+
+const EmptyTitle = styled.p`
+  font-size: 16px;
+  font-weight: 500;
+  color: ${(p) => p.theme.colors.main};
+  margin: 0 0 8px;
+`;
+
+const EmptyHint = styled.p`
+  font-size: 14px;
+  color: ${(p) => p.theme.colors.secondary};
+  margin: 0;
+  line-height: 1.5;
 `;
 
 interface Props {
@@ -66,45 +91,41 @@ export const ClassList = ({ classes, fulfilledTimeStamp }: Props) => {
 
   if (filteredGroups.length === 0) {
     return (
-      <Card>
-        <p>No classes!</p>
+      <EmptyState>
+        <EmptyTitle>No classes found</EmptyTitle>
         {hasFilters && (
-          <TipText>
-            Tip: Try resetting your filters or selecting more options in the
-            sidebar.
-          </TipText>
+          <EmptyHint>
+            Try resetting your filters or selecting more options in the sidebar.
+          </EmptyHint>
         )}
         {isFreeSelected && !hasFilters && (
-          <TipText>
-            Tip: Try checking back exactly at 12:00 pm on Mondays and Thursdays
-            (in your studio's timezone). This is usually when new classes open
-            up.
-          </TipText>
+          <EmptyHint>
+            New classes usually open at 12:00 pm on Mondays and Thursdays in
+            your studio's timezone.
+          </EmptyHint>
         )}
-      </Card>
+      </EmptyState>
     );
   }
 
   return (
     <Wrapper>
-      {filteredGroups.map((group, index) => {
-        return (
-          <GroupWrapper key={index}>
-            <GroupTitle>
-              <GroupTitleText>{group.formattedDate}</GroupTitleText>
-              {index === 0 && (
-                <TimeZoneTipText>
-                  All times in studio timezone.{" "}
-                  {lastUpdated && `Loaded at ${lastUpdated} local`}
-                </TimeZoneTipText>
-              )}
-            </GroupTitle>
-            {group.classes.map((clazz, index) => {
-              return <ClassListItem key={index} clazz={clazz} />;
-            })}
-          </GroupWrapper>
-        );
-      })}
+      {filteredGroups.map((group, index) => (
+        <GroupWrapper key={index}>
+          <GroupHeader>
+            <GroupDate>{group.formattedDate}</GroupDate>
+            {index === 0 && lastUpdated && (
+              <GroupMeta>Times in studio timezone · loaded {lastUpdated}</GroupMeta>
+            )}
+            {index === 0 && !lastUpdated && (
+              <GroupMeta>All times in studio timezone</GroupMeta>
+            )}
+          </GroupHeader>
+          {group.classes.map((clazz, i) => (
+            <ClassListItem key={i} clazz={clazz} />
+          ))}
+        </GroupWrapper>
+      ))}
     </Wrapper>
   );
 };

@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { FiltersWrapper } from "../../filters/components/FiltersWrapper";
 import { NavbarProvider } from "../../navigation/components/NavbarProvider";
 import { NAV_HEIGHT } from "../../navigation/constants/height";
+import { mediaTablet } from "../../theme/constants/queries";
 import { useHydrateClassList } from "../hooks/useHydrateClassList";
 import { useSwipeToRefresh } from "../hooks/useSwipeToRefresh";
 import { ClassListWrapper } from "./ClassListWrapper";
@@ -13,7 +14,7 @@ interface ToggleProps {
   $toggleVisible: boolean;
 }
 
-const SIDEBAR_WIDTH = 320;
+const SIDEBAR_WIDTH = 300;
 
 const Sidebar = styled.aside<ToggleProps>`
   max-width: 100%;
@@ -21,30 +22,31 @@ const Sidebar = styled.aside<ToggleProps>`
   top: ${NAV_HEIGHT}px;
   bottom: 0;
   overflow-y: auto;
-  background-color: ${(props) => props.theme.colors.mainSurface};
+  background-color: ${(p) => p.theme.colors.secondarySurface};
+  border-right: 1px solid ${(p) => p.theme.borderColor};
   z-index: 1;
   position: fixed;
 
-  @media only screen and (max-width: ${(props) =>
-      props.theme.widths.tablet}px) {
+  ${mediaTablet`
     position: absolute;
     transition: left 0.25s;
-    left: ${(props) => (props.$toggleVisible ? 0 : -SIDEBAR_WIDTH)}px;
+    left: ${(props: ToggleProps) => (props.$toggleVisible ? 0 : -SIDEBAR_WIDTH)}px;
     top: 0;
     bottom: 0;
-    z-index: 1;
-  }
+    z-index: 2;
+    box-shadow: ${(props: ToggleProps) =>
+      props.$toggleVisible ? "4px 0 16px rgba(0,0,0,0.08)" : "none"};
+  `}
 `;
 
 const MainContent = styled.div<ToggleProps>`
   flex: 1;
-  background-color: ${(props) => props.theme.colors.secondarySurface};
-  padding: 16px;
+  background-color: ${(p) => p.theme.colors.secondarySurface};
+  padding: 20px;
   position: relative;
   margin-left: ${SIDEBAR_WIDTH}px;
 
-  @media only screen and (max-width: ${(props) =>
-      props.theme.widths.tablet}px) {
+  ${mediaTablet`
     margin-left: 0;
 
     &:before {
@@ -52,18 +54,18 @@ const MainContent = styled.div<ToggleProps>`
       position: fixed;
       background-color: rgba(0, 0, 0, 0.25);
       transition: opacity 0.25s;
-      opacity: ${(props) => (props.$toggleVisible ? 1 : 0)};
+      opacity: ${(props: ToggleProps) => (props.$toggleVisible ? 1 : 0)};
       top: 0;
       left: 0;
       height: 100vh;
       width: 100vw;
-      pointer-events: ${(props) => (props.$toggleVisible ? "all" : "none")};
+      pointer-events: ${(props: ToggleProps) => (props.$toggleVisible ? "all" : "none")};
+      z-index: 1;
     }
-  }
+  `}
 
-  @media only screen and (max-width: ${(props) =>
-      props.theme.widths.mobile}px) {
-    padding: 8px;
+  @media only screen and (max-width: ${(p) => p.theme.widths.mobile}px) {
+    padding: 12px;
   }
 `;
 
@@ -86,7 +88,7 @@ const Spinner = styled.div`
   transform-origin: center;
   transition: transform 0.1s;
 
-  --sp-color: ${(props) => props.theme.colors.accent};
+  --sp-color: ${(p) => p.theme.colors.accent};
 
   &.animate div {
     animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1);
@@ -124,26 +126,52 @@ const Spinner = styled.div`
   }
 `;
 
-const FiltersButton = styled.button`
+const TopBar = styled.div`
   display: none;
-  border: 0;
-  height: 40px;
-  line-height: 0;
-  padding: 1.5em;
-  font-family: "Inter";
-  border-color: ${(props) => props.theme.colors.secondary};
-  border-style: solid;
-  border-radius: ${(props) => props.theme.borderRadius};
-  border-width: 1px;
-  text-transform: uppercase;
-  margin-bottom: 8px;
-  cursor: pointer;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
 
-  @media only screen and (max-width: ${(props) =>
-      props.theme.widths.tablet}px) {
-    display: block;
+  ${mediaTablet`
+    display: flex;
+  `}
+`;
+
+const FiltersButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 14px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: ${(p) => p.theme.colors.main};
+  background-color: ${(p) => p.theme.colors.mainSurface};
+  border: 1px solid ${(p) => p.theme.borderColor};
+  border-radius: ${(p) => p.theme.borderRadius};
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+
+  &:hover {
+    box-shadow: rgba(0, 0, 0, 0.06) 0px 2px 8px;
+  }
+
+  svg {
+    flex-shrink: 0;
   }
 `;
+
+const FilterIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+    <path
+      d="M1 3h12M3 7h8M5 11h4"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+    />
+  </svg>
+);
 
 export const ClassListRoot = () => {
   const { refresh } = useHydrateClassList();
@@ -175,15 +203,18 @@ export const ClassListRoot = () => {
               <div />
             </Spinner>
           </SpinnerContainer>
-          <FiltersButton
-            type="button"
-            onClick={(e: MouseEvent<HTMLButtonElement>) => {
-              setSidebarVisible(true);
-              e.stopPropagation();
-            }}
-          >
-            Show Filters
-          </FiltersButton>
+          <TopBar>
+            <FiltersButton
+              type="button"
+              onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                setSidebarVisible(true);
+                e.stopPropagation();
+              }}
+            >
+              <FilterIcon />
+              Filters
+            </FiltersButton>
+          </TopBar>
           <ClassListWrapper />
         </MainContent>
       </BodyWrapper>

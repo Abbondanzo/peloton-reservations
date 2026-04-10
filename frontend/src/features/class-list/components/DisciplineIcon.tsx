@@ -23,17 +23,22 @@ interface IconWrapperProps {
   size: number;
 }
 
+const inner = (size: number) => Math.round(size * (1 - PADDING * 2));
+const pad = (size: number) => Math.round(size * PADDING);
+
 const IconWrapper = styled.div<IconWrapperProps>`
-  width: ${(props) => props.size - props.size * PADDING * 2}px;
-  height: ${(props) => props.size - props.size * PADDING * 2}px;
+  width: ${(props) => inner(props.size)}px;
+  height: ${(props) => inner(props.size)}px;
   border-radius: ${(props) => props.size}px;
   background-color: ${(props) => props.color};
-  padding: ${(props) => props.size * PADDING}px;
+  padding: ${(props) => pad(props.size)}px;
+  flex-shrink: 0;
 `;
 
 const ImageWrapper = styled.img<IconWrapperProps>`
-  width: ${(props) => props.size - props.size * PADDING * 2}px;
-  height: ${(props) => props.size - props.size * PADDING * 2}px;
+  width: ${(props) => inner(props.size)}px;
+  height: ${(props) => inner(props.size)}px;
+  display: block;
 `;
 
 interface Props {

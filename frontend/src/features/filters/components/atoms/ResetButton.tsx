@@ -8,4 +8,8 @@ export const ResetButton = styled.button`
   border: none;
   padding: 0;
   font-family: inherit;
+
+  &:hover {
+    text-decoration: underline;
+  }
 `;

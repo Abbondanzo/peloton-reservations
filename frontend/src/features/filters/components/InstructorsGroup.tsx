@@ -1,29 +1,18 @@
-import styled from "styled-components";
 import { InstructorIcon } from "../../class-list/components/InstructorIcon";
 import { selectStudioId } from "../../class-list/selectors/selectStudioId";
-import {
-  getErrorMessage,
-  useGetInstructorsQuery,
-} from "../../class-list/services/pelotonApi";
+import { useGetInstructorsQuery } from "../../class-list/services/pelotonApi";
 import type { Instructor } from "../../class-list/types/Instructor";
 import { useAppDispatch, useAppSelector } from "../../store/hooks/useStore";
-import { List } from "../../theme/components/List";
-import { ListItem } from "../../theme/components/ListItem";
-import { Padding } from "../../theme/components/Padding";
-import { SectionTitle } from "../../theme/components/SectionTitle";
 import { useInstructorFilters } from "../hooks/useInstructorFilters";
 import { resetInstructors } from "../slices/filtersSlice";
-import { ResetButton } from "./atoms/ResetButton";
-
-const SectionRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-const InstructorImageWrapper = styled.div`
-  margin: 0 8px;
-`;
+import {
+  FilterCheckBox,
+  FilterItem,
+  FilterItemList,
+  FilterItemName,
+  FilterStateText,
+} from "./atoms/FilterCheckList";
+import { FilterGroupHeader } from "./atoms/FilterGroupHeader";
 
 interface InstructorsGroupItemProps {
   instructor: Instructor;
@@ -35,17 +24,18 @@ const InstructorsGroupItem = ({
   instructor,
   checked,
   onClick,
-}: InstructorsGroupItemProps) => {
-  return (
-    <ListItem onClick={onClick}>
-      <input type="checkbox" value={instructor.id} checked={checked} readOnly />
-      <InstructorImageWrapper>
-        <InstructorIcon instructor={instructor} />
-      </InstructorImageWrapper>
-      {instructor.name}
-    </ListItem>
-  );
-};
+}: InstructorsGroupItemProps) => (
+  <FilterItem
+    $checked={checked}
+    onClick={onClick}
+    role="checkbox"
+    aria-checked={checked}
+  >
+    <FilterCheckBox $checked={checked} />
+    <InstructorIcon instructor={instructor} size={28} />
+    <FilterItemName>{instructor.name}</FilterItemName>
+  </FilterItem>
+);
 
 const InstructorsGroupContent = () => {
   const studioId = useAppSelector(selectStudioId);
@@ -53,30 +43,24 @@ const InstructorsGroupContent = () => {
   const { selectedInstructors, toggleInstructor } = useInstructorFilters();
 
   if (error && !isLoading) {
-    return (
-      <div>
-        Error! <code>{getErrorMessage(error)}</code>
-      </div>
-    );
+    return <FilterStateText>Failed to load instructors</FilterStateText>;
   }
 
   if (!currentData || isLoading) {
-    return <div>Loading...</div>;
+    return <FilterStateText>Loading…</FilterStateText>;
   }
 
   return (
-    <List>
-      {currentData.map((instructor, index) => {
-        return (
-          <InstructorsGroupItem
-            key={index}
-            instructor={instructor}
-            checked={selectedInstructors.includes(instructor.id)}
-            onClick={() => toggleInstructor(instructor.id)}
-          />
-        );
-      })}
-    </List>
+    <FilterItemList>
+      {currentData.map((instructor, index) => (
+        <InstructorsGroupItem
+          key={index}
+          instructor={instructor}
+          checked={selectedInstructors.includes(instructor.id)}
+          onClick={() => toggleInstructor(instructor.id)}
+        />
+      ))}
+    </FilterItemList>
   );
 };
 
@@ -87,16 +71,16 @@ export const InstructorsGroup = () => {
   const dispatch = useAppDispatch();
 
   return (
-    <Padding>
-      <SectionRow>
-        <SectionTitle>Instructors</SectionTitle>
-        {hasSelectedInstructors && (
-          <ResetButton onClick={() => dispatch(resetInstructors())}>
-            Reset
-          </ResetButton>
-        )}
-      </SectionRow>
+    <div>
+      <FilterGroupHeader
+        label="Instructors"
+        onReset={
+          hasSelectedInstructors
+            ? () => dispatch(resetInstructors())
+            : undefined
+        }
+      />
       <InstructorsGroupContent />
-    </Padding>
+    </div>
   );
 };
