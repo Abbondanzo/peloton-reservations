@@ -15,8 +15,9 @@ const Wrapper = styled.nav`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: env(safe-area-inset-top, 0) 20px 0;
   gap: 16px;
+  box-sizing: border-box;
 
   a {
     text-decoration: none;
@@ -125,38 +126,40 @@ export const Navbar = () => {
   const [sidebarVisible, setSidebarVisible] = useState(false);
 
   return (
-    <Wrapper>
-      <Brand to={Paths.CLASS_LIST}>
-        <Logo src={`${import.meta.env.BASE_URL}images/icon.svg`} alt="" />
-        <BrandName>Peloton Alerts</BrandName>
-      </Brand>
+    <>
+      <Wrapper>
+        <Brand to={Paths.CLASS_LIST}>
+          <Logo src={`${import.meta.env.BASE_URL}images/icon.svg`} alt="" />
+          <BrandName>Peloton Alerts</BrandName>
+        </Brand>
 
-      <NavLinks>
-        <NavItem to={Paths.CLASS_LIST} end>
-          Classes
-        </NavItem>
-        <NavItem to={Paths.ALERTS}>Alerts</NavItem>
-        <NavItem to={Paths.ABOUT} end>
-          FAQ
-        </NavItem>
-      </NavLinks>
+        <NavLinks>
+          <NavItem to={Paths.CLASS_LIST} end>
+            Classes
+          </NavItem>
+          <NavItem to={Paths.ALERTS}>Alerts</NavItem>
+          <NavItem to={Paths.ABOUT} end>
+            FAQ
+          </NavItem>
+        </NavLinks>
 
-      <RightSection>
-        <SessionInfo />
-      </RightSection>
+        <RightSection>
+          <SessionInfo />
+        </RightSection>
 
-      <HamburgerButton
-        type="button"
-        aria-label="Open menu"
-        onClick={() => setSidebarVisible(true)}
-      >
-        <HamburgerIcon />
-      </HamburgerButton>
+        <HamburgerButton
+          type="button"
+          aria-label="Open menu"
+          onClick={() => setSidebarVisible(true)}
+        >
+          <HamburgerIcon />
+        </HamburgerButton>
+      </Wrapper>
 
       <MobileSidebar
         open={sidebarVisible}
         onClose={() => setSidebarVisible(false)}
       />
-    </Wrapper>
+    </>
   );
 };
