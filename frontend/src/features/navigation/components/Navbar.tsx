@@ -54,9 +54,9 @@ const NavLinks = styled.div`
 `;
 
 const NavItem = styled(NavLink)`
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
-  padding: 6px 12px;
+  padding: 7px 14px;
   border-radius: 6px;
   color: rgba(255, 255, 255, 0.6);
   transition: color 0.15s, background-color 0.15s;

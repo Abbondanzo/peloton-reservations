@@ -8,14 +8,11 @@ import { mediaMobile } from "../../theme/constants/queries";
 import { selectHasSession } from "../selectors/selectHasSession";
 
 const PageWrapper = styled.div`
-  min-height: calc(100vh - 60px);
+  padding: 32px 20px;
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 24px 20px;
 
   ${mediaMobile`
-    align-items: flex-start;
     padding: 16px 12px;
   `}
 `;

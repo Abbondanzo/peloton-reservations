@@ -9,9 +9,9 @@ import { Popover } from "../../theme/components/Popover";
 import { Paths } from "../constants/paths";
 
 const SignInLink = styled(Link)`
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
-  padding: 6px 14px;
+  padding: 7px 16px;
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.3);
   color: rgba(255, 255, 255, 0.85);
@@ -26,9 +26,9 @@ const SignInLink = styled(Link)`
 `;
 
 const AccountButton = styled.button`
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
-  padding: 6px 14px;
+  padding: 7px 16px;
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.3);
   color: rgba(255, 255, 255, 0.85);
