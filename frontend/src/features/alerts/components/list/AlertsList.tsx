@@ -5,6 +5,10 @@ import { AlertsListItem } from "./AlertsListItem";
 const ListWrapper = styled.ul`
   list-style: none;
   padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 `;
 
 interface Props {
@@ -14,23 +18,16 @@ interface Props {
 }
 
 export const AlertsList = ({ alerts, onDuplicate, onEdit }: Props) => {
-  if (alerts.length === 0) {
-    return <p>No alerts. Begin by adding one below</p>;
-  }
   return (
-    <div>
-      <ListWrapper>
-        {alerts.map((alert, index) => {
-          return (
-            <AlertsListItem
-              key={index}
-              alert={alert}
-              onDuplicate={() => onDuplicate(alert)}
-              onEdit={() => onEdit(alert)}
-            />
-          );
-        })}
-      </ListWrapper>
-    </div>
+    <ListWrapper>
+      {alerts.map((alert) => (
+        <AlertsListItem
+          key={alert.id}
+          alert={alert}
+          onDuplicate={() => onDuplicate(alert)}
+          onEdit={() => onEdit(alert)}
+        />
+      ))}
+    </ListWrapper>
   );
 };
