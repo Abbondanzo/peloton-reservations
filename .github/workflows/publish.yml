@@ -52,6 +52,7 @@ jobs:
         run: pnpm run build
         working-directory: ./frontend
       - name: Upload sourcemaps
+        if: github.event_name != 'pull_request'
         run: pnpm run sentry-sourcemaps
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
