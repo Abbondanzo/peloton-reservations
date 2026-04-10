@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { FiltersWrapper } from "../../filters/components/FiltersWrapper";
 import { NavbarProvider } from "../../navigation/components/NavbarProvider";
 import { NAV_HEIGHT } from "../../navigation/constants/height";
-import { mediaTablet } from "../../theme/constants/queries";
 import { useHydrateClassList } from "../hooks/useHydrateClassList";
 import { useSwipeToRefresh } from "../hooks/useSwipeToRefresh";
 import { ClassListWrapper } from "./ClassListWrapper";
@@ -27,16 +26,16 @@ const Sidebar = styled.aside<ToggleProps>`
   z-index: 1;
   position: fixed;
 
-  ${mediaTablet`
+  @media only screen and (max-width: ${(p) => p.theme.widths.tablet}px) {
     position: absolute;
     transition: left 0.25s;
-    left: ${(props: ToggleProps) => (props.$toggleVisible ? 0 : -SIDEBAR_WIDTH)}px;
+    left: ${(p) => (p.$toggleVisible ? 0 : -SIDEBAR_WIDTH)}px;
     top: 0;
     bottom: 0;
     z-index: 2;
-    box-shadow: ${(props: ToggleProps) =>
-      props.$toggleVisible ? "4px 0 16px rgba(0,0,0,0.08)" : "none"};
-  `}
+    box-shadow: ${(p) =>
+      p.$toggleVisible ? "4px 0 16px rgba(0,0,0,0.08)" : "none"};
+  }
 `;
 
 const MainContent = styled.div<ToggleProps>`
@@ -46,7 +45,7 @@ const MainContent = styled.div<ToggleProps>`
   position: relative;
   margin-left: ${SIDEBAR_WIDTH}px;
 
-  ${mediaTablet`
+  @media only screen and (max-width: ${(p) => p.theme.widths.tablet}px) {
     margin-left: 0;
 
     &:before {
@@ -54,15 +53,15 @@ const MainContent = styled.div<ToggleProps>`
       position: fixed;
       background-color: rgba(0, 0, 0, 0.25);
       transition: opacity 0.25s;
-      opacity: ${(props: ToggleProps) => (props.$toggleVisible ? 1 : 0)};
+      opacity: ${(p) => (p.$toggleVisible ? 1 : 0)};
       top: 0;
       left: 0;
       height: 100vh;
       width: 100vw;
-      pointer-events: ${(props: ToggleProps) => (props.$toggleVisible ? "all" : "none")};
+      pointer-events: ${(p) => (p.$toggleVisible ? "all" : "none")};
       z-index: 1;
     }
-  `}
+  }
 
   @media only screen and (max-width: ${(p) => p.theme.widths.mobile}px) {
     padding: 12px;
@@ -132,9 +131,9 @@ const TopBar = styled.div`
   gap: 12px;
   margin-bottom: 16px;
 
-  ${mediaTablet`
+  @media only screen and (max-width: ${(p) => p.theme.widths.tablet}px) {
     display: flex;
-  `}
+  }
 `;
 
 const FiltersButton = styled.button`
