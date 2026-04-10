@@ -1,4 +1,4 @@
-import { type ChangeEvent, useState } from "react";
+import { type ChangeEvent, useId } from "react";
 import styled from "styled-components";
 import { border } from "../constants/styles";
 
@@ -24,14 +24,6 @@ const Hint = styled.span`
   color: ${(props) => props.theme.colors.secondary};
 `;
 
-const getRandomId = () =>
-  Math.floor(Math.random() * 1e10)
-    .toString()
-    .split("")
-    .map(Number)
-    .map((num) => num.toString(16))
-    .join("");
-
 interface Props {
   label: string;
   hint?: string;
@@ -47,7 +39,7 @@ export const TextInput = ({
   value,
   onChange,
 }: Props) => {
-  const [id] = useState(getRandomId);
+  const id = useId();
 
   return (
     <Wrapper>
@@ -56,11 +48,12 @@ export const TextInput = ({
         id={id}
         placeholder={placeholder}
         value={value}
+        aria-describedby={hint ? `${id}-hint` : undefined}
         onChange={({ target }: ChangeEvent<HTMLInputElement>) =>
           onChange(target.value)
         }
       />
-      {hint && <Hint>{hint}</Hint>}
+      {hint && <Hint id={`${id}-hint`}>{hint}</Hint>}
     </Wrapper>
   );
 };

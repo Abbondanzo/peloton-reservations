@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/react";
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import styled from "styled-components";
 import { useAppSelector } from "../../store/hooks/useStore";
 import { Card } from "../../theme/components/Card";
@@ -165,7 +165,7 @@ interface Props {
   clazz: Class;
 }
 
-export const ClassListItem = ({ clazz }: Props) => {
+export const ClassListItem = memo(({ clazz }: Props) => {
   const studio = useAppSelector(selectStudio);
   const interactive = clazz.status === "free" || clazz.status === "waitlist";
   const reservationUrl = useMemo(() => {
@@ -214,10 +214,14 @@ export const ClassListItem = ({ clazz }: Props) => {
             </ClassSubtitle>
           </Metadata>
         </ContentWrapper>
-        <Button $interactive={interactive} disabled={!interactive}>
+        <Button
+          $interactive={interactive}
+          disabled={!interactive}
+          aria-label={`${buttonText} ${clazz.name}`}
+        >
           {buttonText}
         </Button>
       </InteractiveCard>
     </Anchor>
   );
-};
+});

@@ -32,12 +32,12 @@ const GroupTitleText = styled.span`
   color: ${(props) => props.theme.colors.main};
 `;
 
-const TimeZoneTipText = styled.i`
+const TimeZoneTipText = styled.em`
   font-size: 12px;
   color: ${(props) => props.theme.colors.secondary};
 `;
 
-const TipText = styled.i`
+const TipText = styled.em`
   margin-top: 4px;
   font-size: 12px;
 `;

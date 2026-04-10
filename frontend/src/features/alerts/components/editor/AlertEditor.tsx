@@ -107,7 +107,12 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
   };
 
   return (
-    <form>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSave();
+      }}
+    >
       <h2>{alertToEdit.id ? "Edit" : "Add"} an alert</h2>
       <p>Pick from the following settings and hit "Save" when you're done.</p>
       <GridWrapper>
@@ -136,9 +141,7 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
         <SecondaryButton type="button" onClick={onCancel}>
           Cancel
         </SecondaryButton>
-        <Button type="button" onClick={handleSave}>
-          Save
-        </Button>
+        <Button type="submit">Save</Button>
       </SaveFooter>
     </form>
   );

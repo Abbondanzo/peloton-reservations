@@ -24,14 +24,14 @@ const Form = styled.form`
 
 const Input = styled.input`
   padding: 0.75rem;
-  border: 1px solid #ddd;
+  border: 1px solid ${(props) => props.theme.borderColor};
   border-radius: 4px;
   font-size: 1rem;
 
   &:focus {
     outline: none;
-    border-color: #4285f4;
-    box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+    border-color: ${(props) => props.theme.colors.accent};
+    box-shadow: 0 0 0 2px ${(props) => props.theme.colors.accent}33;
   }
 `;
 
@@ -50,12 +50,12 @@ const Button = styled.button`
 `;
 
 const PrimaryButton = styled(Button)`
-  background-color: #4285f4;
+  background-color: ${(props) => props.theme.colors.accent};
   color: white;
   width: 100%;
 
   &:hover:not(:disabled) {
-    background-color: #3367d6;
+    filter: brightness(90%);
   }
 `;
 
@@ -78,7 +78,7 @@ const ErrorMessage = styled.div`
 const Title = styled.h1`
   text-align: center;
   margin-bottom: 1.5rem;
-  color: #333;
+  color: ${(props) => props.theme.colors.main};
 `;
 
 const MicroCopy = styled.p`
@@ -103,9 +103,9 @@ const Divider = styled.div`
   }
 
   span {
-    background: white;
+    background: ${(props) => props.theme.colors.mainSurface};
     padding: 0 1rem;
-    color: #666;
+    color: ${(props) => props.theme.colors.secondary};
     position: relative;
   }
 `;
@@ -113,11 +113,11 @@ const Divider = styled.div`
 const ToggleText = styled.p`
   text-align: center;
   margin-top: 1rem;
-  color: #666;
+  color: ${(props) => props.theme.colors.secondary};
   font-size: 14px;
 
   button {
-    color: #4285f4;
+    color: ${(props) => props.theme.colors.accent};
     background: none;
     border: none;
     text-decoration: underline;
@@ -218,7 +218,7 @@ export const SignIn = () => {
         </PrimaryButton>
       </Form>
 
-      {error && <ErrorMessage>{error}</ErrorMessage>}
+      {error && <ErrorMessage role="alert">{error}</ErrorMessage>}
 
       <Divider>
         <span>or</span>

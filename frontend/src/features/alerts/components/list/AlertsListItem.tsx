@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import { type Alert, STUDIOS } from "shared";
 import styled from "styled-components";
 import { selectUserId } from "../../../session/selectors/selectUserId";
@@ -65,7 +65,7 @@ interface Props {
   onEdit: () => void;
 }
 
-export const AlertsListItem = ({ alert, onDuplicate, onEdit }: Props) => {
+export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
   const userId = useAppSelector(selectUserId);
   const formattedDate = useMemo(() => {
     const formatter = new Intl.DateTimeFormat(undefined, {
@@ -85,7 +85,7 @@ export const AlertsListItem = ({ alert, onDuplicate, onEdit }: Props) => {
             <Title>{getFriendlyTitle(alert)}</Title>
             <Subtitle>
               {STUDIOS[alert.studioId]?.location || alert.studioId || (
-                <i>No studio set</i>
+                <em>No studio set</em>
               )}
               <Spacer />
               Created {formattedDate}
@@ -109,4 +109,4 @@ export const AlertsListItem = ({ alert, onDuplicate, onEdit }: Props) => {
       </Card>
     </Wrapper>
   );
-};
+});

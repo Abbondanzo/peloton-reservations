@@ -94,13 +94,14 @@ export const MobileSidebar = ({ open, onClose }: Props) => {
         onClick={(e: MouseEvent<HTMLElement>) => {
           e.stopPropagation();
         }}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Navigation menu"
       >
         <AbsoluteCloseButton onClick={() => onClose()} />
         <RoutesTitle>Links</RoutesTitle>
         <Routes onClick={() => onClose()}>
-          <RouteItem to={Paths.CLASS_LIST} onClick={console.log}>
-            Class List
-          </RouteItem>
+          <RouteItem to={Paths.CLASS_LIST}>Class List</RouteItem>
           <RouteItem to={Paths.ABOUT}>FAQ</RouteItem>
         </Routes>
         <SessionInfoWrapper>

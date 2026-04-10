@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useRef } from "react";
+import { type ReactNode, useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 
 interface Props {
@@ -22,36 +22,54 @@ const Wrapper = styled.div`
 `;
 
 export const Popover = ({ children, open, onClose }: Props) => {
-  const lastOpened = useRef<number>(0);
-  useEffect(() => {
-    if (open) {
-      lastOpened.current = new Date().getTime();
-    }
-  }, [open]);
   const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const handler = (event: MouseEvent) => {
-      const hasEnoughDelay =
-        lastOpened.current && lastOpened.current + 100 < new Date().getTime();
-      if (!hasEnoughDelay) {
-        return;
+
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
       }
+    },
+    [onClose]
+  );
+
+  useEffect(() => {
+    if (!open) return;
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open, handleKeyDown]);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (event: MouseEvent) => {
       const el = event.target;
       if (!(el instanceof Node)) {
         onClose();
         return;
       }
       const domNode = ref.current;
-      if (domNode && domNode instanceof Node && domNode.contains(el)) {
+      if (domNode && domNode.contains(el)) {
         return;
       }
       onClose();
     };
-    document.addEventListener("click", handler);
+    // Use capture phase with a timeout to avoid closing immediately on the opening click
+    const timeoutId = setTimeout(() => {
+      document.addEventListener("click", handler, true);
+    }, 0);
     return () => {
-      document.removeEventListener("click", handler);
+      clearTimeout(timeoutId);
+      document.removeEventListener("click", handler, true);
     };
   }, [open, onClose]);
+
   if (!open) return null;
-  return <Wrapper ref={ref}>{children}</Wrapper>;
+
+  return (
+    <Wrapper ref={ref} role="dialog" aria-modal="true">
+      {children}
+    </Wrapper>
+  );
 };

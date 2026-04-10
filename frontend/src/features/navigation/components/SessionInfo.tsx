@@ -65,7 +65,12 @@ export const SessionInfo = () => {
 
   return (
     <ButtonWrapper>
-      <SignInButton type="button" onClick={() => setShowPopover(true)}>
+      <SignInButton
+        type="button"
+        onClick={() => setShowPopover(true)}
+        aria-expanded={showPopover}
+        aria-haspopup="dialog"
+      >
         {sessionState.data.displayName}
       </SignInButton>
       <Popover open={showPopover} onClose={() => setShowPopover(false)}>
