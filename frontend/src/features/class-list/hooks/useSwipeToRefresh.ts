@@ -1,11 +1,16 @@
 import { useEffect, useMemo, useRef } from "react";
 
-// Amount of pixels to drag from the top to trigger a refetch
-const REFRESH_THRESHOLD = 200;
+// Raw drag distance required to trigger a refresh
+const REFRESH_THRESHOLD = 150;
+// Maximum visual travel of the spinner (rubber-band damping)
+const MAX_TRAVEL = 60;
 
 interface Options {
   refresh: () => Promise<void>;
 }
+
+const getScrollTop = () =>
+  document.documentElement.scrollTop || document.body.scrollTop;
 
 /**
  * iOS disables swipe-to-refresh on PWAs added to the home screen, so we have to compute it ourselves.
@@ -24,59 +29,109 @@ export const useSwipeToRefresh = ({ refresh }: Options) => {
   }, []);
 
   useEffect(() => {
-    if (!requiresSwipeToRefresh) return () => {};
-    const currentRef = swipeRef.current;
-    const currentSpinnerRef = spinnerRef.current;
-    const spinnerHeight = currentSpinnerRef
-      ? currentSpinnerRef.getBoundingClientRect().height
-      : 100;
+    if (!requiresSwipeToRefresh) return;
+
     let touchStartY = 0;
+    let pulling = false;
     let shouldRefresh = false;
-    const touchStart = (event: TouchEvent) => {
-      touchStartY =
-        event.touches[0].clientY + document.documentElement.scrollTop;
+    let isRefreshing = false;
+
+    const resetSpinner = (animated: boolean) => {
+      const el = spinnerRef.current;
+      if (!el) return;
+      el.style.transition = animated
+        ? "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease"
+        : "none";
+      el.style.transform = "";
+      el.style.opacity = "0";
     };
-    const touchMove = (event: TouchEvent) => {
-      const touchY = event.touches[0].clientY;
-      const touchDiff = touchY - touchStartY;
-      if (touchDiff >= 0) {
-        const opacity = Math.pow(Math.min(touchDiff / REFRESH_THRESHOLD, 1), 2);
-        const angle = Math.floor((touchDiff / REFRESH_THRESHOLD) * 360);
-        if (currentSpinnerRef) {
-          currentSpinnerRef.style.transform = `translateY(${Math.min(
-            touchDiff,
-            spinnerHeight + 8
-          )}px) rotate(${angle}deg) `;
-          currentSpinnerRef.style.opacity = `${opacity}`;
+
+    const touchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+      pulling = false;
+      shouldRefresh = false;
+    };
+
+    const touchMove = (e: TouchEvent) => {
+      if (isRefreshing) return;
+      // Only engage pull-to-refresh when the page is scrolled to the very top
+      if (getScrollTop() > 0) return;
+
+      const delta = e.touches[0].clientY - touchStartY;
+      if (delta <= 0) {
+        if (pulling) {
+          pulling = false;
+          shouldRefresh = false;
+          resetSpinner(false);
         }
+        return;
       }
-      shouldRefresh = touchDiff > REFRESH_THRESHOLD;
+
+      pulling = true;
+      shouldRefresh = delta >= REFRESH_THRESHOLD;
+
+      // Rubber-band: fast at first, decelerates toward MAX_TRAVEL
+      const progress = Math.min(delta / REFRESH_THRESHOLD, 1);
+      const travel = MAX_TRAVEL * (1 - Math.pow(1 - progress, 2));
+      const opacity = Math.pow(progress, 0.5);
+      const angle = Math.floor(progress * 270);
+
+      const el = spinnerRef.current;
+      if (el) {
+        el.style.transition = "none";
+        el.style.transform = `translateY(${travel}px) rotate(${angle}deg)`;
+        el.style.opacity = String(Math.min(opacity, 1));
+      }
     };
+
     const touchEnd = () => {
-      if (shouldRefresh) {
+      if (!pulling) return;
+      pulling = false;
+
+      if (shouldRefresh && !isRefreshing) {
         shouldRefresh = false;
-        if (currentSpinnerRef) {
-          currentSpinnerRef.classList.add("animate");
+        isRefreshing = true;
+
+        const el = spinnerRef.current;
+        if (el) {
+          el.classList.add("animate");
+          // Hold spinner in place while refreshing
+          el.style.transition = "none";
+          el.style.transform = `translateY(${MAX_TRAVEL}px)`;
+          el.style.opacity = "1";
         }
+
         refresh().finally(() => {
-          if (currentSpinnerRef) {
-            currentSpinnerRef.style.transform = ``;
-            currentSpinnerRef.classList.remove("animate");
+          isRefreshing = false;
+          const el = spinnerRef.current;
+          if (el) {
+            el.classList.remove("animate");
+            resetSpinner(true);
           }
         });
       } else {
-        if (currentSpinnerRef) {
-          currentSpinnerRef.style.transform = ``;
-        }
+        shouldRefresh = false;
+        resetSpinner(true);
       }
     };
-    currentRef?.addEventListener("touchstart", touchStart);
-    currentRef?.addEventListener("touchmove", touchMove);
-    currentRef?.addEventListener("touchend", touchEnd);
+
+    const touchCancel = () => {
+      pulling = false;
+      shouldRefresh = false;
+      resetSpinner(false);
+    };
+
+    const el = swipeRef.current;
+    el?.addEventListener("touchstart", touchStart, { passive: true });
+    el?.addEventListener("touchmove", touchMove, { passive: true });
+    el?.addEventListener("touchend", touchEnd, { passive: true });
+    el?.addEventListener("touchcancel", touchCancel, { passive: true });
+
     return () => {
-      currentRef?.removeEventListener("touchstart", touchStart);
-      currentRef?.removeEventListener("touchmove", touchMove);
-      currentRef?.removeEventListener("touchend", touchEnd);
+      el?.removeEventListener("touchstart", touchStart);
+      el?.removeEventListener("touchmove", touchMove);
+      el?.removeEventListener("touchend", touchEnd);
+      el?.removeEventListener("touchcancel", touchCancel);
     };
   }, [refresh, requiresSwipeToRefresh]);
 
