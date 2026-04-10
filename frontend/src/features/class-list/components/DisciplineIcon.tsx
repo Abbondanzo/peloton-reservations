@@ -8,6 +8,8 @@ const COLOR_MAP: { [key: string]: string } = {
   Cycling: "#bbd4f4",
   Meditation: "#e6d4ff",
   Rowing: "#cbf293",
+  "Outdoor Run": "#a8e6cf",
+  "Outdoor Run/Walk": "#94f3d0",
   Running: "#fde987",
   Strength: "#ffc0d5",
   Tread: "#fdbe9f",
@@ -41,11 +43,14 @@ interface Props {
 
 export const DisciplineIcon = ({ discipline, size = 32 }: Props) => {
   const color = useMemo(() => {
-    const maybeKey = Object.keys(COLOR_MAP).find((key) => {
-      const kLC = key.toLowerCase();
-      const dLC = discipline.name.toLowerCase();
-      return kLC.includes(dLC) || dLC.includes(kLC);
-    });
+    const keys = Object.keys(COLOR_MAP);
+    const dLC = discipline.name.toLowerCase();
+    const maybeKey =
+      keys.find((key) => key.toLowerCase() === dLC) ??
+      keys.find((key) => {
+        const kLC = key.toLowerCase();
+        return kLC.includes(dLC) || dLC.includes(kLC);
+      });
     if (maybeKey) {
       return COLOR_MAP[maybeKey];
     } else {
