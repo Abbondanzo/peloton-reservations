@@ -8,18 +8,43 @@ import { useAppSelector } from "../../store/hooks/useStore";
 import { Popover } from "../../theme/components/Popover";
 import { Paths } from "../constants/paths";
 
-const SignInButton = styled.button`
-  background-color: transparent;
-  color: inherit;
-  cursor: pointer;
-  font-size: inherit;
-  font-family: inherit;
+const SignInLink = styled(Link)`
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.85);
   text-decoration: none;
-  border: 1px solid #fff;
-  border-radius: ${(props) => props.theme.borderRadius};
-  padding: 0.75em 1.5em;
+  transition: color 0.15s, border-color 0.15s, background-color 0.15s;
+
   &:hover {
-    filter: brightness(90%);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.6);
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+`;
+
+const AccountButton = styled.button`
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.85);
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.15s, border-color 0.15s, background-color 0.15s;
+  white-space: nowrap;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &:hover {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.6);
+    background-color: rgba(255, 255, 255, 0.08);
   }
 `;
 
@@ -27,15 +52,18 @@ const ButtonWrapper = styled.div`
   position: relative;
 `;
 
-const TextButtonWrapper = styled.button`
-  background-color: transparent;
-  color: inherit;
-  cursor: pointer;
-  font-size: inherit;
-  font-family: inherit;
-  border: none;
+const SignOutButton = styled.button`
+  display: block;
   width: 100%;
-  padding: 0.25em;
+  padding: 8px 16px;
+  font-family: inherit;
+  font-size: 14px;
+  color: ${(p) => p.theme.colors.main};
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+
   &:hover {
     background-color: rgba(0, 0, 0, 0.05);
   }
@@ -52,31 +80,27 @@ export const SessionInfo = () => {
   }, [deleteToken]);
 
   if (sessionState.state === "loading") {
-    return <p>Loading...</p>;
+    return null;
   }
 
   if (sessionState.state !== "fulfilled" || !sessionState.data) {
-    return (
-      <Link to={Paths.SIGN_IN}>
-        <SignInButton>Sign In</SignInButton>
-      </Link>
-    );
+    return <SignInLink to={Paths.SIGN_IN}>Sign in</SignInLink>;
   }
 
   return (
     <ButtonWrapper>
-      <SignInButton
+      <AccountButton
         type="button"
         onClick={() => setShowPopover(true)}
         aria-expanded={showPopover}
         aria-haspopup="dialog"
       >
         {sessionState.data.displayName}
-      </SignInButton>
+      </AccountButton>
       <Popover open={showPopover} onClose={() => setShowPopover(false)}>
-        <TextButtonWrapper type="button" onClick={onSignOut}>
-          Sign Out
-        </TextButtonWrapper>
+        <SignOutButton type="button" onClick={onSignOut}>
+          Sign out
+        </SignOutButton>
       </Popover>
     </ButtonWrapper>
   );
