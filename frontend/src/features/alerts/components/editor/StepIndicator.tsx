@@ -28,12 +28,12 @@ const Dot = styled.button<DotProps>`
         ? props.theme.borderColor
         : props.theme.colors.accent};
   background-color: ${(props) =>
-    props.$state === "completed"
-      ? props.theme.colors.accent
-      : "transparent"};
+    props.$state === "completed" ? props.theme.colors.accent : "transparent"};
   padding: 0;
   cursor: ${(props) => (props.$state === "upcoming" ? "default" : "pointer")};
-  transition: background-color 0.2s, border-color 0.2s;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
 
   ${mediaMobile`
     width: 12px;
@@ -89,8 +89,13 @@ export const StepIndicator = ({ steps, currentStep, onStepClick }: Props) => {
               ? "active"
               : "upcoming";
         return (
-          <StepWrapper key={index} style={{ flex: index < steps.length - 1 ? 1 : 0 }}>
-            <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
+          <StepWrapper
+            key={index}
+            style={{ flex: index < steps.length - 1 ? 1 : 0 }}
+          >
+            <div
+              style={{ display: "flex", alignItems: "center", width: "100%" }}
+            >
               <Dot
                 $state={state}
                 onClick={() => {

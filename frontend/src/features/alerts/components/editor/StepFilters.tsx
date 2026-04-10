@@ -1,7 +1,10 @@
 import styled from "styled-components";
 import { DisciplineIcon } from "../../../class-list/components/DisciplineIcon";
 import { InstructorIcon } from "../../../class-list/components/InstructorIcon";
-import { useGetDisciplinesQuery, useGetInstructorsQuery } from "../../../class-list/services/pelotonApi";
+import {
+  useGetDisciplinesQuery,
+  useGetInstructorsQuery,
+} from "../../../class-list/services/pelotonApi";
 import type { Discipline } from "../../../class-list/types/Discipline";
 import type { Instructor } from "../../../class-list/types/Instructor";
 import { mediaMobile } from "../../../theme/constants/queries";
@@ -177,9 +180,7 @@ export const StepFilters = ({
             Specific instructors
           </ToggleButton>
           {isFilteringInstructors && selectedInstructors.length > 0 && (
-            <SelectedCount>
-              {selectedInstructors.length} selected
-            </SelectedCount>
+            <SelectedCount>{selectedInstructors.length} selected</SelectedCount>
           )}
         </ToggleRow>
 
@@ -217,9 +218,7 @@ export const StepFilters = ({
             Specific disciplines
           </ToggleButton>
           {isFilteringDisciplines && selectedDisciplines.length > 0 && (
-            <SelectedCount>
-              {selectedDisciplines.length} selected
-            </SelectedCount>
+            <SelectedCount>{selectedDisciplines.length} selected</SelectedCount>
           )}
         </ToggleRow>
 
@@ -243,7 +242,11 @@ interface InstructorsListProps {
   onToggle: (id: string) => void;
 }
 
-const InstructorsList = ({ query, selectedIds, onToggle }: InstructorsListProps) => {
+const InstructorsList = ({
+  query,
+  selectedIds,
+  onToggle,
+}: InstructorsListProps) => {
   if (query.isLoading) {
     return <LoadingText>Loading instructors…</LoadingText>;
   }
@@ -282,7 +285,11 @@ interface DisciplinesListProps {
   onToggle: (id: string) => void;
 }
 
-const DisciplinesList = ({ query, selectedIds, onToggle }: DisciplinesListProps) => {
+const DisciplinesList = ({
+  query,
+  selectedIds,
+  onToggle,
+}: DisciplinesListProps) => {
   if (query.isLoading) {
     return <LoadingText>Loading disciplines…</LoadingText>;
   }

@@ -11,7 +11,9 @@ const Wrapper = styled.label`
   padding: 12px;
   cursor: pointer;
   user-select: none;
-  transition: border-color 0.15s, background-color 0.15s;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
 
   &:has(input:checked) {
     border-color: ${(props) => props.theme.colors.accent};

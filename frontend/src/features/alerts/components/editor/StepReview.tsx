@@ -193,9 +193,7 @@ export const StepReview = ({
           <SummaryRow>
             <RowLabel>Time window</RowLabel>
             <RowValue>
-              {allSameTime
-                ? formatTimeRange(firstTimeRange)
-                : "Varies by day"}
+              {allSameTime ? formatTimeRange(firstTimeRange) : "Varies by day"}
             </RowValue>
           </SummaryRow>
         )}

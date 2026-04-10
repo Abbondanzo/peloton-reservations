@@ -228,7 +228,8 @@ export const StepSchedule = ({ timeRanges, setTimeRanges }: Props) => {
                     aria-label={`${day} start time`}
                     onChange={({ target }: ChangeEvent<HTMLSelectElement>) => {
                       const mins = parseInt(target.value);
-                      if (!Number.isNaN(mins)) updateTime(index, "startMin", mins);
+                      if (!Number.isNaN(mins))
+                        updateTime(index, "startMin", mins);
                     }}
                   >
                     {TIME_RANGE_VALUES.map((v) => (
@@ -243,7 +244,8 @@ export const StepSchedule = ({ timeRanges, setTimeRanges }: Props) => {
                     aria-label={`${day} end time`}
                     onChange={({ target }: ChangeEvent<HTMLSelectElement>) => {
                       const mins = parseInt(target.value);
-                      if (!Number.isNaN(mins)) updateTime(index, "endMin", mins);
+                      if (!Number.isNaN(mins))
+                        updateTime(index, "endMin", mins);
                     }}
                   >
                     {TIME_RANGE_VALUES.map((v) => (

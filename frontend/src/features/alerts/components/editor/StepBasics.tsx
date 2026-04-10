@@ -102,9 +102,7 @@ export const StepBasics = ({
 
       <Section>
         <Legend>When should we alert you?</Legend>
-        <Description>
-          Choose whether to include waitlisted classes.
-        </Description>
+        <Description>Choose whether to include waitlisted classes.</Description>
         <OptionsStack>
           {STATUS_OPTIONS.map((option) => (
             <OptionCard
