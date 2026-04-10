@@ -43,7 +43,7 @@ export default ({ mode }: { mode: string }) => {
           display: "standalone",
           description:
             "Smarter interface for picking reservable Peloton classes",
-          theme_color: "#181818",
+          theme_color: "#181a2f",
           background_color: "#181a2f",
           orientation: "portrait-primary",
           icons: [
