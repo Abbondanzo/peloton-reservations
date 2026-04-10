@@ -121,17 +121,16 @@ export const useSwipeToRefresh = ({ refresh }: Options) => {
       resetSpinner(false);
     };
 
-    const el = swipeRef.current;
-    el?.addEventListener("touchstart", touchStart, { passive: true });
-    el?.addEventListener("touchmove", touchMove, { passive: true });
-    el?.addEventListener("touchend", touchEnd, { passive: true });
-    el?.addEventListener("touchcancel", touchCancel, { passive: true });
+    document.addEventListener("touchstart", touchStart, { passive: true });
+    document.addEventListener("touchmove", touchMove, { passive: true });
+    document.addEventListener("touchend", touchEnd, { passive: true });
+    document.addEventListener("touchcancel", touchCancel, { passive: true });
 
     return () => {
-      el?.removeEventListener("touchstart", touchStart);
-      el?.removeEventListener("touchmove", touchMove);
-      el?.removeEventListener("touchend", touchEnd);
-      el?.removeEventListener("touchcancel", touchCancel);
+      document.removeEventListener("touchstart", touchStart);
+      document.removeEventListener("touchmove", touchMove);
+      document.removeEventListener("touchend", touchEnd);
+      document.removeEventListener("touchcancel", touchCancel);
     };
   }, [refresh, requiresSwipeToRefresh]);
 
