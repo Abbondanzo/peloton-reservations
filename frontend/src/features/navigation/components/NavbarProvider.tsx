@@ -4,18 +4,20 @@ import { NAV_HEIGHT } from "../constants/height";
 import { Navbar } from "./Navbar";
 
 const Wrapper = styled.div`
-  height: 100%;
   min-height: 100%;
+  display: flex;
+  flex-direction: column;
 `;
 
 const NavWrapper = styled.div`
   position: sticky;
-  height: ${NAV_HEIGHT}px;
+  height: calc(${NAV_HEIGHT}px + env(safe-area-inset-top));
   top: 0;
   z-index: 1;
 `;
 
 const BodyWrapper = styled.div`
+  flex: 1;
   background-color: ${(props) => props.theme.colors.secondarySurface};
 `;
 
