@@ -139,11 +139,14 @@ interface DeviceItemProps {
 
 const DeviceItem = ({ device, isCurrentDevice, onDelete }: DeviceItemProps) => {
   const formattedDate = useMemo(() => {
+    const date = new Date(device.timestamp);
+    const isThisYear = date.getFullYear() === new Date().getFullYear();
     const formatter = new Intl.DateTimeFormat(undefined, {
       month: "short",
       day: "numeric",
       hour: "numeric",
       minute: "numeric",
+      ...(isThisYear ? {} : { year: "numeric" }),
     });
     return formatter.format(device.timestamp);
   }, [device.timestamp]);
