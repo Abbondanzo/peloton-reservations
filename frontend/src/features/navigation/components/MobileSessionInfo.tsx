@@ -7,30 +7,52 @@ import { selectSession } from "../../session/selectors/selectSession";
 import { useAppSelector } from "../../store/hooks/useStore";
 import { Paths } from "../constants/paths";
 
-const SignInButton = styled.button`
-  background-color: transparent;
+const SignInLink = styled(Link)`
+  display: block;
   width: 100%;
-  color: inherit;
-  cursor: pointer;
-  font-size: inherit;
-  font-family: inherit;
+  padding: 10px 0;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
   text-decoration: none;
-  border: 1px solid ${(props) => props.theme.colors.main};
-  border-radius: ${(props) => props.theme.borderRadius};
-  padding: 0.75em 1.5em;
+  color: ${(p) => p.theme.colors.accent};
+  border: 1px solid ${(p) => p.theme.colors.accent}40;
+  border-radius: ${(p) => p.theme.borderRadius};
+  transition: background-color 0.15s;
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: ${(p) => p.theme.colors.accent}0a;
   }
 `;
 
-const SignedInWrapper = styled.div``;
+const AccountInfo = styled.div`
+  font-size: 13px;
+  color: ${(p) => p.theme.colors.secondary};
+  margin-bottom: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
 
-const InfoWrapper = styled.div`
-  margin-bottom: 8px;
+const SignOutButton = styled.button`
+  display: block;
+  width: 100%;
+  padding: 10px 0;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
   text-align: center;
-  font-size: 12px;
-  color: ${(props) => props.theme.colors.secondary};
+  color: ${(p) => p.theme.colors.secondary};
+  background: none;
+  border: 1px solid ${(p) => p.theme.borderColor};
+  border-radius: ${(p) => p.theme.borderRadius};
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+    color: ${(p) => p.theme.colors.main};
+  }
 `;
 
 export const MobileSessionInfo = () => {
@@ -43,23 +65,19 @@ export const MobileSessionInfo = () => {
   }, [deleteToken]);
 
   if (sessionState.state === "loading") {
-    return <p>Loading...</p>;
+    return null;
   }
 
   if (sessionState.state !== "fulfilled" || !sessionState.data) {
-    return (
-      <Link to={Paths.SIGN_IN}>
-        <SignInButton>Sign In</SignInButton>
-      </Link>
-    );
+    return <SignInLink to={Paths.SIGN_IN}>Sign in</SignInLink>;
   }
 
   return (
-    <SignedInWrapper>
-      <InfoWrapper>Signed in as: {sessionState.data.displayName}</InfoWrapper>
-      <SignInButton type="button" onClick={onSignOut}>
-        Sign Out
-      </SignInButton>
-    </SignedInWrapper>
+    <>
+      <AccountInfo>{sessionState.data.displayName}</AccountInfo>
+      <SignOutButton type="button" onClick={onSignOut}>
+        Sign out
+      </SignOutButton>
+    </>
   );
 };

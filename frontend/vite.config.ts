@@ -98,6 +98,7 @@ export default ({ mode }: { mode: string }) => {
     ],
     resolve: {
       preserveSymlinks: true,
+      dedupe: ["react", "react-dom"],
     },
   });
 };

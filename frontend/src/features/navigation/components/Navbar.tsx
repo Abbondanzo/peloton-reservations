@@ -1,132 +1,162 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import styled from "styled-components";
 import { Paths } from "../constants/paths";
 import { MobileSidebar } from "./MobileSidebar";
 import { SessionInfo } from "./SessionInfo";
 
+const NAV_BG = "#181a2f";
+const COLLAPSE_AT = 680;
+
 const Wrapper = styled.nav`
   height: inherit;
-  background-color: #181a2f;
+  background-color: ${NAV_BG};
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1em;
+  padding: 0 20px;
+  gap: 16px;
 
   a {
-    color: inherit;
     text-decoration: none;
+    color: inherit;
   }
 `;
 
-const HorizontalFlex = styled.div`
+const Brand = styled(Link)`
   display: flex;
-  column-gap: 8px;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
 `;
 
 const Logo = styled.img`
-  width: 24px;
-  height: auto;
+  width: 22px;
+  height: 22px;
 `;
 
-const Title = styled.h1`
-  font-size: 20px;
+const BrandName = styled.span`
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
 `;
 
-const RouteWrapper = styled.div`
-  display: flex;
-  column-gap: 4em;
-  align-items: center;
-`;
-
-const Routes = styled.ul`
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  column-gap: 1.5em;
-`;
-
-const IconWrapper = styled.div`
-  width: 24px;
-  height: 24px;
+const NavLinks = styled.div`
   display: flex;
   align-items: center;
-  cursor: pointer;
-`;
+  gap: 2px;
 
-const MenuIcon = styled.span`
-  display: block;
-  position: relative;
-
-  &,
-  &:before,
-  &:after {
-    width: 100%;
-    display: block;
-    height: 2px;
-    background-color: #fff;
-  }
-  &:before,
-  &:after {
-    content: "";
-    position: absolute;
-  }
-  &:before {
-    top: -6px;
-  }
-  &:after {
-    top: 6px;
-  }
-`;
-
-const WIDTH_PADDING = 120;
-
-const ShowExpandingMenu = styled.div`
-  display: none;
-  @media only screen and (max-width: ${(props) =>
-      props.theme.widths.mobile + WIDTH_PADDING}px) {
-    display: block;
-  }
-`;
-
-const HideExpandingMenu = styled.div`
-  @media only screen and (max-width: ${(props) =>
-      props.theme.widths.mobile + WIDTH_PADDING}px) {
+  @media only screen and (max-width: ${COLLAPSE_AT}px) {
     display: none;
   }
 `;
+
+const NavItem = styled(NavLink)`
+  font-size: 15px;
+  font-weight: 500;
+  padding: 7px 14px;
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.6);
+  transition: color 0.15s, background-color 0.15s;
+  white-space: nowrap;
+
+  &:hover {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  &.active {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.12);
+  }
+`;
+
+const RightSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+
+  @media only screen and (max-width: ${COLLAPSE_AT}px) {
+    display: none;
+  }
+`;
+
+const HamburgerButton = styled.button`
+  display: none;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  @media only screen and (max-width: ${COLLAPSE_AT}px) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+`;
+
+const HamburgerIcon = () => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 20 20"
+    fill="none"
+    aria-hidden="true"
+  >
+    <path
+      d="M3 5h14M3 10h14M3 15h14"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+    />
+  </svg>
+);
 
 export const Navbar = () => {
   const [sidebarVisible, setSidebarVisible] = useState(false);
 
   return (
     <Wrapper>
-      <Link to={Paths.CLASS_LIST}>
-        <HorizontalFlex>
-          <Logo src={`${import.meta.env.BASE_URL}images/icon.svg`} alt="Logo" />
-          <Title>Peloton Alerts</Title>
-        </HorizontalFlex>
-      </Link>
-      <HideExpandingMenu>
-        <RouteWrapper>
-          <Routes>
-            <Link to={Paths.CLASS_LIST}>Class List</Link>
-            <Link to={Paths.ABOUT}>FAQ</Link>
-          </Routes>
-          <SessionInfo />
-        </RouteWrapper>
-      </HideExpandingMenu>
-      <ShowExpandingMenu>
-        <IconWrapper onClick={() => setSidebarVisible(true)}>
-          <MenuIcon />
-        </IconWrapper>
-        <MobileSidebar
-          open={sidebarVisible}
-          onClose={() => setSidebarVisible(false)}
-        />
-      </ShowExpandingMenu>
+      <Brand to={Paths.CLASS_LIST}>
+        <Logo src={`${import.meta.env.BASE_URL}images/icon.svg`} alt="" />
+        <BrandName>Peloton Alerts</BrandName>
+      </Brand>
+
+      <NavLinks>
+        <NavItem to={Paths.CLASS_LIST} end>
+          Classes
+        </NavItem>
+        <NavItem to={Paths.ALERTS}>Alerts</NavItem>
+        <NavItem to={Paths.ABOUT} end>
+          FAQ
+        </NavItem>
+      </NavLinks>
+
+      <RightSection>
+        <SessionInfo />
+      </RightSection>
+
+      <HamburgerButton
+        type="button"
+        aria-label="Open menu"
+        onClick={() => setSidebarVisible(true)}
+      >
+        <HamburgerIcon />
+      </HamburgerButton>
+
+      <MobileSidebar
+        open={sidebarVisible}
+        onClose={() => setSidebarVisible(false)}
+      />
     </Wrapper>
   );
 };

@@ -1,63 +1,191 @@
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import { type Alert, STUDIOS } from "shared";
 import styled from "styled-components";
 import { selectUserId } from "../../../session/selectors/selectUserId";
 import { useAppSelector } from "../../../store/hooks/useStore";
-import { Card } from "../../../theme/components/Card";
+import { mediaMobile } from "../../../theme/constants/queries";
+import { border } from "../../../theme/constants/styles";
+import { DAY_NAMES } from "../../constants/days";
 import { deleteAlert } from "../../firebase/deleteAlert";
-import { getFriendlyTitle } from "../../operators/getFriendlyTitle";
+import { isNotEmpty } from "../../../utils/optional";
 
 const Wrapper = styled.li`
-  &:not(:last-child) {
-    margin-bottom: 1em;
-  }
+  ${border}
+  padding: 16px;
+  transition: box-shadow 0.15s;
+
   &:hover {
-    filter: brightness(96%);
+    box-shadow: rgba(0, 0, 0, 0.06) 0px 2px 12px;
   }
+
+  ${mediaMobile`
+    padding: 12px;
+  `}
 `;
 
-const CardContents = styled.div`
+const TopRow = styled.div`
   display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
-  align-items: center;
-  column-gap: 8px;
-  row-gap: 16px;
+  align-items: flex-start;
+  gap: 12px;
+
+  ${mediaMobile`
+    flex-direction: column;
+    gap: 8px;
+  `}
 `;
 
-const Metadata = styled.div`
+const Info = styled.div`
   display: flex;
   flex-direction: column;
-  column-gap: 8px;
-  row-gap: 8px;
-`;
-
-const Title = styled.span`
-  font-weight: 500;
-`;
-
-const Subtitle = styled.span`
-  display: flex;
-  font-size: 12px;
-  color: ${(props) => props.theme.colors.secondary};
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  gap: 6px;
   min-width: 0;
 `;
 
-const Spacer = styled.div`
-  width: 18px;
-  text-align: center;
+const TitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+`;
+
+const StudioName = styled.span`
+  font-weight: 600;
+  font-size: 15px;
+  color: ${(props) => props.theme.colors.main};
+`;
+
+const StatusBadge = styled.span<{ $status: string }>`
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  background-color: ${(props) =>
+    props.$status === "free"
+      ? "#e8f5e9"
+      : props.$status === "waitlist"
+        ? "#fff3e0"
+        : "#fce4ec"};
+  color: ${(props) =>
+    props.$status === "free"
+      ? "#2e7d32"
+      : props.$status === "waitlist"
+        ? "#e65100"
+        : "#c62828"};
+`;
+
+const DetailRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: ${(props) => props.theme.colors.secondary};
+`;
+
+const DetailChip = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+const Dot = styled.span`
   &::before {
-    content: "•";
-    display: inline-block;
+    content: "·";
   }
 `;
 
-const EditorButtons = styled.div`
+const DaysRow = styled.div`
   display: flex;
-  column-gap: 8px;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 2px;
 `;
+
+const DayDot = styled.span<{ $active: boolean }>`
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 500;
+  background-color: ${(props) =>
+    props.$active
+      ? `${props.theme.colors.accent}12`
+      : props.theme.colors.secondarySurface};
+  color: ${(props) =>
+    props.$active ? props.theme.colors.accent : props.theme.colors.secondary};
+  border: 1px solid
+    ${(props) =>
+      props.$active ? `${props.theme.colors.accent}40` : "transparent"};
+`;
+
+const Actions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+
+  ${mediaMobile`
+    align-self: flex-end;
+  `}
+`;
+
+const ActionButton = styled.button`
+  padding: 6px 12px;
+  border: 1px solid ${(props) => props.theme.borderColor};
+  border-radius: ${(props) => props.theme.borderRadius};
+  background: none;
+  font-family: inherit;
+  font-size: 12px;
+  color: ${(props) => props.theme.colors.secondary};
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+
+  &:hover {
+    border-color: ${(props) => props.theme.colors.accent};
+    color: ${(props) => props.theme.colors.accent};
+  }
+
+  ${mediaMobile`
+    padding: 6px 10px;
+    font-size: 11px;
+  `}
+`;
+
+const DeleteButton = styled(ActionButton)`
+  &:hover {
+    border-color: #d93025;
+    color: #d93025;
+  }
+`;
+
+const CreatedText = styled.span`
+  font-size: 11px;
+  color: ${(props) => props.theme.colors.secondary};
+  margin-top: 4px;
+`;
+
+const STATUS_INFO: Record<string, { label: string; title: string }> = {
+  free: {
+    label: "Open spots",
+    title: "Only alerts when a class has open spots available to book",
+  },
+  waitlist: {
+    label: "Waitlist",
+    title: "Alerts when a class has open spots or waitlist availability",
+  },
+  full: {
+    label: "Any",
+    title: "Alerts regardless of availability status",
+  },
+};
+
+const formatStatus = (status: string) =>
+  STATUS_INFO[status] || { label: status, title: "" };
 
 interface Props {
   alert: Alert;
@@ -65,48 +193,108 @@ interface Props {
   onEdit: () => void;
 }
 
-export const AlertsListItem = ({ alert, onDuplicate, onEdit }: Props) => {
+export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
   const userId = useAppSelector(selectUserId);
+
   const formattedDate = useMemo(() => {
+    const created = new Date(alert.created);
+    const isThisYear = created.getFullYear() === new Date().getFullYear();
     const formatter = new Intl.DateTimeFormat(undefined, {
-      year: "numeric",
-      month: "long",
+      month: "short",
       day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
+      ...(isThisYear ? {} : { year: "numeric" }),
     });
     return formatter.format(alert.created);
   }, [alert.created]);
+
+  const studioLabel =
+    STUDIOS[alert.studioId]?.location || alert.studioId || "No studio";
+
+  const instructorInfo = isNotEmpty(alert.instructors)
+    ? {
+        label:
+          alert.instructors.length === 1
+            ? "1 instructor"
+            : `${alert.instructors.length} instructors`,
+        title: `Filtering by ${alert.instructors.length} specific instructor${alert.instructors.length === 1 ? "" : "s"}`,
+      }
+    : {
+        label: "All instructors",
+        title: "Matching classes from any instructor",
+      };
+
+  const disciplineInfo = isNotEmpty(alert.disciplines)
+    ? {
+        label:
+          alert.disciplines.length === 1
+            ? "1 discipline"
+            : `${alert.disciplines.length} disciplines`,
+        title: `Filtering by ${alert.disciplines.length} specific discipline${alert.disciplines.length === 1 ? "" : "s"}`,
+      }
+    : { label: "All disciplines", title: "Matching any class type" };
+
+  const statusInfo = formatStatus(alert.maxStatus);
+
   return (
     <Wrapper>
-      <Card>
-        <CardContents>
-          <Metadata>
-            <Title>{getFriendlyTitle(alert)}</Title>
-            <Subtitle>
-              {STUDIOS[alert.studioId]?.location || alert.studioId || (
-                <i>No studio set</i>
-              )}
-              <Spacer />
-              Created {formattedDate}
-            </Subtitle>
-          </Metadata>
-          <EditorButtons>
-            <button type="button" onClick={() => onDuplicate()}>
-              Duplicate
-            </button>
-            <button type="button" onClick={() => onEdit()}>
-              Edit
-            </button>
-            <button
-              type="button"
-              onClick={() => userId && deleteAlert(userId, alert.id)}
-            >
-              Delete
-            </button>
-          </EditorButtons>
-        </CardContents>
-      </Card>
+      <TopRow>
+        <Info>
+          <TitleRow>
+            <StudioName>{studioLabel}</StudioName>
+            <StatusBadge $status={alert.maxStatus} title={statusInfo.title}>
+              {statusInfo.label}
+            </StatusBadge>
+          </TitleRow>
+
+          <DetailRow>
+            <DetailChip title={instructorInfo.title}>
+              {instructorInfo.label}
+            </DetailChip>
+            <Dot />
+            <DetailChip title={disciplineInfo.title}>
+              {disciplineInfo.label}
+            </DetailChip>
+          </DetailRow>
+
+          <DaysRow>
+            {DAY_NAMES.map((day, i) => (
+              <DayDot
+                key={day}
+                $active={!!alert.timeRanges[i]}
+                title={
+                  alert.timeRanges[i]
+                    ? `${day}: monitoring enabled`
+                    : `${day}: not monitored`
+                }
+              >
+                {day.charAt(0)}
+              </DayDot>
+            ))}
+          </DaysRow>
+
+          <CreatedText>Created {formattedDate}</CreatedText>
+        </Info>
+
+        <Actions>
+          <ActionButton type="button" onClick={onEdit} aria-label="Edit alert">
+            Edit
+          </ActionButton>
+          <ActionButton
+            type="button"
+            onClick={onDuplicate}
+            aria-label="Duplicate alert"
+          >
+            Duplicate
+          </ActionButton>
+          <DeleteButton
+            type="button"
+            onClick={() => userId && deleteAlert(userId, alert.id)}
+            aria-label="Delete alert"
+          >
+            Delete
+          </DeleteButton>
+        </Actions>
+      </TopRow>
     </Wrapper>
   );
-};
+});

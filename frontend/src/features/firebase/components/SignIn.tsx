@@ -12,36 +12,60 @@ import { Paths } from "../../navigation/constants/paths";
 import { auth } from "../constants/auth";
 import { signInErrorToFriendlyError } from "../operators/signInErrorToFriendlyError";
 
-const Wrapper = styled.div`
-  width: 100%;
+const Heading = styled.h1`
+  font-size: 26px;
+  font-weight: 600;
+  color: ${(p) => p.theme.colors.main};
+  margin: 0 0 6px;
+`;
+
+const Subheading = styled.p`
+  font-size: 14px;
+  color: ${(p) => p.theme.colors.secondary};
+  margin: 0 0 16px;
+  line-height: 1.5;
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 16px;
+`;
+
+const Field = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
+
+const Label = styled.label`
+  font-size: 13px;
+  font-weight: 500;
+  color: ${(p) => p.theme.colors.main};
 `;
 
 const Input = styled.input`
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
+  padding: 10px 14px;
+  border: 1px solid ${(p) => p.theme.borderColor};
+  border-radius: ${(p) => p.theme.borderRadius};
+  font-size: 15px;
+  font-family: inherit;
+  color: ${(p) => p.theme.colors.main};
+  background-color: ${(p) => p.theme.colors.mainSurface};
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+
+  &::placeholder {
+    color: ${(p) => p.theme.colors.secondary};
+    opacity: 0.6;
+  }
 
   &:focus {
     outline: none;
-    border-color: #4285f4;
-    box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+    border-color: ${(p) => p.theme.colors.accent};
+    box-shadow: 0 0 0 3px ${(p) => p.theme.colors.accent}22;
   }
-`;
-
-const Button = styled.button`
-  padding: 0.75rem;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
 
   &:disabled {
     opacity: 0.6;
@@ -49,79 +73,95 @@ const Button = styled.button`
   }
 `;
 
-const PrimaryButton = styled(Button)`
-  background-color: #4285f4;
-  color: white;
+const PrimaryButton = styled.button`
   width: 100%;
+  padding: 11px 16px;
+  border: none;
+  border-radius: ${(p) => p.theme.borderRadius};
+  background-color: ${(p) => p.theme.colors.accent};
+  color: #fff;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: filter 0.15s;
 
   &:hover:not(:disabled) {
-    background-color: #3367d6;
+    filter: brightness(94%);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 `;
 
-const GoogleButton = styled(Button)`
-  background-color: #db4437;
-  color: white;
+const GoogleButton = styled.button`
   width: 100%;
+  padding: 11px 16px;
+  border: 1px solid ${(p) => p.theme.borderColor};
+  border-radius: ${(p) => p.theme.borderRadius};
+  background-color: transparent;
+  color: ${(p) => p.theme.colors.main};
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s;
 
   &:hover:not(:disabled) {
-    background-color: #c23321;
+    background-color: rgba(0, 0, 0, 0.04);
   }
-`;
 
-const ErrorMessage = styled.div`
-  color: #d93025;
-  font-size: 0.875rem;
-  margin-top: 0.5rem;
-`;
-
-const Title = styled.h1`
-  text-align: center;
-  margin-bottom: 1.5rem;
-  color: #333;
-`;
-
-const MicroCopy = styled.p`
-  color: ${(props) => props.theme.colors.secondary};
-  font-size: 14px;
-  margin-bottom: 2em;
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 `;
 
 const Divider = styled.div`
-  text-align: center;
-  margin: 1rem 0;
-  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0;
+  color: ${(p) => p.theme.colors.secondary};
+  font-size: 13px;
 
-  &::before {
+  &::before,
+  &::after {
     content: "";
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
+    flex: 1;
     height: 1px;
-    background: #ddd;
-  }
-
-  span {
-    background: white;
-    padding: 0 1rem;
-    color: #666;
-    position: relative;
+    background-color: ${(p) => p.theme.borderColor};
   }
 `;
 
-const ToggleText = styled.p`
-  text-align: center;
-  margin-top: 1rem;
-  color: #666;
-  font-size: 14px;
+const ErrorMessage = styled.p`
+  margin: 0;
+  font-size: 13px;
+  color: #d93025;
+`;
 
-  button {
-    color: #4285f4;
-    background: none;
-    border: none;
-    text-decoration: underline;
-    cursor: pointer;
+const ToggleRow = styled.p`
+  margin: 32px 0 0;
+  font-size: 14px;
+  color: ${(p) => p.theme.colors.secondary};
+  text-align: center;
+`;
+
+const ToggleButton = styled.button`
+  font-family: inherit;
+  font-size: inherit;
+  color: ${(p) => p.theme.colors.accent};
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 `;
 
@@ -189,40 +229,44 @@ export const SignIn = () => {
   }, [navigate]);
 
   return (
-    <Wrapper>
-      <Title>{isSignUp ? "Create Account" : "Sign In"}</Title>
-      <MicroCopy>
-        Set your own alerts, persist your filters across devices, and get access
-        to beta features.
-      </MicroCopy>
+    <div>
+      <Heading>{isSignUp ? "Create account" : "Sign in"}</Heading>
+      <Subheading>
+        Set alerts, persist filters across devices, and access beta features.
+      </Subheading>
 
       <Form onSubmit={handleEmailAuth}>
-        <Input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          disabled={loading}
-        />
-        <Input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          disabled={loading}
-        />
+        <Field>
+          <Label htmlFor="signin-email">Email</Label>
+          <Input
+            id="signin-email"
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            disabled={loading}
+          />
+        </Field>
+        <Field>
+          <Label htmlFor="signin-password">Password</Label>
+          <Input
+            id="signin-password"
+            type="password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            disabled={loading}
+          />
+        </Field>
+        {error && <ErrorMessage role="alert">{error}</ErrorMessage>}
         <PrimaryButton type="submit" disabled={loading}>
-          {loading ? "Loading..." : isSignUp ? "Create Account" : "Sign In"}
+          {loading ? "Loading…" : isSignUp ? "Create account" : "Sign in"}
         </PrimaryButton>
       </Form>
 
-      {error && <ErrorMessage>{error}</ErrorMessage>}
-
-      <Divider>
-        <span>or</span>
-      </Divider>
+      <Divider style={{ marginTop: 20, marginBottom: 16 }}>or</Divider>
 
       <GoogleButton
         type="button"
@@ -232,9 +276,9 @@ export const SignIn = () => {
         Continue with Google
       </GoogleButton>
 
-      <ToggleText>
+      <ToggleRow>
         {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
-        <button
+        <ToggleButton
           type="button"
           onClick={() => {
             setIsSignUp(!isSignUp);
@@ -243,8 +287,8 @@ export const SignIn = () => {
           disabled={loading}
         >
           {isSignUp ? "Sign in" : "Create account"}
-        </button>
-      </ToggleText>
-    </Wrapper>
+        </ToggleButton>
+      </ToggleRow>
+    </div>
   );
 };

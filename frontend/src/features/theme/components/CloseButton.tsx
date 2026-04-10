@@ -1,11 +1,17 @@
 import styled from "styled-components";
 
-export const CloseButton = styled.div`
+export const CloseButton = styled.button.attrs({
+  "aria-label": "Close",
+  type: "button",
+})`
   position: relative;
   width: 50px;
   height: 50px;
   font-size: 0;
   cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
 
   &:before,
   &:after {

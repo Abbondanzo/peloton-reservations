@@ -1,112 +1,168 @@
 import type { MouseEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import styled from "styled-components";
-import { CloseButton } from "../../theme/components/CloseButton";
 import { Paths } from "../constants/paths";
 import { MobileSessionInfo } from "./MobileSessionInfo";
 
-interface ToggleProps {
+const NAV_BG = "#181a2f";
+const SIDEBAR_WIDTH = 280;
+
+interface OpenProps {
   $open: boolean;
 }
 
-const Wrapper = styled.div<ToggleProps>`
-  color: ${(props) => props.theme.colors.main};
-  &:before {
-    content: "";
-    position: fixed;
-    background-color: rgba(0, 0, 0, 0.25);
-    transition: opacity 0.25s;
-    opacity: ${(props) => (props.$open ? 1 : 0)};
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    pointer-events: ${(props) => (props.$open ? "all" : "none")};
-    z-index: 1;
-  }
+const Backdrop = styled.div<OpenProps>`
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  transition: opacity 0.2s;
+  opacity: ${(p) => (p.$open ? 1 : 0)};
+  pointer-events: ${(p) => (p.$open ? "all" : "none")};
+  z-index: 10;
 `;
 
-const SIDEBAR_WIDTH = 320;
-
-const SidebarWrapper = styled.div<ToggleProps>`
+const Drawer = styled.div<OpenProps>`
   display: flex;
   flex-direction: column;
   position: fixed;
-  transition: right 0.25s;
-  right: ${(props) => (props.$open ? 0 : -SIDEBAR_WIDTH)}px;
   top: 0;
   bottom: 0;
-  max-width: 100%;
-  width: ${SIDEBAR_WIDTH}px;
-  overflow: auto;
-  background-color: ${(props) => props.theme.colors.mainSurface};
-  z-index: 2;
-`;
-
-const AbsoluteCloseButton = styled(CloseButton)`
-  position: absolute;
-  top: 0;
   right: 0;
+  width: ${SIDEBAR_WIDTH}px;
+  max-width: 90vw;
+  background-color: ${(p) => p.theme.colors.mainSurface};
+  z-index: 11;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(${(p) => (p.$open ? "0" : "100%")});
+  overflow: hidden;
 `;
 
-const RoutesTitle = styled.h2`
-  padding: 16px;
-  margin: 0;
-`;
-
-const Routes = styled.ul`
-  list-style: none;
-  margin: 0;
-  padding: 0;
+const DrawerHeader = styled.div`
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  height: 60px;
+  background-color: ${NAV_BG};
+  color: #fff;
+  flex-shrink: 0;
 `;
 
-const RouteItem = styled(Link)`
-  padding: 16px;
+const Brand = styled(Link)`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+`;
+
+const Logo = styled.img`
+  width: 20px;
+  height: 20px;
+`;
+
+const BrandName = styled.span`
+  font-size: 15px;
+  font-weight: 600;
+`;
+
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+
   &:hover {
-    text-decoration: underline;
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.08);
   }
 `;
 
-const SessionInfoWrapper = styled.div`
-  margin: 16px;
-  margin-top: 32px;
-  display: flex;
-  flex-direction: column;
+const NavSection = styled.nav`
+  flex: 1;
+  padding: 8px 0;
+  overflow-y: auto;
 `;
+
+const NavItem = styled(NavLink)`
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 500;
+  color: ${(p) => p.theme.colors.main};
+  text-decoration: none;
+  transition: background-color 0.1s;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+
+  &.active {
+    color: ${(p) => p.theme.colors.accent};
+    background-color: ${(p) => p.theme.colors.accent}0a;
+  }
+`;
+
+const SessionSection = styled.div`
+  padding: 16px 20px;
+  border-top: 1px solid ${(p) => p.theme.borderColor};
+  flex-shrink: 0;
+`;
+
+const CloseIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+    <path
+      d="M4 4l10 10M14 4L4 14"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+    />
+  </svg>
+);
 
 interface Props {
   open: boolean;
   onClose: () => void;
 }
 
-export const MobileSidebar = ({ open, onClose }: Props) => {
-  return (
-    <Wrapper
+export const MobileSidebar = ({ open, onClose }: Props) => (
+  <>
+    <Backdrop $open={open} onClick={onClose} />
+    <Drawer
       $open={open}
-      onClick={() => {
-        onClose();
-      }}
+      onClick={(e: MouseEvent) => e.stopPropagation()}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Navigation menu"
     >
-      <SidebarWrapper
-        $open={open}
-        onClick={(e: MouseEvent<HTMLElement>) => {
-          e.stopPropagation();
-        }}
-      >
-        <AbsoluteCloseButton onClick={() => onClose()} />
-        <RoutesTitle>Links</RoutesTitle>
-        <Routes onClick={() => onClose()}>
-          <RouteItem to={Paths.CLASS_LIST} onClick={console.log}>
-            Class List
-          </RouteItem>
-          <RouteItem to={Paths.ABOUT}>FAQ</RouteItem>
-        </Routes>
-        <SessionInfoWrapper>
-          <MobileSessionInfo />
-        </SessionInfoWrapper>
-      </SidebarWrapper>
-    </Wrapper>
-  );
-};
+      <DrawerHeader>
+        <Brand to={Paths.CLASS_LIST} onClick={onClose}>
+          <Logo src={`${import.meta.env.BASE_URL}images/icon.svg`} alt="" />
+          <BrandName>Peloton Alerts</BrandName>
+        </Brand>
+        <CloseButton onClick={onClose} aria-label="Close menu">
+          <CloseIcon />
+        </CloseButton>
+      </DrawerHeader>
+
+      <NavSection onClick={onClose}>
+        <NavItem to={Paths.CLASS_LIST} end>
+          Classes
+        </NavItem>
+        <NavItem to={Paths.ALERTS}>Alerts</NavItem>
+        <NavItem to={Paths.ABOUT} end>
+          FAQ
+        </NavItem>
+      </NavSection>
+
+      <SessionSection>
+        <MobileSessionInfo />
+      </SessionSection>
+    </Drawer>
+  </>
+);

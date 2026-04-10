@@ -2,67 +2,139 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { NavbarProvider } from "../../navigation/components/NavbarProvider";
 import { Paths } from "../../navigation/constants/paths";
-import { Card } from "../../theme/components/Card";
+import { mediaMobile } from "../../theme/constants/queries";
 
-const BodyWrapper = styled.div`
+const PageWrapper = styled.div`
+  max-width: 720px;
   margin: 0 auto;
-  max-width: 960px;
-  line-height: 1.5;
-  padding: 16px;
-  @media only screen and (max-width: ${(props) =>
-      props.theme.widths.mobile}px) {
-    padding: 8px;
+  padding: 24px 20px;
+
+  ${mediaMobile`
+    padding: 16px 12px;
+  `}
+`;
+
+const PageHeader = styled.div`
+  margin-bottom: 20px;
+`;
+
+const PageTitle = styled.h1`
+  font-size: 22px;
+  font-weight: 600;
+  color: ${(p) => p.theme.colors.main};
+  margin: 0;
+`;
+
+const Section = styled.section`
+  background-color: ${(p) => p.theme.colors.mainSurface};
+  border: 1px solid ${(p) => p.theme.borderColor};
+  border-radius: ${(p) => p.theme.borderRadius};
+  overflow: hidden;
+  margin-bottom: 12px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const SectionHeader = styled.div`
+  padding: 14px 20px;
+  border-bottom: 1px solid ${(p) => p.theme.borderColor};
+`;
+
+const SectionTitle = styled.h2`
+  font-size: 15px;
+  font-weight: 600;
+  color: ${(p) => p.theme.colors.main};
+  margin: 0;
+`;
+
+const SectionBody = styled.div`
+  padding: 16px 20px;
+  line-height: 1.65;
+  font-size: 15px;
+  color: ${(p) => p.theme.colors.secondary};
+
+  a {
+    color: ${(p) => p.theme.colors.accent};
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  p {
+    margin: 0;
   }
 `;
 
 export const AboutRoot = () => {
   return (
     <NavbarProvider>
-      <BodyWrapper>
-        <Card>
-          <h1>About</h1>
-          <h2>What's this?</h2>
-          <p>
-            Great question! If you're not familiar with{" "}
-            <a
-              href="https://www.onepeloton.com/company"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Peloton
-            </a>
-            , they are a fitness company meets technology meets soft cult. They
-            offer live and on-demand classes across their barrage of fitness
-            equipment, but they also offer the ability to attend a class in
-            person in what's known as the{" "}
-            <a
-              href="https://studio.onepeloton.com/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Peloton Studios
-            </a>
-            . It provides a quicker and smarter version of that Peloton Studios
-            class reservation website, with additional filters like checking by
-            waitlist status.
-          </p>
-          <h2>How do you view classes?</h2>
-          <p>
-            All of the classes are displayed on the{" "}
-            <Link to={Paths.CLASS_LIST}>Class List page</Link>. You can use the
-            sidebar to set custom filters or switch between Peloton Studio
-            locations.
-          </p>
-          <h2>Is the information accurate/is it live?</h2>
-          <p>
-            Yes! We directly serve content right from Peloton Studios each time
-            you load the website. When applying filters in the Class List, the
-            information is not refreshed until you refresh the page or switch
-            Studio location. However, filters will persist if you choose to
-            refresh, unlike the Peloton Studios website.
-          </p>
-        </Card>
-      </BodyWrapper>
+      <PageWrapper>
+        <PageHeader>
+          <PageTitle>FAQ</PageTitle>
+        </PageHeader>
+
+        <Section>
+          <SectionHeader>
+            <SectionTitle>What is this?</SectionTitle>
+          </SectionHeader>
+          <SectionBody>
+            <p>
+              A quicker, smarter way to browse{" "}
+              <a
+                href="https://studio.onepeloton.com/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Peloton Studios
+              </a>{" "}
+              class reservations. Filter by status (free, waitlist, full), instructor,
+              or discipline — things the official site doesn't support. Classes are
+              fetched directly from Peloton each time you load the page.
+            </p>
+          </SectionBody>
+        </Section>
+
+        <Section>
+          <SectionHeader>
+            <SectionTitle>How do I view classes?</SectionTitle>
+          </SectionHeader>
+          <SectionBody>
+            <p>
+              Open the <Link to={Paths.CLASS_LIST}>Class List</Link> and use the
+              sidebar to set filters or switch between studio locations.
+            </p>
+          </SectionBody>
+        </Section>
+
+        <Section>
+          <SectionHeader>
+            <SectionTitle>Is the class data live?</SectionTitle>
+          </SectionHeader>
+          <SectionBody>
+            <p>
+              Yes — data is fetched fresh from Peloton each time you load the page
+              or switch studio. Filters persist across refreshes, unlike the official
+              site.
+            </p>
+          </SectionBody>
+        </Section>
+
+        <Section>
+          <SectionHeader>
+            <SectionTitle>When do new classes become available?</SectionTitle>
+          </SectionHeader>
+          <SectionBody>
+            <p>
+              New classes typically open at 12:00 pm on Mondays and Thursdays in
+              your studio's local timezone.
+            </p>
+          </SectionBody>
+        </Section>
+      </PageWrapper>
     </NavbarProvider>
   );
 };
