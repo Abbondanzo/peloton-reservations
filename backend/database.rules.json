@@ -16,6 +16,7 @@
       }
     },
     "messagingTokens": {
+      ".read": "auth.uid === 'backend-service-worker'",
       "$uid": {
         ".read": "auth.uid === $uid",
         ".write": "auth.uid === $uid"
