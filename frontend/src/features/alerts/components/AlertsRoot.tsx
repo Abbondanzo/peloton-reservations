@@ -9,6 +9,7 @@ import { SharedRoot } from "./SharedRoot";
 import { AlertPreferencesEditor } from "./editor/AlertPreferencesEditor";
 import { RegisteredDevicesEditor } from "./editor/RegisteredDevicesEditor";
 import { AsyncAlertsList } from "./list/AsyncAlertsList";
+import { NotificationRequester } from "../../messaging/components/NotificationRequester";
 import { RegisteredDevicesProvider } from "../../messaging/providers/RegisteredDevicesProvider";
 
 const PageWrapper = styled.div`
@@ -106,6 +107,7 @@ const AlertsBody = ({ userId }: Props) => {
                 </SectionDescription>
               </SectionHeader>
               <SectionBody>
+                <NotificationRequester />
                 <RegisteredDevicesEditor />
               </SectionBody>
             </Section>
