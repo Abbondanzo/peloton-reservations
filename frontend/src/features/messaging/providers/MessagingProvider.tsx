@@ -18,9 +18,10 @@ export const MessagingProvider = ({ children }: Props) => {
     if (messaging) {
       const messageUnsubscribe = onMessage(messaging, (payload) => {
         console.log("[MessagingProvider] Received message ", payload);
-        if (!payload.notification) return;
-        const { title, ...options } = payload.notification;
-        console.log(title, options);
+        const title = payload.notification?.title ?? payload.data?.title;
+        const body = payload.notification?.body ?? payload.data?.body;
+        if (!title) return;
+        new Notification(title, { body });
       });
       return () => {
         messageUnsubscribe();
