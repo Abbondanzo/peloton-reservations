@@ -21,7 +21,7 @@ RUN pnpm --filter=shared run build
 RUN pnpm --filter=backend run build
 
 # Create a self-contained production deployment (prod deps only, no devDeps)
-RUN pnpm deploy --filter=backend --prod /deploy
+RUN pnpm deploy --filter=backend --prod --legacy /deploy
 
 # pnpm deploy respects .gitignore and skips build/ — copy the compiled output in manually
 RUN cp -r /app/backend/build /deploy/build

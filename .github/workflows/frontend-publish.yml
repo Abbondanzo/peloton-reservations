@@ -1,10 +1,20 @@
-name: Deploy Project
+name: Frontend — Build and Deploy
 
 on:
   push:
     branches: [master]
+    paths:
+      - frontend/**
+      - shared/**
+      - package.json
+      - pnpm-lock.yaml
   pull_request:
     branches: [master]
+    paths:
+      - frontend/**
+      - shared/**
+      - package.json
+      - pnpm-lock.yaml
   workflow_dispatch:
 
 env:
