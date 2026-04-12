@@ -1,6 +1,10 @@
 import admin from "firebase-admin";
 
 export class Metrics {
+  private static get isProduction(): boolean {
+    return process.env.NODE_ENV === "production";
+  }
+
   private static dateKey(): string {
     return new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
   }
@@ -11,7 +15,7 @@ export class Metrics {
     changed: number,
     removed: number
   ): void {
-    if (added + changed + removed === 0) return;
+    if (!this.isProduction || added + changed + removed === 0) return;
     const ref = admin
       .database()
       .ref(`metrics/${this.dateKey()}/diffs/${studioId}`);
@@ -25,6 +29,7 @@ export class Metrics {
     failed: number,
     usersReached: number
   ): void {
+    if (!this.isProduction) return;
     const ref = admin.database().ref(`metrics/${this.dateKey()}/notifications`);
     if (sent) ref.child("sent").set(admin.database.ServerValue.increment(sent));
     if (failed) ref.child("failed").set(admin.database.ServerValue.increment(failed));
