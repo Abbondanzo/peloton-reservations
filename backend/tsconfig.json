@@ -9,7 +9,8 @@
     "rootDir": "src",
     "lib": ["dom", "es6"],
     "esModuleInterop": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "skipLibCheck": true
   },
   "exclude": ["node_modules", "build"],
   "include": ["src/**/*.ts"],
