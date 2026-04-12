@@ -8,6 +8,8 @@
     "start": "ts-node src/index.ts"
   },
   "dependencies": {
+    "@sentry/node": "^10.48.0",
+    "dotenv": "^17.4.2",
     "firebase-admin": "13.5.0",
     "shared": "workspace:*"
   },

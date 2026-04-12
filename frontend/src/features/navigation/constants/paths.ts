@@ -4,4 +4,5 @@ export const Paths = {
   SIGN_IN: "/sign-in",
   ALERTS: "/alerts",
   ALERTS_EDITOR: "/alerts/edit",
+  STATS: "/stats",
 } as const;

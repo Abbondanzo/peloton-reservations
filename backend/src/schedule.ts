@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import { logger } from "./logger";
 import * as fs from "fs/promises";
 import * as path from "path";
@@ -85,14 +86,22 @@ export class Schedule {
       page_size: "100",
       sort: "start",
     });
-    const response = await fetch(
-      `https://schedule.studio.onepeloton.com/api/v2/events?${queryParams}`,
+    const response = await Sentry.startSpan(
       {
-        headers: {
-          "Teamup-Request-Mode": "customer",
-          "Teamup-Provider-ID": this.studioId,
-        },
-      }
+        name: "peloton.schedule.fetch",
+        op: "http.client",
+        attributes: { "studio.id": this.studioId },
+      },
+      () =>
+        fetch(
+          `https://schedule.studio.onepeloton.com/api/v2/events?${queryParams}`,
+          {
+            headers: {
+              "Teamup-Request-Mode": "customer",
+              "Teamup-Provider-ID": this.studioId,
+            },
+          }
+        )
     );
     if (!response.ok) {
       throw new Error(

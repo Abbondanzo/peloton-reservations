@@ -1,6 +1,23 @@
+import "dotenv/config";
+import * as Sentry from "@sentry/node";
 import { Alerter } from "./alerter";
 import { logger } from "./logger";
 import { Manager } from "./manager";
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN, // no-op if undefined
+  environment: process.env.NODE_ENV ?? "development",
+  tracesSampleRate: 1.0,
+  beforeSend(event) {
+    // Strip user IDs from breadcrumb messages to avoid sending PII
+    event.breadcrumbs?.forEach((b) => {
+      if (b.message) {
+        b.message = b.message.replace(/user \S+/gi, "user [redacted]");
+      }
+    });
+    return event;
+  },
+});
 
 const run = async () => {
   // Start
