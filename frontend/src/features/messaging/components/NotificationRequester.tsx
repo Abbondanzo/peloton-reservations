@@ -24,6 +24,11 @@ export const NotificationRequester = () => {
   >(window.Notification ? window.Notification.permission : undefined);
   const { refreshToken } = useContext(MessagingContext);
 
+  const isIOSDevice = isIOS();
+  const isStandalone =
+    !!(navigator as any).standalone ||
+    window.matchMedia("(display-mode: standalone)").matches;
+
   const requestPermission = useCallback(() => {
     if (
       window.Notification &&
@@ -43,20 +48,22 @@ export const NotificationRequester = () => {
     }
   }, [refreshToken]);
 
-  if (permission === undefined || !("serviceWorker" in navigator)) {
-    if (isIOS()) {
-      return (
-        <CardWithBottomMargin>
-          <WarningTitle>Unsupported Browser</WarningTitle>
-          <p>
-            Notifications are not supported by iOS's Safari browser. In order to
-            receive notifications, you must add this app to your home screen.
-            Alerts for new classes will only display if you keep this tab open.
-          </p>
-        </CardWithBottomMargin>
-      );
-    }
+  // iOS requires the app to be installed as a PWA before push notifications
+  // are supported. requestPermission() throws when called outside standalone mode.
+  if (isIOSDevice && !isStandalone) {
+    return (
+      <CardWithBottomMargin>
+        <WarningTitle>Installation Required</WarningTitle>
+        <p>
+          To receive notifications on iOS, you must first add this app to your
+          home screen. Tap the share button in Safari and select &ldquo;Add to
+          Home Screen&rdquo;, then open the app from there.
+        </p>
+      </CardWithBottomMargin>
+    );
+  }
 
+  if (permission === undefined || !("serviceWorker" in navigator)) {
     return (
       <CardWithBottomMargin>
         <WarningTitle>Unsupported Browser</WarningTitle>
