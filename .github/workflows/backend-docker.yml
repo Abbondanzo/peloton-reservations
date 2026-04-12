@@ -3,8 +3,22 @@ name: Backend — Build and Push Docker Image
 on:
   push:
     branches: [master]
+    paths:
+      - backend/**
+      - shared/**
+      - config.yaml
+      - Dockerfile
+      - package.json
+      - pnpm-lock.yaml
   pull_request:
     branches: [master]
+    paths:
+      - backend/**
+      - shared/**
+      - config.yaml
+      - Dockerfile
+      - package.json
+      - pnpm-lock.yaml
   workflow_dispatch:
 
 permissions:
