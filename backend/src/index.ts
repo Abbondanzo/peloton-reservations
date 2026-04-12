@@ -1,3 +1,4 @@
+import "dotenv/config";
 import * as Sentry from "@sentry/node";
 import { Alerter } from "./alerter";
 import { logger } from "./logger";

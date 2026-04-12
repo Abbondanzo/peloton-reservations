@@ -15,24 +15,38 @@ export class Metrics {
     changed: number,
     removed: number
   ): void {
-    if (!this.isProduction || added + changed + removed === 0) return;
+    if (!this.isProduction || added + changed + removed === 0) {
+      return;
+    }
     const ref = admin
       .database()
       .ref(`metrics/${this.dateKey()}/diffs/${studioId}`);
-    if (added) ref.child("added").set(admin.database.ServerValue.increment(added));
-    if (changed) ref.child("changed").set(admin.database.ServerValue.increment(changed));
-    if (removed) ref.child("removed").set(admin.database.ServerValue.increment(removed));
+    if (added) {
+      ref.child("added").set(admin.database.ServerValue.increment(added));
+    }
+    if (changed) {
+      ref.child("changed").set(admin.database.ServerValue.increment(changed));
+    }
+    if (removed) {
+      ref.child("removed").set(admin.database.ServerValue.increment(removed));
+    }
   }
 
-  static recordFcm(
-    sent: number,
-    failed: number,
-    usersReached: number
-  ): void {
-    if (!this.isProduction) return;
+  static recordFcm(sent: number, failed: number, usersReached: number): void {
+    if (!this.isProduction) {
+      return;
+    }
     const ref = admin.database().ref(`metrics/${this.dateKey()}/notifications`);
-    if (sent) ref.child("sent").set(admin.database.ServerValue.increment(sent));
-    if (failed) ref.child("failed").set(admin.database.ServerValue.increment(failed));
-    if (usersReached) ref.child("usersReached").set(admin.database.ServerValue.increment(usersReached));
+    if (sent) {
+      ref.child("sent").set(admin.database.ServerValue.increment(sent));
+    }
+    if (failed) {
+      ref.child("failed").set(admin.database.ServerValue.increment(failed));
+    }
+    if (usersReached) {
+      ref
+        .child("usersReached")
+        .set(admin.database.ServerValue.increment(usersReached));
+    }
   }
 }
