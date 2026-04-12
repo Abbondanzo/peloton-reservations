@@ -55,16 +55,13 @@ if (app) {
   const messaging = getMessaging(app);
   onBackgroundMessage(messaging, (payload) => {
     console.log("[messaging-sw] Received background message ", payload);
-    // FCM will automatically display notifications. Do not handle them
-    if (payload.notification) return;
-    // Check for data-based notifications
-    if (!payload.data) return;
-    const { title, body } = payload.data;
+    // Prefer the notification field, fall back to data payload.
+    // We must always call showNotification() explicitly — iOS Web Push does
+    // not auto-display notifications the way Chrome does.
+    const title = payload.notification?.title ?? payload.data?.title;
+    const body = payload.notification?.body ?? payload.data?.body;
     if (!title) return;
-    const notificationOptions = {
-      body,
-    };
-    self.registration.showNotification(title, notificationOptions);
+    self.registration.showNotification(title, { body });
   });
 }
 
