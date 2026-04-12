@@ -1,8 +1,8 @@
 import * as Sentry from "@sentry/node";
-import { logger } from "./logger";
 import * as fs from "fs/promises";
 import * as path from "path";
 import { RawClass, RawClassResponse } from "shared";
+import { logger } from "./logger";
 
 interface Diff {
   old: RawClass;
