@@ -33,7 +33,6 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract version from config.yaml
-        if: github.event_name != 'pull_request'
         id: version
         run: |
           echo "version=$(grep '^version:' config.yaml | sed 's/version: *//' | tr -d '"')" >> $GITHUB_OUTPUT
