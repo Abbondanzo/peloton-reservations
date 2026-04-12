@@ -53,6 +53,18 @@ export const MessagingProvider = ({ children }: Props) => {
         });
     }
   }, [userId]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        refreshToken();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [refreshToken]);
+
   const deleteToken = useCallback(async () => {
     if (token && userId) {
       await deleteTokenAPI(userId, token);

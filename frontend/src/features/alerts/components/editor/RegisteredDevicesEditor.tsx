@@ -201,7 +201,12 @@ const RegisteredDevicesList = ({ devices }: DevicesListProps) => {
         <DeviceItem
           key={deviceToken}
           device={device}
-          isCurrentDevice={deviceToken === currentDevice}
+          isCurrentDevice={
+            currentDevice !== undefined
+              ? deviceToken === currentDevice
+              : device.userAgent !== undefined &&
+                device.userAgent === navigator.userAgent
+          }
           onDelete={() => onDelete(deviceToken)}
         />
       ))}
