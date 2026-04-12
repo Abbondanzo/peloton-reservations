@@ -1,6 +1,8 @@
 import type { MouseEvent } from "react";
 import { Link, NavLink } from "react-router-dom";
 import styled from "styled-components";
+import { useAppSelector } from "../../store/hooks/useStore";
+import { selectIsAdmin } from "../../session/selectors/selectIsAdmin";
 import { Paths } from "../constants/paths";
 import { MobileSessionInfo } from "./MobileSessionInfo";
 
@@ -130,39 +132,44 @@ interface Props {
   onClose: () => void;
 }
 
-export const MobileSidebar = ({ open, onClose }: Props) => (
-  <>
-    <Backdrop $open={open} onClick={onClose} />
-    <Drawer
-      $open={open}
-      onClick={(e: MouseEvent) => e.stopPropagation()}
-      role="dialog"
-      aria-modal="true"
-      aria-label="Navigation menu"
-    >
-      <DrawerHeader>
-        <Brand to={Paths.CLASS_LIST} onClick={onClose}>
-          <Logo src={`${import.meta.env.BASE_URL}images/icon.svg`} alt="" />
-          <BrandName>Peloton Alerts</BrandName>
-        </Brand>
-        <CloseButton onClick={onClose} aria-label="Close menu">
-          <CloseIcon />
-        </CloseButton>
-      </DrawerHeader>
+export const MobileSidebar = ({ open, onClose }: Props) => {
+  const isAdmin = useAppSelector(selectIsAdmin);
 
-      <NavSection onClick={onClose}>
-        <NavItem to={Paths.CLASS_LIST} end>
-          Classes
-        </NavItem>
-        <NavItem to={Paths.ALERTS}>Alerts</NavItem>
-        <NavItem to={Paths.ABOUT} end>
-          FAQ
-        </NavItem>
-      </NavSection>
+  return (
+    <>
+      <Backdrop $open={open} onClick={onClose} />
+      <Drawer
+        $open={open}
+        onClick={(e: MouseEvent) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Navigation menu"
+      >
+        <DrawerHeader>
+          <Brand to={Paths.CLASS_LIST} onClick={onClose}>
+            <Logo src={`${import.meta.env.BASE_URL}images/icon.svg`} alt="" />
+            <BrandName>Peloton Alerts</BrandName>
+          </Brand>
+          <CloseButton onClick={onClose} aria-label="Close menu">
+            <CloseIcon />
+          </CloseButton>
+        </DrawerHeader>
 
-      <SessionSection>
-        <MobileSessionInfo />
-      </SessionSection>
-    </Drawer>
-  </>
-);
+        <NavSection onClick={onClose}>
+          <NavItem to={Paths.CLASS_LIST} end>
+            Classes
+          </NavItem>
+          <NavItem to={Paths.ALERTS}>Alerts</NavItem>
+          <NavItem to={Paths.ABOUT} end>
+            FAQ
+          </NavItem>
+          {isAdmin && <NavItem to={Paths.STATS}>Stats</NavItem>}
+        </NavSection>
+
+        <SessionSection>
+          <MobileSessionInfo />
+        </SessionSection>
+      </Drawer>
+    </>
+  );
+};

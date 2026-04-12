@@ -1,9 +1,11 @@
+import * as Sentry from "@sentry/node";
 import admin from "firebase-admin";
 import fs from "fs";
 import path from "path";
 import { Alert, AlertPreferences, RawClass, STUDIOS } from "shared";
 import { logger } from "./logger";
 import { DiffDelegate } from "./manager";
+import { Metrics } from "./metrics";
 
 type StudioGroup = { [key: string]: Alert[] };
 
@@ -183,6 +185,7 @@ export class Alerter implements DiffDelegate {
         this.lastNotifiedAt[pending.userId] = Date.now();
       } catch (err) {
         logger.error(`Failed to send notification for key ${key}:`, err);
+        Sentry.captureException(err);
       }
     }
   }
@@ -239,6 +242,7 @@ export class Alerter implements DiffDelegate {
     logger.log(
       `FCM sent for user ${pending.userId}: ${response.successCount}/${tokens.length} delivered`
     );
+    Metrics.recordFcm(response.successCount, response.failureCount, 1);
 
     if (response.failureCount > 0) {
       const db = admin.database();

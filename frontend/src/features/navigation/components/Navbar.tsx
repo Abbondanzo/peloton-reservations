@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import styled from "styled-components";
+import { useAppSelector } from "../../store/hooks/useStore";
+import { selectIsAdmin } from "../../session/selectors/selectIsAdmin";
 import { Paths } from "../constants/paths";
 import { MobileSidebar } from "./MobileSidebar";
 import { SessionInfo } from "./SessionInfo";
@@ -124,6 +126,7 @@ const HamburgerIcon = () => (
 
 export const Navbar = () => {
   const [sidebarVisible, setSidebarVisible] = useState(false);
+  const isAdmin = useAppSelector(selectIsAdmin);
 
   return (
     <>
@@ -141,6 +144,7 @@ export const Navbar = () => {
           <NavItem to={Paths.ABOUT} end>
             FAQ
           </NavItem>
+          {isAdmin && <NavItem to={Paths.STATS}>Stats</NavItem>}
         </NavLinks>
 
         <RightSection>

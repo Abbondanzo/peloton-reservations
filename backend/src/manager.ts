@@ -1,5 +1,7 @@
+import * as Sentry from "@sentry/node";
 import { RawClass, STUDIOS } from "shared";
 import { logger } from "./logger";
+import { Metrics } from "./metrics";
 import { Schedule } from "./schedule";
 
 export interface DiffDelegate {
@@ -17,6 +19,8 @@ export class Manager {
   private readonly schedules: { [key: string]: Schedule } = {};
 
   private running = true;
+  private lastCheckInAt = 0;
+  private static readonly CHECK_IN_INTERVAL_MS = 60_000;
 
   private readonly abortController: AbortController;
   private readonly delegate: DiffDelegate;
@@ -45,6 +49,23 @@ export class Manager {
 
   async loop() {
     while (this.running) {
+      const now = Date.now();
+      const shouldCheckIn =
+        now - this.lastCheckInAt >= Manager.CHECK_IN_INTERVAL_MS;
+      let checkInId: string | undefined;
+      if (shouldCheckIn) {
+        checkInId = Sentry.captureCheckIn(
+          { monitorSlug: "alerter-loop", status: "in_progress" },
+          {
+            schedule: { type: "interval", value: 1, unit: "minute" },
+            checkinMargin: 1,
+            maxRuntime: 1,
+            timezone: "UTC",
+          }
+        );
+        this.lastCheckInAt = now;
+      }
+
       for (const [studioId, schedule] of Object.entries(this.schedules)) {
         try {
           const diff = await schedule.diff();
@@ -55,6 +76,12 @@ export class Manager {
           } else if (Manager.LOG_NO_CHANGES) {
             logger.log(`No changes for ${STUDIOS[studioId].location}`);
           }
+          Metrics.recordDiff(
+            studioId,
+            diff.added.length,
+            diff.changed.length,
+            diff.removed.length
+          );
           if (diff.added.length > 0) {
             this.delegate.handleAddition(studioId, diff.added);
           }
@@ -63,7 +90,16 @@ export class Manager {
           }
         } catch (error) {
           logger.error(error);
+          Sentry.captureException(error);
         }
+      }
+
+      if (checkInId) {
+        Sentry.captureCheckIn({
+          monitorSlug: "alerter-loop",
+          checkInId,
+          status: "ok",
+        });
       }
       await this.wait(Manager.SCHEDULE_INTERVAL_MS);
     }

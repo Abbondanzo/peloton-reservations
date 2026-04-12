@@ -8,7 +8,9 @@ import { AboutRoot } from "../../about/components/AboutRoot";
 import { AlertsEditorRoot } from "../../alerts/components/AlertsEditorRoot";
 import { AlertsRoot } from "../../alerts/components/AlertsRoot";
 import { ClassListRoot } from "../../class-list/components/ClassListRoot";
+import { AdminRoute } from "../../session/components/AdminRoute";
 import { SignInRoot } from "../../session/components/SignInRoot";
+import { StatsRoot } from "../../stats/components/StatsRoot";
 import { Paths } from "./paths";
 
 export const router = createHashRouter(
@@ -19,6 +21,14 @@ export const router = createHashRouter(
       <Route path={Paths.ALERTS} element={<AlertsRoot />} />
       <Route path={Paths.SIGN_IN} element={<SignInRoot />} />
       <Route path={Paths.ABOUT} element={<AboutRoot />} />
+      <Route
+        path={Paths.STATS}
+        element={
+          <AdminRoute>
+            <StatsRoot />
+          </AdminRoute>
+        }
+      />
       <Route
         path="*"
         element={<Navigate to={Paths.CLASS_LIST} replace={true} />}
