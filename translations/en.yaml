@@ -5,3 +5,8 @@ configuration:
       Paste the contents of your Firebase service account JSON key file here.
       To generate one, follow the instructions for non-Google environments at
       https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments
+  sentry_dsn:
+    name: Sentry DSN
+    description: >-
+      Optional. Paste your Sentry DSN here to enable error reporting.
+      Leave blank to disable Sentry.

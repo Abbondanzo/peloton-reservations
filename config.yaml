@@ -1,5 +1,5 @@
 name: Peloton Reservations
-version: "0.0.11"
+version: "0.0.12"
 image: ghcr.io/abbondanzo/peloton-reservations
 slug: peloton_reservations
 description: Polls Peloton studio schedules and sends class availability alerts
@@ -14,5 +14,7 @@ map:
   - data:rw
 options:
   firebase_credentials: ""
+  sentry_dsn: ""
 schema:
   firebase_credentials: password
+  sentry_dsn: str?
