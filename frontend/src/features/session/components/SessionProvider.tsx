@@ -22,9 +22,15 @@ export const SessionProvider = ({ children }: Props) => {
     }
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const snapshot =
-          database ? await get(ref(database, `admins/${user.uid}`)) : null;
-        const isAdmin = snapshot?.val() === true;
+        let isAdmin = false;
+        try {
+          const snapshot = database
+            ? await get(ref(database, `admins/${user.uid}`))
+            : null;
+          isAdmin = snapshot?.val() === true;
+        } catch {
+          // Default to non-admin if the check fails; user can sign out and back in
+        }
         dispatch(setSession(userToSession(user, isAdmin)));
       } else {
         dispatch(removeSession());
