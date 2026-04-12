@@ -8,7 +8,7 @@ import { useAppSelector } from "../../store/hooks/useStore";
 import { Popover } from "../../theme/components/Popover";
 import { Paths } from "../constants/paths";
 
-const SignInLink = styled(Link)`
+const SignInLink = styled(Link)<{ $disabled?: boolean }>`
   font-size: 15px;
   font-weight: 500;
   padding: 7px 16px;
@@ -16,13 +16,23 @@ const SignInLink = styled(Link)`
   border: 1px solid rgba(255, 255, 255, 0.3);
   color: rgba(255, 255, 255, 0.85);
   text-decoration: none;
-  transition: color 0.15s, border-color 0.15s, background-color 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s,
+    background-color 0.15s;
 
   &:hover {
     color: #fff;
     border-color: rgba(255, 255, 255, 0.6);
     background-color: rgba(255, 255, 255, 0.08);
   }
+
+  ${(p) =>
+    p.$disabled &&
+    `
+    opacity: 0.5;
+    pointer-events: none;
+  `}
 `;
 
 const AccountButton = styled.button`
@@ -35,7 +45,10 @@ const AccountButton = styled.button`
   background: none;
   cursor: pointer;
   font-family: inherit;
-  transition: color 0.15s, border-color 0.15s, background-color 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s,
+    background-color 0.15s;
   white-space: nowrap;
   max-width: 160px;
   overflow: hidden;
@@ -79,12 +92,18 @@ export const SessionInfo = () => {
     await auth?.signOut();
   }, [deleteToken]);
 
-  if (sessionState.state === "loading") {
-    return null;
-  }
-
   if (sessionState.state !== "fulfilled" || !sessionState.data) {
-    return <SignInLink to={Paths.SIGN_IN}>Sign in</SignInLink>;
+    const isLoading = sessionState.state === "loading";
+    return (
+      <SignInLink
+        to={Paths.SIGN_IN}
+        $disabled={isLoading}
+        aria-disabled={isLoading}
+        tabIndex={isLoading ? -1 : undefined}
+      >
+        Sign in
+      </SignInLink>
+    );
   }
 
   return (

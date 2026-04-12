@@ -10,18 +10,18 @@ const sessionSlice = createSlice({
   name: "session",
   initialState,
   reducers: {
-    setLoading() {
-      return { state: "loading" };
+    setLoading(_state: AsyncData<Session | null>) {
+      return { state: "loading" as const };
     },
-    setSession(_, action: PayloadAction<Session>) {
+    setSession(_state: AsyncData<Session | null>, action: PayloadAction<Session>) {
       return {
-        state: "fulfilled",
+        state: "fulfilled" as const,
         data: action.payload,
       };
     },
-    removeSession() {
+    removeSession(_state: AsyncData<Session | null>) {
       return {
-        state: "fulfilled",
+        state: "fulfilled" as const,
         data: null,
       };
     },

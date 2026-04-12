@@ -21,6 +21,7 @@ export const SessionProvider = ({ children }: Props) => {
       return () => {};
     }
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      dispatch(setLoading());
       if (user) {
         let isAdmin = false;
         try {
