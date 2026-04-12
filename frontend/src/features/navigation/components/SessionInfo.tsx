@@ -50,7 +50,7 @@ const AccountButton = styled.button`
     border-color 0.15s,
     background-color 0.15s;
   white-space: nowrap;
-  max-width: 160px;
+  max-width: 240px;
   overflow: hidden;
   text-overflow: ellipsis;
 

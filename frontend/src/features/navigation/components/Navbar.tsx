@@ -25,6 +25,11 @@ const Wrapper = styled.nav`
     text-decoration: none;
     color: inherit;
   }
+
+  @media only screen and (min-width: ${COLLAPSE_AT + 1}px) {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+  }
 `;
 
 const Brand = styled(Link)`
@@ -32,6 +37,7 @@ const Brand = styled(Link)`
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
+  justify-self: start;
 `;
 
 const Logo = styled.img`
@@ -81,6 +87,7 @@ const RightSection = styled.div`
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
+  justify-self: end;
 
   @media only screen and (max-width: ${COLLAPSE_AT}px) {
     display: none;
