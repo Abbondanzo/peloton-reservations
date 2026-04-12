@@ -39,7 +39,7 @@ WORKDIR /app/backend
 
 COPY --from=builder /deploy ./
 
-COPY run.sh /run.sh
+COPY backend/run.sh /run.sh
 RUN chmod +x /run.sh
 
 CMD ["/run.sh"]

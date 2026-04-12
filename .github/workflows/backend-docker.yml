@@ -6,8 +6,6 @@ on:
     paths:
       - backend/**
       - shared/**
-      - config.yaml
-      - Dockerfile
       - package.json
       - pnpm-lock.yaml
   pull_request:
@@ -15,14 +13,12 @@ on:
     paths:
       - backend/**
       - shared/**
-      - config.yaml
-      - Dockerfile
       - package.json
       - pnpm-lock.yaml
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 jobs:
@@ -46,15 +42,25 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract version from config.yaml
+      - name: Extract version from backend/package.json
         id: version
         run: |
-          echo "version=$(grep '^version:' config.yaml | sed 's/version: *//' | tr -d '"')" >> $GITHUB_OUTPUT
+          echo "version=$(node -p "require('./backend/package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Sync version to backend/config.yaml
+        if: github.event_name != 'pull_request'
+        run: |
+          sed -i 's/^version: .*/version: "${{ steps.version.outputs.version }}"/' backend/config.yaml
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add backend/config.yaml
+          git diff --staged --quiet || git commit -m "chore: sync version to ${{ steps.version.outputs.version }} [skip ci]" && git push
 
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
           context: .
+          file: backend/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
