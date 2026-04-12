@@ -1,5 +1,6 @@
 name: Peloton Reservations
 version: "0.0.10"
+image: ghcr.io/abbondanzo/peloton-reservations
 slug: peloton_reservations
 description: Polls Peloton studio schedules and sends class availability alerts
 url: https://github.com/Abbondanzo/peloton-reservations
