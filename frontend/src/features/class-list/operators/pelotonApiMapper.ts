@@ -7,7 +7,7 @@ import type { Instructor } from "../types/Instructor";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapInstructor = (rawInstructor: any): Instructor => {
   return {
-    id: rawInstructor.id,
+    id: String(rawInstructor.id),
     name: rawInstructor.name,
     imageUrl: rawInstructor.picture_url,
     display: true,
