@@ -32,27 +32,22 @@ export class Schedule {
       this.data = cached;
       return;
     }
-    const response = await this.fetchClasses();
+    const results = await this.fetchAllClasses();
     logger.log(
-      `Fetched schedule for ${this.studioId} with ${response.results?.length ?? 0} classes`
+      `Fetched schedule for ${this.studioId} with ${results.length} classes`
     );
-    if (!response.results) {
-      throw new Error(
-        `Failed to initialize schedule for studio ${this.studioId}: no results in response`
-      );
-    }
-    this.data = response.results;
-    await this.writeCache(this.data);
+    this.data = results;
+    await this.writeCache(results);
   }
 
   async diff(): Promise<ScrapeResult> {
     if (!this.data) {
       throw new Error("Called diff before initializing schedule");
     }
-    const response = await this.fetchClasses();
-    const comparison = this.compareClasses(this.data, response.results);
-    this.data = response.results;
-    await this.writeCache(this.data);
+    const results = await this.fetchAllClasses();
+    const comparison = this.compareClasses(this.data, results);
+    this.data = results;
+    await this.writeCache(results);
     return comparison;
   }
 
@@ -79,13 +74,36 @@ export class Schedule {
     }
   }
 
-  private async fetchClasses(): Promise<RawClassResponse> {
+  private async fetchAllClasses(): Promise<RawClass[]> {
     const queryParams = new URLSearchParams({
       expand: "instructors,offering_type,offering_type.category",
       local_starts_at_gte: new Date().toISOString().replace("Z", ""),
       page_size: "500",
       sort: "start",
     });
+    const baseUrl = `https://schedule.studio.onepeloton.com/api/v2/events?${queryParams}`;
+
+    const firstPage = await this.fetchPage(baseUrl);
+    if (!firstPage.next) {
+      return firstPage.results;
+    }
+    // Only paginate when the schedule grows beyond a single page
+    const allClasses = [...firstPage.results];
+    let nextUrl: string | null = this.rebaseNextUrl(firstPage.next);
+    while (nextUrl) {
+      const page = await this.fetchPage(nextUrl);
+      allClasses.push(...page.results);
+      nextUrl = page.next ? this.rebaseNextUrl(page.next) : null;
+    }
+    return allClasses;
+  }
+
+  private rebaseNextUrl(next: string): string {
+    const { search } = new URL(next);
+    return `https://schedule.studio.onepeloton.com/api/v2/events${search}`;
+  }
+
+  private async fetchPage(url: string): Promise<RawClassResponse> {
     const response = await Sentry.startSpan(
       {
         name: "peloton.schedule.fetch",
@@ -93,15 +111,12 @@ export class Schedule {
         attributes: { "studio.id": this.studioId },
       },
       () =>
-        fetch(
-          `https://schedule.studio.onepeloton.com/api/v2/events?${queryParams}`,
-          {
-            headers: {
-              "Teamup-Request-Mode": "customer",
-              "Teamup-Provider-ID": this.studioId,
-            },
-          }
-        )
+        fetch(url, {
+          headers: {
+            "Teamup-Request-Mode": "customer",
+            "Teamup-Provider-ID": this.studioId,
+          },
+        })
     );
     if (!response.ok) {
       throw new Error(
