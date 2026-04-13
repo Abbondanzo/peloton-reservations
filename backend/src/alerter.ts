@@ -217,7 +217,7 @@ export class Alerter implements DiffDelegate {
       tokens,
       notification: { title, body },
       data: {
-        classId: pending.classData.id,
+        classId: String(pending.classData.id),
         studioId: pending.studioId,
         studioLocation: STUDIOS[pending.studioId]?.location ?? "",
         changeType: pending.changeType,
@@ -373,13 +373,17 @@ export class Alerter implements DiffDelegate {
     }
     if (
       alert.disciplines &&
-      !alert.disciplines.some((d1) => d1 === rawClass.offering_type.category.id)
+      !alert.disciplines.some(
+        (d1) => d1 === String(rawClass.offering_type.category.id)
+      )
     ) {
       return false;
     }
     if (
       alert.instructors &&
-      !rawClass.instructors.some((i) => alert.instructors!.includes(i.id))
+      !rawClass.instructors.some((i) =>
+        alert.instructors!.includes(String(i.id))
+      )
     ) {
       return false;
     }
