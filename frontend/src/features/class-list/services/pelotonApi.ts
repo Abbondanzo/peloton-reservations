@@ -56,7 +56,7 @@ export const pelotonApi = createApi({
           fields: fields.join(","),
           expand: expandProperties.join(","),
           local_starts_at_gte: new Date().toISOString().replace("Z", ""),
-          page_size: "100",
+          page_size: "500",
           sort: "start",
         });
         return {

@@ -83,7 +83,7 @@ export class Schedule {
     const queryParams = new URLSearchParams({
       expand: "instructors,offering_type,offering_type.category",
       local_starts_at_gte: new Date().toISOString().replace("Z", ""),
-      page_size: "100",
+      page_size: "500",
       sort: "start",
     });
     const response = await Sentry.startSpan(
