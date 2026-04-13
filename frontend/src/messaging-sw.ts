@@ -53,14 +53,19 @@ clientsClaim();
 // Custom message handling
 if (app) {
   const messaging = getMessaging(app);
+  // iOS Web Push does not auto-display notifications the way Chrome does —
+  // the service worker must call showNotification() explicitly. On other
+  // platforms, FCM handles display for messages that include a notification
+  // field, so we only take over for data-only messages there.
+  const isIOS = /iPhone|iPad|iPod/.test(self.navigator.userAgent);
+
   onBackgroundMessage(messaging, (payload) => {
     console.log("[messaging-sw] Received background message ", payload);
-    // Prefer the notification field, fall back to data payload.
-    // We must always call showNotification() explicitly — iOS Web Push does
-    // not auto-display notifications the way Chrome does.
     const title = payload.notification?.title ?? payload.data?.title;
     const body = payload.notification?.body ?? payload.data?.body;
     if (!title) return;
+    // On non-iOS, skip notification-field messages — FCM auto-displays them.
+    if (payload.notification && !isIOS) return;
     self.registration.showNotification(title, { body });
   });
 }
