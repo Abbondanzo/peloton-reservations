@@ -134,6 +134,26 @@ export const AboutRoot = () => {
             </p>
           </SectionBody>
         </Section>
+
+        <Section>
+          <SectionHeader>
+            <SectionTitle>Can I request a feature or report a bug?</SectionTitle>
+          </SectionHeader>
+          <SectionBody>
+            <p>
+              Yes — this project is open source and lives on{" "}
+              <a
+                href="https://github.com/Abbondanzo/peloton-reservations"
+                target="_blank"
+                rel="noreferrer"
+              >
+                GitHub
+              </a>
+              . Open an issue to request a feature, report a bug, or just share
+              feedback. Pull requests are welcome too.
+            </p>
+          </SectionBody>
+        </Section>
       </PageWrapper>
     </NavbarProvider>
   );
