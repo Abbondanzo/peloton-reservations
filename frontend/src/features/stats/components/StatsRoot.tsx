@@ -103,7 +103,21 @@ const Bars = styled.div`
   display: flex;
   align-items: flex-end;
   gap: 2px;
-  height: ${MAX_BAR_HEIGHT}px;
+  height: ${MAX_BAR_HEIGHT + 16}px;
+`;
+
+const BarWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+`;
+
+const BarCount = styled.div<{ $color: string }>`
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1;
+  color: ${(p) => p.$color};
 `;
 
 const Bar = styled.div<{ $height: number; $color: string }>`
@@ -177,12 +191,15 @@ function BarChart({
           <DayGroup key={day.date}>
             <Bars>
               {barsForDay(day).map((bar) => (
-                <Bar
-                  key={bar.label}
-                  $height={Math.round((bar.value / maxValue) * MAX_BAR_HEIGHT)}
-                  $color={bar.color}
-                  title={`${bar.label}: ${bar.value}`}
-                />
+                <BarWrapper key={bar.label}>
+                  {bar.value > 0 && (
+                    <BarCount $color={bar.color}>{bar.value}</BarCount>
+                  )}
+                  <Bar
+                    $height={Math.round((bar.value / maxValue) * MAX_BAR_HEIGHT)}
+                    $color={bar.color}
+                  />
+                </BarWrapper>
               ))}
             </Bars>
             <DayLabel>{shortDate(day.date)}</DayLabel>
