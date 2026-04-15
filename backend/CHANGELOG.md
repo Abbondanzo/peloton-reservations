@@ -1,3 +1,7 @@
+## 0.0.15
+
+- Fixed metrics for added and removed class counts not reliably persisting to the database. Writes were fire-and-forget with no error handling; low-frequency counters (e.g. one "added" event per day) could be silently dropped on a transient failure. Writes are now batched into a single `update()` call and properly awaited
+
 ## 0.0.14
 
 - Class schedule fetching now paginates through all available results rather than stopping at the first page
