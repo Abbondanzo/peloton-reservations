@@ -51,6 +51,7 @@ export class Manager {
     while (this.running) {
       const now = Date.now();
       const shouldCheckIn =
+        process.env.NODE_ENV !== "development" &&
         now - this.lastCheckInAt >= Manager.CHECK_IN_INTERVAL_MS;
       let checkInId: string | undefined;
       if (shouldCheckIn) {
