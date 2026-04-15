@@ -290,6 +290,10 @@ export const StatsRoot = () => {
             <TotalLabel>Classes changed (14d)</TotalLabel>
             <TotalValue>{totals.changed.toLocaleString()}</TotalValue>
           </TotalCard>
+          <TotalCard>
+            <TotalLabel>Classes removed (14d)</TotalLabel>
+            <TotalValue>{totals.removed.toLocaleString()}</TotalValue>
+          </TotalCard>
         </TotalsRow>
 
         <Section>
