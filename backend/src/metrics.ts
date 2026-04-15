@@ -9,44 +9,52 @@ export class Metrics {
     return new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
   }
 
-  static recordDiff(
+  static async recordDiff(
     studioId: string,
     added: number,
     changed: number,
     removed: number
-  ): void {
+  ): Promise<void> {
     if (!this.isProduction || added + changed + removed === 0) {
       return;
     }
-    const ref = admin
-      .database()
-      .ref(`metrics/${this.dateKey()}/diffs/${studioId}`);
+    const updates: Record<string, object> = {};
     if (added) {
-      ref.child("added").set(admin.database.ServerValue.increment(added));
+      updates["added"] = admin.database.ServerValue.increment(added);
     }
     if (changed) {
-      ref.child("changed").set(admin.database.ServerValue.increment(changed));
+      updates["changed"] = admin.database.ServerValue.increment(changed);
     }
     if (removed) {
-      ref.child("removed").set(admin.database.ServerValue.increment(removed));
+      updates["removed"] = admin.database.ServerValue.increment(removed);
     }
+    await admin
+      .database()
+      .ref(`metrics/${this.dateKey()}/diffs/${studioId}`)
+      .update(updates);
   }
 
-  static recordFcm(sent: number, failed: number, usersReached: number): void {
+  static async recordFcm(
+    sent: number,
+    failed: number,
+    usersReached: number
+  ): Promise<void> {
     if (!this.isProduction) {
       return;
     }
-    const ref = admin.database().ref(`metrics/${this.dateKey()}/notifications`);
+    const updates: Record<string, object> = {};
     if (sent) {
-      ref.child("sent").set(admin.database.ServerValue.increment(sent));
+      updates["sent"] = admin.database.ServerValue.increment(sent);
     }
     if (failed) {
-      ref.child("failed").set(admin.database.ServerValue.increment(failed));
+      updates["failed"] = admin.database.ServerValue.increment(failed);
     }
     if (usersReached) {
-      ref
-        .child("usersReached")
-        .set(admin.database.ServerValue.increment(usersReached));
+      updates["usersReached"] = admin.database.ServerValue.increment(usersReached);
     }
+    await admin
+      .database()
+      .ref(`metrics/${this.dateKey()}/notifications`)
+      .update(updates);
   }
 }

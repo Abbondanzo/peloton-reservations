@@ -77,7 +77,7 @@ export class Manager {
           } else if (Manager.LOG_NO_CHANGES) {
             logger.log(`No changes for ${STUDIOS[studioId].location}`);
           }
-          Metrics.recordDiff(
+          await Metrics.recordDiff(
             studioId,
             diff.added.length,
             diff.changed.length,

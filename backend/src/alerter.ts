@@ -242,7 +242,7 @@ export class Alerter implements DiffDelegate {
     logger.log(
       `FCM sent for user ${pending.userId}: ${response.successCount}/${tokens.length} delivered`
     );
-    Metrics.recordFcm(response.successCount, response.failureCount, 1);
+    await Metrics.recordFcm(response.successCount, response.failureCount, 1);
 
     if (response.failureCount > 0) {
       const db = admin.database();
