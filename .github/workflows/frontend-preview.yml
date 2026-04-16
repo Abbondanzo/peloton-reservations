@@ -1,4 +1,4 @@
-name: Frontend — PR Preview
+name: Frontend — Build and Deploy PR Preview
 
 on:
   pull_request:
