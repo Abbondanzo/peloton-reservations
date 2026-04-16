@@ -18,7 +18,7 @@ const SIDEBAR_WIDTH = 300;
 const Sidebar = styled.aside<ToggleProps>`
   max-width: 100%;
   width: ${SIDEBAR_WIDTH}px;
-  top: ${NAV_HEIGHT}px;
+  top: calc(${NAV_HEIGHT}px + env(safe-area-inset-top, 0px));
   bottom: 0;
   overflow-y: auto;
   background-color: ${(p) => p.theme.colors.secondarySurface};
@@ -31,7 +31,7 @@ const Sidebar = styled.aside<ToggleProps>`
     border-right: none;
     transition: left 0.25s;
     left: ${(p) => (p.$toggleVisible ? 0 : -SIDEBAR_WIDTH)}px;
-    top: 0;
+    top: calc(${NAV_HEIGHT}px + env(safe-area-inset-top, 0px));
     bottom: 0;
     z-index: 2;
     box-shadow: ${(p) =>
