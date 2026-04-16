@@ -47,6 +47,7 @@ const TotalsRow = styled.div`
 
   ${mediaMobile`
     grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   `}
 `;
 
