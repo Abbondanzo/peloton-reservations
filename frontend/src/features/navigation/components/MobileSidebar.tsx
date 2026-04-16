@@ -43,8 +43,8 @@ const DrawerHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
-  height: 60px;
+  padding: env(safe-area-inset-top, 0) 16px 0;
+  height: calc(60px + env(safe-area-inset-top, 0px));
   background-color: ${NAV_BG};
   color: #fff;
   flex-shrink: 0;
