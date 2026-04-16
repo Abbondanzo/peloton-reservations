@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { useAppSelector } from "../../store/hooks/useStore";
 import { selectIsAdmin } from "../../session/selectors/selectIsAdmin";
 import { Paths } from "../constants/paths";
+import { AppLogo } from "./AppLogo";
 import { MobileSessionInfo } from "./MobileSessionInfo";
 
 const NAV_BG = "#181a2f";
@@ -58,10 +59,6 @@ const Brand = styled(Link)`
   color: inherit;
 `;
 
-const Logo = styled.img`
-  width: 20px;
-  height: 20px;
-`;
 
 const BrandName = styled.span`
   font-size: 15px;
@@ -147,7 +144,7 @@ export const MobileSidebar = ({ open, onClose }: Props) => {
       >
         <DrawerHeader>
           <Brand to={Paths.CLASS_LIST} onClick={onClose}>
-            <Logo src={`${import.meta.env.BASE_URL}images/icon.svg`} alt="" />
+            <AppLogo size={20} />
             <BrandName>Peloton Alerts</BrandName>
           </Brand>
           <CloseButton onClick={onClose} aria-label="Close menu">
