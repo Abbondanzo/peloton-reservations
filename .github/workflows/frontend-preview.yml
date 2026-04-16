@@ -1,64 +1,60 @@
-name: Frontend — Build and Deploy
+name: Frontend — PR Preview
 
 on:
-  push:
-    branches: [master]
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
     paths:
       - frontend/**
       - shared/**
       - package.json
       - pnpm-lock.yaml
-  workflow_dispatch:
-
-env:
-  BASE_URL: "/peloton-reservations/"
-  VITE_FIREBASE_API_KEY: ${{ vars.VITE_FIREBASE_API_KEY }}
 
 permissions:
   contents: write
+  pull-requests: write
 
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: preview-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  preview:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Install pnpm
+        if: github.event.action != 'closed'
         uses: pnpm/action-setup@v4
         with:
           run_install: false
 
       - name: Use Node.js 22
+        if: github.event.action != 'closed'
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
 
       - name: Install dependencies
+        if: github.event.action != 'closed'
         run: pnpm install --frozen-lockfile
 
       - name: Build shared project
+        if: github.event.action != 'closed'
         run: pnpm run build
         working-directory: ./shared
 
       - name: Build project
+        if: github.event.action != 'closed'
         run: pnpm run build
-        working-directory: ./frontend
-
-      - name: Upload sourcemaps
-        run: pnpm run sentry-sourcemaps
         env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          BASE_URL: /peloton-reservations/pr-preview/pr-${{ github.event.number }}/
+          VITE_FIREBASE_API_KEY: ${{ vars.VITE_FIREBASE_API_KEY }}
         working-directory: ./frontend
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Deploy PR preview
+        uses: rossjrw/pr-preview-action@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./frontend/dist
-          keep_files: true
+          source-dir: ./frontend/dist
