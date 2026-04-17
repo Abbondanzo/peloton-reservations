@@ -20,6 +20,7 @@ const Sidebar = styled.aside<ToggleProps>`
   width: ${SIDEBAR_WIDTH}px;
   top: calc(${NAV_HEIGHT}px + env(safe-area-inset-top, 0px));
   bottom: 0;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   overflow-y: auto;
   background-color: ${(p) => p.theme.colors.secondarySurface};
   border-right: 1px solid ${(p) => p.theme.borderColor};
@@ -27,12 +28,9 @@ const Sidebar = styled.aside<ToggleProps>`
   position: fixed;
 
   @media only screen and (max-width: ${(p) => p.theme.widths.tablet}px) {
-    position: absolute;
     border-right: none;
     transition: left 0.25s;
     left: ${(p) => (p.$toggleVisible ? 0 : -SIDEBAR_WIDTH)}px;
-    top: calc(${NAV_HEIGHT}px + env(safe-area-inset-top, 0px));
-    bottom: 0;
     z-index: 2;
     box-shadow: ${(p) =>
       p.$toggleVisible ? "4px 0 16px rgba(0,0,0,0.08)" : "none"};
