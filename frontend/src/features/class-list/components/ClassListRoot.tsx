@@ -20,6 +20,7 @@ const Sidebar = styled.aside<ToggleProps>`
   width: ${SIDEBAR_WIDTH}px;
   top: calc(${NAV_HEIGHT}px + env(safe-area-inset-top, 0px));
   bottom: 0;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   overflow-y: auto;
   background-color: ${(p) => p.theme.colors.secondarySurface};
   border-right: 1px solid ${(p) => p.theme.borderColor};
