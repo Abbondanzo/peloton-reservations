@@ -145,6 +145,7 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
     }
   }, [alertToEdit.studioId, dispatch]);
 
+  const [name, setName] = useState(alertToEdit.name || "");
   const [selectedInstructors, setSelectedInstructors] = useState<
     Optional<string[]>
   >(alertToEdit.instructors || null);
@@ -195,6 +196,7 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       id: alertToEdit.id || (null as any),
       created: alertToEdit.created || new Date().getTime(),
+      ...(name.trim() ? { name: name.trim() } : {}),
       studioId: selectedStudioId,
       instructors: selectedInstructors,
       disciplines: selectedDisciplines,
@@ -217,6 +219,7 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
   }, [
     alertToEdit.id,
     alertToEdit.created,
+    name,
     selectedStudioId,
     userId,
     selectedInstructors,
@@ -247,6 +250,8 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
       <StepContent>
         {currentStep === 0 && (
           <StepBasics
+            name={name}
+            onNameChange={setName}
             studioId={selectedStudioId}
             onStudioChange={(id) => dispatch(setStudioId(id))}
             maxStatus={maxStatus}
@@ -267,6 +272,7 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
         )}
         {currentStep === 3 && (
           <StepReview
+            name={name}
             studioId={selectedStudioId}
             maxStatus={maxStatus}
             selectedInstructors={selectedInstructors}

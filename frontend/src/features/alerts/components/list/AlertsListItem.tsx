@@ -8,6 +8,8 @@ import { border } from "../../../theme/constants/styles";
 import { DAY_NAMES } from "../../constants/days";
 import { deleteAlert } from "../../firebase/deleteAlert";
 import { isNotEmpty } from "../../../utils/optional";
+import { useGetInstructorsQuery, useGetDisciplinesQuery } from "../../../class-list/services/pelotonApi";
+import { generateAlertTitle } from "../../operators/generateAlertTitle";
 
 const Wrapper = styled.li`
   ${border}
@@ -49,7 +51,7 @@ const TitleRow = styled.div`
   flex-wrap: wrap;
 `;
 
-const StudioName = styled.span`
+const AlertTitle = styled.span`
   font-weight: 600;
   font-size: 15px;
   color: ${(props) => props.theme.colors.main};
@@ -81,18 +83,6 @@ const DetailRow = styled.div`
   flex-wrap: wrap;
   font-size: 13px;
   color: ${(props) => props.theme.colors.secondary};
-`;
-
-const DetailChip = styled.span`
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-`;
-
-const Dot = styled.span`
-  &::before {
-    content: "·";
-  }
 `;
 
 const DaysRow = styled.div`
@@ -195,6 +185,8 @@ interface Props {
 
 export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
   const userId = useAppSelector(selectUserId);
+  const { data: allInstructors } = useGetInstructorsQuery(alert.studioId);
+  const { data: allDisciplines } = useGetDisciplinesQuery(alert.studioId);
 
   const formattedDate = useMemo(() => {
     const created = new Date(alert.created);
@@ -207,31 +199,28 @@ export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
     return formatter.format(alert.created);
   }, [alert.created]);
 
+  const alertTitle = useMemo(() => {
+    if (alert.name) return alert.name;
+
+    const instructorNames =
+      isNotEmpty(alert.instructors) && allInstructors
+        ? alert.instructors
+            .map((id) => allInstructors.find((i) => i.id === id)?.name)
+            .filter((n): n is string => Boolean(n))
+        : null;
+
+    const disciplineNames =
+      isNotEmpty(alert.disciplines) && allDisciplines
+        ? alert.disciplines
+            .map((id) => allDisciplines.find((d) => d.id === id)?.name)
+            .filter((n): n is string => Boolean(n))
+        : null;
+
+    return generateAlertTitle(disciplineNames, instructorNames);
+  }, [alert.name, alert.instructors, alert.disciplines, allInstructors, allDisciplines]);
+
   const studioLabel =
     STUDIOS[alert.studioId]?.location || alert.studioId || "No studio";
-
-  const instructorInfo = isNotEmpty(alert.instructors)
-    ? {
-        label:
-          alert.instructors.length === 1
-            ? "1 instructor"
-            : `${alert.instructors.length} instructors`,
-        title: `Filtering by ${alert.instructors.length} specific instructor${alert.instructors.length === 1 ? "" : "s"}`,
-      }
-    : {
-        label: "All instructors",
-        title: "Matching classes from any instructor",
-      };
-
-  const disciplineInfo = isNotEmpty(alert.disciplines)
-    ? {
-        label:
-          alert.disciplines.length === 1
-            ? "1 discipline"
-            : `${alert.disciplines.length} disciplines`,
-        title: `Filtering by ${alert.disciplines.length} specific discipline${alert.disciplines.length === 1 ? "" : "s"}`,
-      }
-    : { label: "All disciplines", title: "Matching any class type" };
 
   const statusInfo = formatStatus(alert.maxStatus);
 
@@ -240,21 +229,13 @@ export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
       <TopRow>
         <Info>
           <TitleRow>
-            <StudioName>{studioLabel}</StudioName>
+            <AlertTitle>{alertTitle}</AlertTitle>
             <StatusBadge $status={alert.maxStatus} title={statusInfo.title}>
               {statusInfo.label}
             </StatusBadge>
           </TitleRow>
 
-          <DetailRow>
-            <DetailChip title={instructorInfo.title}>
-              {instructorInfo.label}
-            </DetailChip>
-            <Dot />
-            <DetailChip title={disciplineInfo.title}>
-              {disciplineInfo.label}
-            </DetailChip>
-          </DetailRow>
+          <DetailRow>{studioLabel}</DetailRow>
 
           <DaysRow>
             {DAY_NAMES.map((day, i) => (

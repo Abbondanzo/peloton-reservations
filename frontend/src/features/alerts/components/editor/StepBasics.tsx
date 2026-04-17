@@ -2,6 +2,7 @@ import { STUDIOS } from "shared";
 import styled from "styled-components";
 import type { BookableStatus } from "../../../filters/types/BookableStatus";
 import { mediaMobile } from "../../../theme/constants/queries";
+import { TextInput } from "../../../theme/components/TextInput";
 import { OptionCard } from "./OptionCard";
 
 const Section = styled.fieldset`
@@ -67,6 +68,8 @@ const STATUS_OPTIONS: {
 ];
 
 interface Props {
+  name: string;
+  onNameChange: (name: string) => void;
   studioId: string;
   onStudioChange: (studioId: string) => void;
   maxStatus: BookableStatus;
@@ -74,6 +77,8 @@ interface Props {
 }
 
 export const StepBasics = ({
+  name,
+  onNameChange,
   studioId,
   onStudioChange,
   maxStatus,
@@ -81,6 +86,16 @@ export const StepBasics = ({
 }: Props) => {
   return (
     <div>
+      <TextInput
+        label="Alert name (optional)"
+        hint="Leave blank to auto-generate a name from your filters"
+        placeholder="e.g. Morning Cycling with Cody"
+        value={name}
+        onChange={onNameChange}
+      />
+
+      <SectionSpacer />
+
       <Section>
         <Legend>Which studio?</Legend>
         <Description>Pick the Peloton studio you want to monitor.</Description>
