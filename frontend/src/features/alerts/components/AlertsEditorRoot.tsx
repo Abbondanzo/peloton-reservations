@@ -1,10 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import type { Alert } from "shared";
 import { Paths } from "../../navigation/constants/paths";
-import { SharedRoot } from "./SharedRoot";
 import { AlertEditor } from "./editor/AlertEditor";
 
-const AlertsEditorBody = () => {
+export const AlertsEditorRoot = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const alert = (location.state as Partial<Alert> | undefined) || {};
@@ -19,8 +18,4 @@ const AlertsEditorBody = () => {
       }}
     />
   );
-};
-
-export const AlertsEditorRoot = () => {
-  return <SharedRoot>{() => <AlertsEditorBody />}</SharedRoot>;
 };

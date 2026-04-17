@@ -3,14 +3,10 @@ import type { Alert } from "shared";
 import styled from "styled-components";
 import { Paths } from "../../navigation/constants/paths";
 import { mediaMobile } from "../../theme/constants/queries";
-import { AlertPreferencesProvider } from "../providers/AlertPreferencesProvider";
-import { AlertsProvider } from "../providers/AlertsProvider";
-import { SharedRoot } from "./SharedRoot";
 import { AlertPreferencesEditor } from "./editor/AlertPreferencesEditor";
 import { RegisteredDevicesEditor } from "./editor/RegisteredDevicesEditor";
 import { AsyncAlertsList } from "./list/AsyncAlertsList";
 import { NotificationRequester } from "../../messaging/components/NotificationRequester";
-import { RegisteredDevicesProvider } from "../../messaging/providers/RegisteredDevicesProvider";
 
 const PageWrapper = styled.div`
   display: flex;
@@ -58,66 +54,52 @@ const SectionBody = styled.div`
   `}
 `;
 
-interface Props {
-  userId: string;
-}
-
-const AlertsBody = ({ userId }: Props) => {
+export const AlertsRoot = () => {
   const navigate = useNavigate();
 
   return (
-    <AlertsProvider userId={userId}>
-      <AlertPreferencesProvider userId={userId}>
-        <RegisteredDevicesProvider userId={userId}>
-          <PageWrapper>
-            <Section>
-              <AsyncAlertsList
-                onAdd={() => {
-                  navigate(Paths.ALERTS_EDITOR, { state: {} });
-                }}
-                onEdit={(alert) => {
-                  navigate(Paths.ALERTS_EDITOR, { state: alert });
-                }}
-                onDuplicate={(alert: Alert) => {
-                  navigate(Paths.ALERTS_EDITOR, {
-                    state: { ...alert, id: undefined, created: undefined },
-                  });
-                }}
-              />
-            </Section>
+    <PageWrapper>
+      <Section>
+        <AsyncAlertsList
+          onAdd={() => {
+            navigate(Paths.ALERTS_EDITOR, { state: {} });
+          }}
+          onEdit={(alert) => {
+            navigate(Paths.ALERTS_EDITOR, { state: alert });
+          }}
+          onDuplicate={(alert: Alert) => {
+            navigate(Paths.ALERTS_EDITOR, {
+              state: { ...alert, id: undefined, created: undefined },
+            });
+          }}
+        />
+      </Section>
 
-            <Section>
-              <SectionHeader>
-                <SectionTitle>Preferences</SectionTitle>
-                <SectionDescription>
-                  Control how often you receive alert notifications.
-                </SectionDescription>
-              </SectionHeader>
-              <SectionBody>
-                <AlertPreferencesEditor />
-              </SectionBody>
-            </Section>
+      <Section>
+        <SectionHeader>
+          <SectionTitle>Preferences</SectionTitle>
+          <SectionDescription>
+            Control how often you receive alert notifications.
+          </SectionDescription>
+        </SectionHeader>
+        <SectionBody>
+          <AlertPreferencesEditor />
+        </SectionBody>
+      </Section>
 
-            <Section>
-              <SectionHeader>
-                <SectionTitle>Devices</SectionTitle>
-                <SectionDescription>
-                  Devices registered to receive push notifications. Removed
-                  devices will re-register on their next visit.
-                </SectionDescription>
-              </SectionHeader>
-              <SectionBody>
-                <NotificationRequester />
-                <RegisteredDevicesEditor />
-              </SectionBody>
-            </Section>
-          </PageWrapper>
-        </RegisteredDevicesProvider>
-      </AlertPreferencesProvider>
-    </AlertsProvider>
+      <Section>
+        <SectionHeader>
+          <SectionTitle>Devices</SectionTitle>
+          <SectionDescription>
+            Devices registered to receive push notifications. Removed devices
+            will re-register on their next visit.
+          </SectionDescription>
+        </SectionHeader>
+        <SectionBody>
+          <NotificationRequester />
+          <RegisteredDevicesEditor />
+        </SectionBody>
+      </Section>
+    </PageWrapper>
   );
-};
-
-export const AlertsRoot = () => {
-  return <SharedRoot>{(userId) => <AlertsBody userId={userId} />}</SharedRoot>;
 };
