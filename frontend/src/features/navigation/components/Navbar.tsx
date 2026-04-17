@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { useAppSelector } from "../../store/hooks/useStore";
 import { selectIsAdmin } from "../../session/selectors/selectIsAdmin";
 import { Paths } from "../constants/paths";
+import { AppLogo } from "./AppLogo";
 import { MobileSidebar } from "./MobileSidebar";
 import { SessionInfo } from "./SessionInfo";
 
@@ -40,10 +41,6 @@ const Brand = styled(Link)`
   justify-self: start;
 `;
 
-const Logo = styled.img`
-  width: 22px;
-  height: 22px;
-`;
 
 const BrandName = styled.span`
   font-size: 16px;
@@ -139,7 +136,7 @@ export const Navbar = () => {
     <>
       <Wrapper>
         <Brand to={Paths.CLASS_LIST}>
-          <Logo src={`${import.meta.env.BASE_URL}images/icon.svg`} alt="" />
+          <AppLogo />
           <BrandName>Peloton Alerts</BrandName>
         </Brand>
 

@@ -40,10 +40,15 @@ const SectionTitle = styled.h2`
 `;
 
 const TotalsRow = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
-  flex-wrap: wrap;
   margin-bottom: 40px;
+
+  ${mediaMobile`
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  `}
 `;
 
 const TotalCard = styled.div`
@@ -51,7 +56,6 @@ const TotalCard = styled.div`
   border: 1px solid ${(p) => p.theme.borderColor};
   border-radius: ${(p) => p.theme.borderRadius};
   padding: 16px 20px;
-  min-width: 120px;
 `;
 
 const TotalLabel = styled.div`
