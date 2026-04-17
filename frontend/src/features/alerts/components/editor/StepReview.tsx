@@ -105,6 +105,7 @@ const formatStatus = (status: BookableStatus): string => {
 };
 
 interface Props {
+  name: string;
   studioId: string;
   maxStatus: BookableStatus;
   selectedInstructors: Optional<string[]>;
@@ -113,6 +114,7 @@ interface Props {
 }
 
 export const StepReview = ({
+  name,
   studioId,
   maxStatus,
   selectedInstructors,
@@ -142,6 +144,13 @@ export const StepReview = ({
       </Description>
 
       <SummaryCard>
+        {name.trim() && (
+          <SummaryRow>
+            <RowLabel>Name</RowLabel>
+            <RowValue>{name.trim()}</RowValue>
+          </SummaryRow>
+        )}
+
         <SummaryRow>
           <RowLabel>Studio</RowLabel>
           <RowValue>{studio?.location || studioId}</RowValue>

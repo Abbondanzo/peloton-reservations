@@ -10,6 +10,7 @@ export interface TimeRange {
 export interface Alert {
   id: string;
   created: number;
+  name?: string;
   instructors: Optional<string[]>;
   disciplines: Optional<string[]>;
   maxStatus: BookableStatus;
