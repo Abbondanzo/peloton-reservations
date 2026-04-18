@@ -94,8 +94,23 @@ Near-miss reasons (from `shared/src/alertMatching.ts` `NearMissReason`):
 
 | File | Change |
 |------|--------|
-| `backend/src/alerter.ts` | In `handleAddition` and `handleChange`, write class snapshots to Firebase at `PATHS.classSnapshot(studioId, classId)` with a timestamped child node |
+| `backend/src/alerter.ts` | In `handleAddition`, write a snapshot for each new class. In `handleChange`, write a snapshot only when `getBookableStatus` crosses a tier boundary (free↔waitlist↔full) — skip pure occupancy noise |
 | `backend/src/alerter.ts` | Add cleanup: periodically remove snapshot entries older than 7 days |
+
+#### Write strategy — status-change filtering
+
+The backend polls every 10 seconds and sees ~1,800 class changes per day. Writing a snapshot on every change would bloat storage and inflate download size on the simulation page. Instead, write only on **meaningful transitions**:
+
+1. **Class first appears** (`handleAddition`) — always write
+2. **Bookable status changes** (`handleChange`) — write when `getBookableStatus(oldClass) !== getBookableStatus(newClass)`, i.e. free→waitlist, waitlist→full, full→waitlist, waitlist→free
+
+Pure occupancy fluctuations within the same tier (e.g. 5 spots → 4 spots, both "free") are skipped entirely.
+
+**Expected volume:** ~15–20 new classes/day per studio + ~2–5 status transitions per class lifetime = **50–150 writes/day** vs. 1,800 raw changes. This is a 10–35× reduction.
+
+**Firebase tier impact:**
+- Storage: ~50–150 records/day × 7 days × ~300 bytes ≈ **0.3 MB per studio** — negligible against the 1 GB Spark free tier
+- Downloads per simulation page load: same ~0.3 MB — well within the 10 GB/month free download quota even with regular use
 
 ### Shared (already done)
 
