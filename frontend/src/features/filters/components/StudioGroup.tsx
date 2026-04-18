@@ -68,7 +68,9 @@ const RadioDot = styled.span<SelectedProps>`
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: border-color 0.1s, background-color 0.1s;
+  transition:
+    border-color 0.1s,
+    background-color 0.1s;
 
   &::after {
     content: "";

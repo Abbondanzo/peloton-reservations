@@ -91,9 +91,10 @@ export const AboutRoot = () => {
               >
                 Peloton Studios
               </a>{" "}
-              class reservations. Filter by status (free, waitlist, full), instructor,
-              or discipline — things the official site doesn't support. Classes are
-              fetched directly from Peloton each time you load the page.
+              class reservations. Filter by status (free, waitlist, full),
+              instructor, or discipline — things the official site doesn't
+              support. Classes are fetched directly from Peloton each time you
+              load the page.
             </p>
           </SectionBody>
         </Section>
@@ -116,9 +117,9 @@ export const AboutRoot = () => {
           </SectionHeader>
           <SectionBody>
             <p>
-              Yes — data is fetched fresh from Peloton each time you load the page
-              or switch studio. Filters persist across refreshes, unlike the official
-              site.
+              Yes — data is fetched fresh from Peloton each time you load the
+              page or switch studio. Filters persist across refreshes, unlike
+              the official site.
             </p>
           </SectionBody>
         </Section>
@@ -137,7 +138,9 @@ export const AboutRoot = () => {
 
         <Section>
           <SectionHeader>
-            <SectionTitle>Can I request a feature or report a bug?</SectionTitle>
+            <SectionTitle>
+              Can I request a feature or report a bug?
+            </SectionTitle>
           </SectionHeader>
           <SectionBody>
             <p>

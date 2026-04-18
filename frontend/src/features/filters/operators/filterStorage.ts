@@ -35,9 +35,11 @@ export const getStoredBookableStatus = (
   defaultValue: BookableStatus[]
 ): BookableStatus[] => {
   const value = getStored(BOOKABLE_STATUS_KEY);
+  console.log("Retrieved bookable status from storage:", value);
   if (value === null) {
     return defaultValue;
   }
+  console.log("Parsed bookable status from storage:", value.split(";"));
   return value.split(";").filter(isBookableStatus);
 };
 

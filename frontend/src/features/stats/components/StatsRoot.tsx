@@ -200,7 +200,9 @@ function BarChart({
                     <BarCount $color={bar.color}>{bar.value}</BarCount>
                   )}
                   <Bar
-                    $height={Math.round((bar.value / maxValue) * MAX_BAR_HEIGHT)}
+                    $height={Math.round(
+                      (bar.value / maxValue) * MAX_BAR_HEIGHT
+                    )}
                     $color={bar.color}
                   />
                 </BarWrapper>
@@ -255,8 +257,7 @@ export const StatsRoot = () => {
         <Page>
           <Heading>Stats</Heading>
           <StatusMessage>
-            Failed to load metrics:{" "}
-            {metrics.error.message ?? "unknown error"}
+            Failed to load metrics: {metrics.error.message ?? "unknown error"}
           </StatusMessage>
         </Page>
       </NavbarProvider>
@@ -281,9 +282,7 @@ export const StatsRoot = () => {
     { sent: 0, failed: 0, usersReached: 0, added: 0, changed: 0, removed: 0 }
   );
 
-  const studioIds = [
-    ...new Set(days.flatMap((d) => Object.keys(d.diffs))),
-  ];
+  const studioIds = [...new Set(days.flatMap((d) => Object.keys(d.diffs)))];
 
   return (
     <NavbarProvider>
@@ -322,9 +321,21 @@ export const StatsRoot = () => {
           <BarChart
             days={days}
             barsForDay={(day) => [
-              { value: day.notifications.sent, color: COLORS.sent, label: "Sent" },
-              { value: day.notifications.failed, color: COLORS.failed, label: "Failed" },
-              { value: day.notifications.usersReached, color: COLORS.usersReached, label: "Users reached" },
+              {
+                value: day.notifications.sent,
+                color: COLORS.sent,
+                label: "Sent",
+              },
+              {
+                value: day.notifications.failed,
+                color: COLORS.failed,
+                label: "Failed",
+              },
+              {
+                value: day.notifications.usersReached,
+                color: COLORS.usersReached,
+                label: "Users reached",
+              },
             ]}
             legend={[
               { color: COLORS.sent, label: "Sent" },
@@ -337,12 +348,17 @@ export const StatsRoot = () => {
         {studioIds.map((studioId) => (
           <Section key={studioId}>
             <SectionTitle>
-              Schedule changes — {STUDIOS[studioId]?.location ?? studioId} (14 days)
+              Schedule changes — {STUDIOS[studioId]?.location ?? studioId} (14
+              days)
             </SectionTitle>
             <BarChart
               days={days}
               barsForDay={(day) => {
-                const s = day.diffs[studioId] ?? { added: 0, changed: 0, removed: 0 };
+                const s = day.diffs[studioId] ?? {
+                  added: 0,
+                  changed: 0,
+                  removed: 0,
+                };
                 return [
                   { value: s.added, color: COLORS.added, label: "Added" },
                   { value: s.changed, color: COLORS.changed, label: "Changed" },

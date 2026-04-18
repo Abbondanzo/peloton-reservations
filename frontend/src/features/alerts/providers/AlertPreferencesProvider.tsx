@@ -1,6 +1,7 @@
 import { onValue, ref } from "firebase/database";
 import { type ReactNode, useEffect, useState } from "react";
 import type { AlertPreferences } from "shared";
+import { PATHS } from "shared";
 import { database } from "../../firebase/constants/database";
 import type { AsyncData } from "../../store/types/AsyncData";
 import { AlertPreferencesContext } from "../context/AlertPreferencesContext";
@@ -26,7 +27,7 @@ export const AlertPreferencesProvider = ({ children, userId }: Props) => {
       });
       return () => {};
     }
-    const dbRef = ref(db, `alertPreferences/${userId}`);
+    const dbRef = ref(db, PATHS.alertPreferences(userId));
     const unsubscribe = onValue(
       dbRef,
       (snapshot) => {

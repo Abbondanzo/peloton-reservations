@@ -13,7 +13,10 @@ const sessionSlice = createSlice({
     setLoading(_state: AsyncData<Session | null>) {
       return { state: "loading" as const };
     },
-    setSession(_state: AsyncData<Session | null>, action: PayloadAction<Session>) {
+    setSession(
+      _state: AsyncData<Session | null>,
+      action: PayloadAction<Session>
+    ) {
       return {
         state: "fulfilled" as const,
         data: action.payload,

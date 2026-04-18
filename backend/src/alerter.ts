@@ -2,7 +2,16 @@ import * as Sentry from "@sentry/node";
 import admin from "firebase-admin";
 import fs from "fs";
 import path from "path";
-import { Alert, AlertPreferences, RawClass, STUDIOS } from "shared";
+import {
+  Alert,
+  AlertPreferences,
+  type ChangeType,
+  PATHS,
+  RawClass,
+  STUDIOS,
+  getChangeType,
+  matchesAlert,
+} from "shared";
 import { logger } from "./logger";
 import { DiffDelegate } from "./manager";
 import { Metrics } from "./metrics";
@@ -11,8 +20,6 @@ type StudioGroup = { [key: string]: Alert[] };
 
 /** How often to flush the pending-notification queue. */
 const PENDING_CHECK_INTERVAL_MS = 30 * 1000;
-
-type ChangeType = "added" | "became_free" | "waitlist_opened";
 
 interface PendingNotification {
   userId: string;
@@ -92,7 +99,7 @@ export class Alerter implements DiffDelegate {
       for (const [userId, alerts] of Object.entries(
         this.alertGroups[studioId]
       )) {
-        if (alerts.some((alert) => this.matchesAlert(rawClass, alert))) {
+        if (alerts.some((alert) => matchesAlert(rawClass, alert))) {
           this.enqueueNotification(userId, studioId, rawClass, "added");
         }
       }
@@ -111,7 +118,7 @@ export class Alerter implements DiffDelegate {
         this.alertGroups[studioId]
       )) {
         for (const alert of alerts) {
-          const changeType = this.getChangeType(alert, entry.old, entry.new);
+          const changeType = getChangeType(alert, entry.old, entry.new);
           if (changeType) {
             this.enqueueNotification(userId, studioId, entry.new, changeType);
           }
@@ -254,7 +261,7 @@ export class Alerter implements DiffDelegate {
         ) {
           const staleToken = tokens[idx];
           logger.log(`Removing stale FCM token for user ${pending.userId}`);
-          db.ref(`/messagingTokens/${pending.userId}/${staleToken}`).remove();
+          db.ref(PATHS.messagingToken(pending.userId, staleToken)).remove();
         }
       });
     }
@@ -350,89 +357,5 @@ export class Alerter implements DiffDelegate {
         Object.keys(tokenMap),
       ])
     );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Alert matching
-  // ---------------------------------------------------------------------------
-
-  private isFree(rawClass: RawClass) {
-    return rawClass.occupancy < rawClass.max_occupancy;
-  }
-
-  private isWaitlistFull(rawClass: RawClass) {
-    return rawClass.waiting_count >= 10;
-  }
-
-  private matchesAlert(rawClass: RawClass, alert: Alert) {
-    if (alert.maxStatus === "free" && !this.isFree(rawClass)) {
-      return false;
-    }
-    if (alert.maxStatus === "waitlist" && this.isWaitlistFull(rawClass)) {
-      return false;
-    }
-    if (
-      alert.disciplines &&
-      !alert.disciplines.some(
-        (d1) => d1 === String(rawClass.offering_type.category.id)
-      )
-    ) {
-      return false;
-    }
-    if (
-      alert.instructors &&
-      !rawClass.instructors.some((i) =>
-        alert.instructors!.includes(String(i.id))
-      )
-    ) {
-      return false;
-    }
-    if (alert.timeRanges) {
-      const timeZone = STUDIOS[alert.studioId]?.timezone;
-      if (!timeZone) {
-        return false;
-      }
-      const date = new Date(rawClass.starts_at);
-      const utcDate = new Date(
-        date.toLocaleString("en-US", { timeZone: "UTC" })
-      );
-      const tzDate = new Date(date.toLocaleString("en-US", { timeZone }));
-      const offset = utcDate.getTime() - tzDate.getTime();
-      date.setTime(date.getTime() - offset);
-      const range = alert.timeRanges[date.getDay()];
-      if (!range) {
-        return false;
-      }
-      const minuteOfDay = date.getHours() * 60 + date.getMinutes();
-      if (range.startMin > minuteOfDay || range.endMin < minuteOfDay) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private getChangeType(
-    alert: Alert,
-    oldClass: RawClass,
-    newClass: RawClass
-  ): ChangeType | null {
-    if (!this.matchesAlert(newClass, alert)) {
-      return null;
-    }
-    if (
-      alert.maxStatus === "free" &&
-      !this.isFree(oldClass) &&
-      this.isFree(newClass)
-    ) {
-      return "became_free";
-    }
-    if (
-      alert.maxStatus === "waitlist" &&
-      this.isWaitlistFull(oldClass) &&
-      !this.isWaitlistFull(newClass)
-    ) {
-      return "waitlist_opened";
-    }
-    return null;
   }
 }

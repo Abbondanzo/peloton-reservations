@@ -13,7 +13,15 @@ export const generateAlertTitle = (
   disciplineNames: string[] | null,
   instructorNames: string[] | null
 ): string => {
-  const disciplinePart = formatList(disciplineNames, "Any Class", "Disciplines");
-  const instructorPart = formatList(instructorNames, "Any Instructor", "Instructors");
+  const disciplinePart = formatList(
+    disciplineNames,
+    "Any Class",
+    "Disciplines"
+  );
+  const instructorPart = formatList(
+    instructorNames,
+    "Any Instructor",
+    "Instructors"
+  );
   return `${disciplinePart} with ${instructorPart}`;
 };

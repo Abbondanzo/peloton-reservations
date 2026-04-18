@@ -1,5 +1,6 @@
 import { ref, update } from "firebase/database";
 import type { AlertPreferences } from "shared";
+import { PATHS } from "shared";
 import { database } from "../../firebase/constants/database";
 
 export const setPreferences = async (
@@ -10,5 +11,5 @@ export const setPreferences = async (
   if (!db) {
     throw new Error("No Firebase database connection to use");
   }
-  await update(ref(db, `alertPreferences/${userId}`), alertPreferences);
+  await update(ref(db, PATHS.alertPreferences(userId)), alertPreferences);
 };

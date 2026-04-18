@@ -26,6 +26,7 @@ export const NotificationRequester = () => {
 
   const isIOSDevice = isIOS();
   const isStandalone =
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     !!(navigator as any).standalone ||
     window.matchMedia("(display-mode: standalone)").matches;
 

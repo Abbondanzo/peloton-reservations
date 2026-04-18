@@ -1,5 +1,6 @@
 import { ref, update } from "firebase/database";
 import type { Alert } from "shared";
+import { PATHS } from "shared";
 import { database } from "../../firebase/constants/database";
 
 export const editAlert = async (
@@ -10,5 +11,5 @@ export const editAlert = async (
   if (!db) {
     throw new Error("No Firebase database connection to use");
   }
-  await update(ref(db, `alerts/${userId}/${alert.id}`), alert);
+  await update(ref(db, PATHS.alert(userId, alert.id)), alert);
 };

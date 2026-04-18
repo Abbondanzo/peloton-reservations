@@ -1,7 +1,6 @@
 html {
   height: 100%;
-  background:
-    linear-gradient(
+  background: linear-gradient(
       to bottom,
       #181a2f 0,
       #181a2f calc(60px + env(safe-area-inset-top, 0px)),

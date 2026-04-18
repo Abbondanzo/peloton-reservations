@@ -1,6 +1,17 @@
-type Optional<T> = T | null;
+import type { Optional } from "./optional";
+
+export type { Optional };
 
 export type BookableStatus = "free" | "waitlist" | "full";
+
+export const BOOKABLE_STATUS_KEYS: readonly BookableStatus[] = [
+  "free",
+  "waitlist",
+  "full",
+];
+
+export const isBookableStatus = (v: string): v is BookableStatus =>
+  BOOKABLE_STATUS_KEYS.indexOf(v as BookableStatus) !== -1;
 
 export interface TimeRange {
   startMin: number;

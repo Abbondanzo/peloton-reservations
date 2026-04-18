@@ -8,7 +8,10 @@ import { border } from "../../../theme/constants/styles";
 import { DAY_NAMES } from "../../constants/days";
 import { deleteAlert } from "../../firebase/deleteAlert";
 import { isNotEmpty } from "../../../utils/optional";
-import { useGetInstructorsQuery, useGetDisciplinesQuery } from "../../../class-list/services/pelotonApi";
+import {
+  useGetInstructorsQuery,
+  useGetDisciplinesQuery,
+} from "../../../class-list/services/pelotonApi";
 import { generateAlertTitle } from "../../operators/generateAlertTitle";
 
 const Wrapper = styled.li`
@@ -217,7 +220,13 @@ export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
         : null;
 
     return generateAlertTitle(disciplineNames, instructorNames);
-  }, [alert.name, alert.instructors, alert.disciplines, allInstructors, allDisciplines]);
+  }, [
+    alert.name,
+    alert.instructors,
+    alert.disciplines,
+    allInstructors,
+    allDisciplines,
+  ]);
 
   const studioLabel =
     STUDIOS[alert.studioId]?.location || alert.studioId || "No studio";

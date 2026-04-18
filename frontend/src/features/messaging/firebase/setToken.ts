@@ -1,4 +1,5 @@
 import { ref, set } from "@firebase/database";
+import { PATHS } from "shared";
 import { database } from "../../firebase/constants/database";
 import type { RegisteredDevice } from "../types/RegisteredDevice";
 
@@ -10,7 +11,7 @@ export const setToken = async (
   if (!db) {
     throw new Error("No Firebase database connection to use");
   }
-  const tokenRef = ref(db, `messagingTokens/${userId}/${token}`);
+  const tokenRef = ref(db, PATHS.messagingToken(userId, token));
   const registeredDevice: RegisteredDevice = {
     timestamp: new Date().getTime(),
     userAgent: navigator.userAgent,
