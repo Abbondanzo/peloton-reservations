@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { DisciplineIcon } from "../../../class-list/components/DisciplineIcon";
 import { InstructorIcon } from "../../../class-list/components/InstructorIcon";
@@ -131,6 +132,33 @@ export const StepFilters = ({
 }: Props) => {
   const instructorsQuery = useGetInstructorsQuery(studioId);
   const disciplinesQuery = useGetDisciplinesQuery(studioId);
+
+  // Reconcile stale IDs (e.g. a saved instructor who left the studio) against
+  // the loaded list once per mount. Uses a ref so user edits don't re-trigger it.
+  const initialInstructors = useRef(selectedInstructors);
+  const initialDisciplines = useRef(selectedDisciplines);
+
+  useEffect(() => {
+    const initial = initialInstructors.current;
+    if (!instructorsQuery.currentData || !isNotEmpty(initial)) return;
+    const valid = new Set(instructorsQuery.currentData.map((i) => i.id));
+    const filtered = initial.filter((id) => valid.has(id));
+    if (filtered.length < initial.length) {
+      setSelectedInstructors(filtered);
+      initialInstructors.current = filtered;
+    }
+  }, [instructorsQuery.currentData, setSelectedInstructors]);
+
+  useEffect(() => {
+    const initial = initialDisciplines.current;
+    if (!disciplinesQuery.currentData || !isNotEmpty(initial)) return;
+    const valid = new Set(disciplinesQuery.currentData.map((d) => String(d.id)));
+    const filtered = initial.filter((id) => valid.has(String(id)));
+    if (filtered.length < initial.length) {
+      setSelectedDisciplines(filtered);
+      initialDisciplines.current = filtered;
+    }
+  }, [disciplinesQuery.currentData, setSelectedDisciplines]);
 
   const toggleInstructor = (id: string) => {
     if (!isNotEmpty(selectedInstructors)) return;
