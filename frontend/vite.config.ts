@@ -96,6 +96,9 @@ export default ({ mode }: { mode: string }) => {
         },
       }),
     ],
+    optimizeDeps: {
+      include: ["shared"],
+    },
     resolve: {
       preserveSymlinks: true,
       dedupe: ["react", "react-dom"],
