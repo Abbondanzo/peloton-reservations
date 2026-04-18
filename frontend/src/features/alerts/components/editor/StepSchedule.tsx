@@ -1,12 +1,15 @@
-import { type ChangeEvent, useCallback } from "react";
+import { type ChangeEvent, useCallback, useRef } from "react";
 import type { TimeRange } from "shared";
 import styled from "styled-components";
 import { mediaMobile } from "../../../theme/constants/queries";
 import { border } from "../../../theme/constants/styles";
 import { DAY_NAMES } from "../../constants/days";
 import {
+  ALL_DAY_TIME_RANGE,
   DEFAULT_TIME_RANGE,
+  SPECIFIC_DEFAULT_TIME_RANGE,
   TIME_RANGE_VALUES,
+  isAllDay,
 } from "../../constants/timeRanges";
 
 const Section = styled.fieldset`
@@ -39,6 +42,8 @@ const DayRow = styled.div<{ $enabled: boolean }>`
   align-items: center;
   gap: 12px;
   padding: 10px 12px;
+  min-height: 52px;
+  box-sizing: border-box;
   border-radius: ${(props) => props.theme.borderRadius};
   background-color: ${(props) =>
     props.$enabled ? `${props.theme.colors.accent}06` : "transparent"};
@@ -50,6 +55,7 @@ const DayRow = styled.div<{ $enabled: boolean }>`
   ${mediaMobile`
     flex-wrap: wrap;
     gap: 8px;
+    min-height: 0;
   `}
 `;
 
@@ -83,6 +89,21 @@ const TimeControls = styled.div`
     margin-left: 28px;
     width: calc(100% - 28px);
   `}
+`;
+
+const AllDayLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: ${(props) => props.theme.colors.secondary};
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+`;
+
+const AllDayCheckbox = styled.input`
+  accent-color: ${(props) => props.theme.colors.accent};
 `;
 
 const TimeSelect = styled.select`
@@ -136,11 +157,31 @@ interface Props {
 
 export const StepSchedule = ({ timeRanges, setTimeRanges }: Props) => {
   const enabledCount = timeRanges.filter(Boolean).length;
+  const lastSpecificRanges = useRef<(TimeRange | undefined)[]>(
+    DAY_NAMES.map(() => undefined)
+  );
 
   const toggleDay = useCallback(
     (index: number) => {
       const updated = [...timeRanges];
       updated[index] = updated[index] ? null : DEFAULT_TIME_RANGE;
+      setTimeRanges(updated);
+    },
+    [timeRanges, setTimeRanges]
+  );
+
+  const toggleAllDay = useCallback(
+    (index: number) => {
+      const current = timeRanges[index];
+      if (!current) return;
+      const updated = [...timeRanges];
+      if (isAllDay(current)) {
+        updated[index] =
+          lastSpecificRanges.current[index] ?? SPECIFIC_DEFAULT_TIME_RANGE;
+      } else {
+        lastSpecificRanges.current[index] = current;
+        updated[index] = ALL_DAY_TIME_RANGE;
+      }
       setTimeRanges(updated);
     },
     [timeRanges, setTimeRanges]
@@ -209,6 +250,7 @@ export const StepSchedule = ({ timeRanges, setTimeRanges }: Props) => {
       <DayGrid>
         {DAY_NAMES.map((day, index) => {
           const timeRange = timeRanges[index];
+          const dayIsAllDay = !!timeRange && isAllDay(timeRange);
           return (
             <DayRow key={day} $enabled={!!timeRange}>
               <DayLabel htmlFor={`day-${index}`}>
@@ -223,43 +265,61 @@ export const StepSchedule = ({ timeRanges, setTimeRanges }: Props) => {
 
               {timeRange && (
                 <TimeControls>
-                  <TimeSelect
-                    value={timeRange.startMin}
-                    aria-label={`${day} start time`}
-                    onChange={({ target }: ChangeEvent<HTMLSelectElement>) => {
-                      const mins = parseInt(target.value);
-                      if (!Number.isNaN(mins))
-                        updateTime(index, "startMin", mins);
-                    }}
-                  >
-                    {TIME_RANGE_VALUES.map((v) => (
-                      <option key={v.minutes} value={v.minutes}>
-                        {v.label}
-                      </option>
-                    ))}
-                  </TimeSelect>
-                  <ToLabel>to</ToLabel>
-                  <TimeSelect
-                    value={timeRange.endMin}
-                    aria-label={`${day} end time`}
-                    onChange={({ target }: ChangeEvent<HTMLSelectElement>) => {
-                      const mins = parseInt(target.value);
-                      if (!Number.isNaN(mins))
-                        updateTime(index, "endMin", mins);
-                    }}
-                  >
-                    {TIME_RANGE_VALUES.map((v) => (
-                      <option
-                        key={v.minutes}
-                        value={v.minutes}
-                        disabled={
-                          v.minutes > 0 && v.minutes < timeRange.startMin
-                        }
+                  <AllDayLabel htmlFor={`allday-${index}`}>
+                    <AllDayCheckbox
+                      type="checkbox"
+                      id={`allday-${index}`}
+                      checked={dayIsAllDay}
+                      onChange={() => toggleAllDay(index)}
+                    />
+                    All day
+                  </AllDayLabel>
+
+                  {!dayIsAllDay && (
+                    <>
+                      <TimeSelect
+                        value={timeRange.startMin}
+                        aria-label={`${day} start time`}
+                        onChange={({
+                          target,
+                        }: ChangeEvent<HTMLSelectElement>) => {
+                          const mins = parseInt(target.value);
+                          if (!Number.isNaN(mins))
+                            updateTime(index, "startMin", mins);
+                        }}
                       >
-                        {v.label}
-                      </option>
-                    ))}
-                  </TimeSelect>
+                        {TIME_RANGE_VALUES.map((v) => (
+                          <option key={v.minutes} value={v.minutes}>
+                            {v.label}
+                          </option>
+                        ))}
+                      </TimeSelect>
+                      <ToLabel>to</ToLabel>
+                      <TimeSelect
+                        value={timeRange.endMin}
+                        aria-label={`${day} end time`}
+                        onChange={({
+                          target,
+                        }: ChangeEvent<HTMLSelectElement>) => {
+                          const mins = parseInt(target.value);
+                          if (!Number.isNaN(mins))
+                            updateTime(index, "endMin", mins);
+                        }}
+                      >
+                        {TIME_RANGE_VALUES.map((v) => (
+                          <option
+                            key={v.minutes}
+                            value={v.minutes}
+                            disabled={
+                              v.minutes > 0 && v.minutes < timeRange.startMin
+                            }
+                          >
+                            {v.label}
+                          </option>
+                        ))}
+                      </TimeSelect>
+                    </>
+                  )}
                 </TimeControls>
               )}
             </DayRow>

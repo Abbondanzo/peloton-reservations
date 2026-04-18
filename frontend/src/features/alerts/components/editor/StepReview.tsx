@@ -3,7 +3,7 @@ import styled from "styled-components";
 import type { BookableStatus } from "../../../filters/types/BookableStatus";
 import { mediaMobile } from "../../../theme/constants/queries";
 import { DAY_NAMES } from "../../constants/days";
-import { TIME_RANGE_VALUES } from "../../constants/timeRanges";
+import { TIME_RANGE_VALUES, isAllDay } from "../../constants/timeRanges";
 
 const Section = styled.fieldset`
   border: none;
@@ -87,6 +87,7 @@ const DayChip = styled.span`
 `;
 
 const formatTimeRange = (tr: TimeRange): string => {
+  if (isAllDay(tr)) return "All day";
   const start = TIME_RANGE_VALUES.find((v) => v.minutes === tr.startMin);
   const end = TIME_RANGE_VALUES.find((v) => v.minutes === tr.endMin);
   if (!start || !end) return "All day";
