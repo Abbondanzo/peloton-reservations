@@ -398,7 +398,7 @@ export class Alerter implements DiffDelegate {
       );
       const tzDate = new Date(date.toLocaleString("en-US", { timeZone }));
       const offset = utcDate.getTime() - tzDate.getTime();
-      date.setTime(date.getTime() + offset);
+      date.setTime(date.getTime() - offset);
       const range = alert.timeRanges[date.getDay()];
       if (!range) {
         return false;
