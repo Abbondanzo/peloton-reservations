@@ -59,13 +59,23 @@ if (app) {
   // field, so we only take over for data-only messages there.
   const isIOS = /iPhone|iPad|iPod/.test(self.navigator.userAgent);
 
-  onBackgroundMessage(messaging, (payload) => {
+  onBackgroundMessage(messaging, async (payload) => {
     console.log("[messaging-sw] Received background message ", payload);
     const title = payload.notification?.title ?? payload.data?.title;
     const body = payload.notification?.body ?? payload.data?.body;
     if (!title) return;
     // On non-iOS, skip notification-field messages — FCM auto-displays them.
     if (payload.notification && !isIOS) return;
+    // On iOS PWA, onBackgroundMessage fires even when the page is visible,
+    // causing double-delivery alongside MessagingProvider's onMessage handler.
+    // Skip here if there's a focused client — the foreground handler shows it.
+    if (isIOS) {
+      const windowClients = await self.clients.matchAll({
+        type: "window",
+        includeUncontrolled: true,
+      });
+      if (windowClients.some((c) => c.visibilityState === "visible")) return;
+    }
     self.registration.showNotification(title, { body });
   });
 }
