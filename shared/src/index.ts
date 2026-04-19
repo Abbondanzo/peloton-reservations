@@ -1,4 +1,5 @@
 export * from "./alertMatching";
+export * from "./classHistory";
 export * from "./alerts";
 export * from "./classApi";
 export * from "./classStatus";

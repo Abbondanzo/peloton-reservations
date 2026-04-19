@@ -6,9 +6,12 @@ import {
   Alert,
   AlertPreferences,
   type ChangeType,
+  type ClassSnapshot,
   PATHS,
   RawClass,
   STUDIOS,
+  buildSnapshot,
+  getBookableStatus,
   getChangeType,
   matchesAlert,
 } from "shared";
@@ -20,6 +23,10 @@ type StudioGroup = { [key: string]: Alert[] };
 
 /** How often to flush the pending-notification queue. */
 const PENDING_CHECK_INTERVAL_MS = 30 * 1000;
+/** How long to retain class history snapshots. */
+const HISTORY_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
+/** How often to clean up old class history snapshots. */
+const HISTORY_CLEANUP_INTERVAL_MS = 60 * 60 * 1000;
 
 interface PendingNotification {
   userId: string;
@@ -77,6 +84,7 @@ export class Alerter implements DiffDelegate {
       () => this.processPendingNotifications(),
       PENDING_CHECK_INTERVAL_MS
     );
+    setInterval(() => this.cleanupOldSnapshots(), HISTORY_CLEANUP_INTERVAL_MS);
   }
 
   private getServiceAccount(): admin.ServiceAccount {
@@ -92,10 +100,9 @@ export class Alerter implements DiffDelegate {
   // ---------------------------------------------------------------------------
 
   handleAddition(studioId: string, classes: RawClass[]): void {
-    if (!this.alertGroups[studioId]) {
-      return;
-    }
     for (const rawClass of classes) {
+      this.writeSnapshot(studioId, rawClass);
+      if (!this.alertGroups[studioId]) continue;
       for (const [userId, alerts] of Object.entries(
         this.alertGroups[studioId]
       )) {
@@ -110,10 +117,11 @@ export class Alerter implements DiffDelegate {
     studioId: string,
     classes: { new: RawClass; old: RawClass }[]
   ): void {
-    if (!this.alertGroups[studioId]) {
-      return;
-    }
     for (const entry of classes) {
+      if (getBookableStatus(entry.old) !== getBookableStatus(entry.new)) {
+        this.writeSnapshot(studioId, entry.new);
+      }
+      if (!this.alertGroups[studioId]) continue;
       for (const [userId, alerts] of Object.entries(
         this.alertGroups[studioId]
       )) {
@@ -305,6 +313,61 @@ export class Alerter implements DiffDelegate {
           title: "Waitlist available!",
           body: `${instructorName} — ${className}${timeStr} waitlist is open`,
         };
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Class history
+  // ---------------------------------------------------------------------------
+
+  private writeSnapshot(studioId: string, rawClass: RawClass): void {
+    const snapshot: ClassSnapshot = buildSnapshot(rawClass);
+    const db = admin.database();
+    db.ref(
+      `${PATHS.classSnapshot(studioId, rawClass.id)}/${snapshot.snapshotAt}`
+    )
+      .set(snapshot)
+      .catch((err) => {
+        logger.error(`Failed to write snapshot for class ${rawClass.id}:`, err);
+        Sentry.captureException(err);
+      });
+  }
+
+  private async cleanupOldSnapshots(): Promise<void> {
+    const cutoff = Date.now() - HISTORY_RETENTION_MS;
+    const db = admin.database();
+    for (const studioId of Object.keys(STUDIOS)) {
+      try {
+        const snap = await db.ref(PATHS.classHistory(studioId)).once("value");
+        const history = snap.val() as Record<
+          string,
+          Record<string, unknown>
+        > | null;
+        if (!history) continue;
+        const removals: Promise<void>[] = [];
+        for (const [classId, snapshots] of Object.entries(history)) {
+          for (const timestampStr of Object.keys(snapshots)) {
+            if (Number(timestampStr) < cutoff) {
+              removals.push(
+                db
+                  .ref(
+                    `${PATHS.classSnapshot(studioId, classId)}/${timestampStr}`
+                  )
+                  .remove()
+              );
+            }
+          }
+        }
+        if (removals.length > 0) {
+          await Promise.all(removals);
+          logger.log(
+            `Removed ${removals.length} expired snapshots for studio ${studioId}`
+          );
+        }
+      } catch (err) {
+        logger.error(`Snapshot cleanup failed for studio ${studioId}:`, err);
+        Sentry.captureException(err);
+      }
     }
   }
 
