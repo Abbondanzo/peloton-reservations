@@ -27,8 +27,8 @@ const checkDiscipline = (rawClass: RawClass, alert: Alert): boolean => {
 
 const checkInstructor = (rawClass: RawClass, alert: Alert): boolean => {
   if (!alert.instructors) return true;
-  return rawClass.instructors.some((i) =>
-    alert.instructors!.indexOf(String(i.id)) !== -1
+  return rawClass.instructors.some(
+    (i) => alert.instructors!.indexOf(String(i.id)) !== -1
   );
 };
 

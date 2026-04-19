@@ -1,11 +1,12 @@
 import type { RawClass, RawClassResponse } from "./classApi";
 
-export const PELOTON_API_BASE =
-  "https://schedule.studio.onepeloton.com/api/v2";
+export const PELOTON_API_BASE = "https://schedule.studio.onepeloton.com/api/v2";
 
 export const PELOTON_CORS_PROXY = "https://cors.abbondanzo.workers.dev";
 
-export const getPelotonHeaders = (studioId: string): Record<string, string> => ({
+export const getPelotonHeaders = (
+  studioId: string
+): Record<string, string> => ({
   "Teamup-Request-Mode": "customer",
   "Teamup-Provider-ID": studioId,
 });
@@ -47,10 +48,7 @@ export const buildEventsUrl = (params: {
   return `${base}/events?${query}`;
 };
 
-export const rebasePelotonUrl = (
-  next: string,
-  corsProxy = false
-): string => {
+export const rebasePelotonUrl = (next: string, corsProxy = false): string => {
   const { search } = new URL(next);
   const base = corsProxy
     ? `${PELOTON_CORS_PROXY}/${PELOTON_API_BASE}`
