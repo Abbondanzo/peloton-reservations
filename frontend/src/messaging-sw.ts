@@ -53,10 +53,7 @@ clientsClaim();
 // Custom message handling
 if (app) {
   const messaging = getMessaging(app);
-  // iOS Web Push does not auto-display notifications the way Chrome does —
-  // the service worker must call showNotification() explicitly. On other
-  // platforms, FCM handles display for messages that include a notification
-  // field, so we only take over for data-only messages there.
+  // Only needed for data-only messages on iOS foreground (see below).
   const isIOS = /iPhone|iPad|iPod/.test(self.navigator.userAgent);
 
   onBackgroundMessage(messaging, async (payload) => {
@@ -64,11 +61,13 @@ if (app) {
     const title = payload.notification?.title ?? payload.data?.title;
     const body = payload.notification?.body ?? payload.data?.body;
     if (!title) return;
-    // On non-iOS, skip notification-field messages — FCM auto-displays them.
-    if (payload.notification && !isIOS) return;
-    // On iOS PWA, onBackgroundMessage fires even when the page is visible,
-    // causing double-delivery alongside MessagingProvider's onMessage handler.
-    // Skip here if there's a focused client — the foreground handler shows it.
+    // Notification-field messages are auto-displayed by the platform on all
+    // targets: FCM on Android/Chrome, APNS on iOS. Calling showNotification()
+    // here would produce a duplicate.
+    if (payload.notification) return;
+    // On iOS PWA, onBackgroundMessage fires even when the page is visible.
+    // For data-only messages, the foreground onMessage handler in
+    // MessagingProvider will display it — skip here to avoid double delivery.
     if (isIOS) {
       const windowClients = await self.clients.matchAll({
         type: "window",
