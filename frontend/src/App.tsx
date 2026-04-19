@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Provider } from "react-redux";
 import { RouterProvider } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
@@ -8,6 +9,18 @@ import { store } from "./features/store/constants/store";
 import { theme } from "./features/theme/constants/theme";
 
 function App() {
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const classUrl = params.get("classUrl");
+    if (!classUrl) return;
+    window.history.replaceState(
+      null,
+      "",
+      window.location.pathname + window.location.hash
+    );
+    window.location.assign(classUrl);
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <Provider store={store}>
