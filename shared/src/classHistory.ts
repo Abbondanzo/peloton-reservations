@@ -70,7 +70,7 @@ export const classifySnapshotMatch = (
 
   if (
     alert.disciplines &&
-    alert.disciplines.indexOf(snapshot.disciplineId) === -1
+    alert.disciplines.map(String).indexOf(snapshot.disciplineId) === -1
   )
     failures.push("discipline");
 

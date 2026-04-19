@@ -20,9 +20,8 @@ const checkStatus = (rawClass: RawClass, alert: Alert): boolean => {
 
 const checkDiscipline = (rawClass: RawClass, alert: Alert): boolean => {
   if (!alert.disciplines) return true;
-  return alert.disciplines.some(
-    (d) => d === String(rawClass.offering_type.category.id)
-  );
+  const classId = String(rawClass.offering_type.category.id);
+  return alert.disciplines.some((d) => String(d) === classId);
 };
 
 const checkInstructor = (rawClass: RawClass, alert: Alert): boolean => {
