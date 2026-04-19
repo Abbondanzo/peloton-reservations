@@ -1,6 +1,8 @@
 import { memo, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { type Alert, STUDIOS } from "shared";
 import styled from "styled-components";
+import { alertsSimulationPath } from "../../../navigation/constants/paths";
 import { selectUserId } from "../../../session/selectors/selectUserId";
 import { useAppSelector } from "../../../store/hooks/useStore";
 import { mediaMobile } from "../../../theme/constants/queries";
@@ -187,6 +189,7 @@ interface Props {
 }
 
 export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
+  const navigate = useNavigate();
   const userId = useAppSelector(selectUserId);
   const { data: allInstructors } = useGetInstructorsQuery(alert.studioId);
   const { data: allDisciplines } = useGetDisciplinesQuery(alert.studioId);
@@ -266,6 +269,13 @@ export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
         </Info>
 
         <Actions>
+          <ActionButton
+            type="button"
+            onClick={() => navigate(alertsSimulationPath(alert.id))}
+            aria-label="Test alert"
+          >
+            Test
+          </ActionButton>
           <ActionButton type="button" onClick={onEdit} aria-label="Edit alert">
             Edit
           </ActionButton>

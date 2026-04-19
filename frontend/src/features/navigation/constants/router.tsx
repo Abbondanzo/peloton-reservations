@@ -5,6 +5,7 @@ import {
   Route,
 } from "react-router-dom";
 import { AboutRoot } from "../../about/components/AboutRoot";
+import { AlertSimulationRoot } from "../../alerts/components/simulation/AlertSimulationRoot";
 import { AlertsEditorRoot } from "../../alerts/components/AlertsEditorRoot";
 import { AlertsLayout } from "../../alerts/components/AlertsLayout";
 import { AlertsRoot } from "../../alerts/components/AlertsRoot";
@@ -21,6 +22,7 @@ export const router = createHashRouter(
       <Route path={Paths.ALERTS} element={<AlertsLayout />}>
         <Route index element={<AlertsRoot />} />
         <Route path="edit" element={<AlertsEditorRoot />} />
+        <Route path=":alertId/test" element={<AlertSimulationRoot />} />
       </Route>
       <Route path={Paths.SIGN_IN} element={<SignInRoot />} />
       <Route path={Paths.ABOUT} element={<AboutRoot />} />
