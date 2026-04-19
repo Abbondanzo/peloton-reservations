@@ -1,5 +1,6 @@
 export * from "./alertMatching";
 export * from "./classHistory";
+export * from "./pelotonApi";
 export * from "./alerts";
 export * from "./classApi";
 export * from "./classStatus";

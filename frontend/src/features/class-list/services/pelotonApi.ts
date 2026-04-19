@@ -4,6 +4,13 @@ import {
   createApi,
   fetchBaseQuery,
 } from "@reduxjs/toolkit/query/react";
+import {
+  PELOTON_API_BASE,
+  PELOTON_CORS_PROXY,
+  buildEventsUrl,
+  fetchAllPelotonPages,
+  getPelotonHeaders,
+} from "shared";
 import type { RawClassResponse } from "shared";
 import {
   mapClasses,
@@ -14,94 +21,59 @@ import type { Class } from "../types/Class";
 import type { Discipline } from "../types/Discipline";
 import type { Instructor } from "../types/Instructor";
 
-const CORS_BYPASS = "https://cors.abbondanzo.workers.dev";
+const FIELDS = [
+  "id",
+  "name",
+  "max_occupancy",
+  "occupancy",
+  "attending_count",
+  "starts_at",
+  "ends_at",
+  "waiting_count",
+  "active_registration_status",
+  "category.name",
+  "venue",
+  "customer_url",
+  "description",
+];
 
-const getHeaders = (studioId: string) => ({
-  "Teamup-Request-Mode": "customer",
-  "Teamup-Provider-ID": studioId,
-});
-
-const rebaseNextUrl = (next: string): string => {
-  const { search } = new URL(next);
-  return `${CORS_BYPASS}/https://schedule.studio.onepeloton.com/api/v2/events${search}`;
-};
-
-const buildClassesUrl = () => {
-  const fields = [
-    "id",
-    "name",
-    "max_occupancy",
-    "occupancy",
-    "attending_count",
-    "starts_at",
-    "ends_at",
-    "waiting_count",
-    "active_registration_status",
-    "category.name",
-    "venue",
-    "customer_url",
-    "description",
-  ];
-  const expandProperties = [
-    "instructors",
-    "active_registration_status",
-    "category",
-    "offering_type",
-    "offering_type.category",
-    "venue",
-    "suggested_booking_action",
-  ];
-  const queryParams = new URLSearchParams({
-    fields: fields.join(","),
-    expand: expandProperties.join(","),
-    local_starts_at_gte: new Date().toISOString().replace("Z", ""),
-    page_size: "500",
-    sort: "start",
-  });
-  return `${CORS_BYPASS}/https://schedule.studio.onepeloton.com/api/v2/events?${queryParams}`;
-};
+const EXPAND = [
+  "instructors",
+  "active_registration_status",
+  "category",
+  "offering_type",
+  "offering_type.category",
+  "venue",
+  "suggested_booking_action",
+];
 
 export const pelotonApi = createApi({
   reducerPath: "pelotonApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: `${CORS_BYPASS}/https://schedule.studio.onepeloton.com/api/v2/`,
+    baseUrl: `${PELOTON_CORS_PROXY}/${PELOTON_API_BASE}/`,
   }),
   endpoints: (builder) => ({
     getClasses: builder.query<Class[], string>({
       queryFn: async (studioId) => {
         try {
-          const headers = getHeaders(studioId);
-          const response = await fetch(buildClassesUrl(), { headers });
-          if (!response.ok) {
-            return {
-              error: {
-                status: response.status,
-                data: await response.text(),
-              } as FetchBaseQueryError,
-            };
-          }
-          const data = (await response.json()) as RawClassResponse;
-          if (!data.next) {
-            return { data: mapClasses(data) };
-          }
-          // Only paginate when the schedule grows beyond a single page
-          const allClasses = mapClasses(data);
-          let nextUrl: string | null = rebaseNextUrl(data.next);
-          while (nextUrl) {
-            const pageResponse = await fetch(nextUrl, { headers });
-            if (!pageResponse.ok) {
-              return {
-                error: {
-                  status: pageResponse.status,
-                  data: await pageResponse.text(),
-                } as FetchBaseQueryError,
-              };
-            }
-            const pageData = (await pageResponse.json()) as RawClassResponse;
-            allClasses.push(...mapClasses(pageData));
-            nextUrl = pageData.next ? rebaseNextUrl(pageData.next) : null;
-          }
-          return { data: allClasses };
+          const headers = getPelotonHeaders(studioId);
+          const url = buildEventsUrl({
+            fields: FIELDS,
+            expand: EXPAND,
+            corsProxy: true,
+          });
+          const results = await fetchAllPelotonPages(
+            url,
+            async (pageUrl) => {
+              const response = await fetch(pageUrl, { headers });
+              if (!response.ok) {
+                throw new Error(`${response.status}: ${await response.text()}`);
+              }
+              return response.json() as Promise<RawClassResponse>;
+            },
+            true
+          );
+          return { data: mapClasses({ results } as RawClassResponse) };
         } catch (e) {
           return {
             error: {
@@ -120,7 +92,7 @@ export const pelotonApi = createApi({
         return {
           url: `offering_type_categories?${queryParams}`,
           method: "GET",
-          headers: getHeaders(studioId),
+          headers: getPelotonHeaders(studioId),
         };
       },
       transformResponse: (response): Discipline[] => {
@@ -135,7 +107,7 @@ export const pelotonApi = createApi({
         return {
           url: `instructors?${queryParams}`,
           method: "GET",
-          headers: getHeaders(studioId),
+          headers: getPelotonHeaders(studioId),
         };
       },
       transformResponse: (response): Instructor[] => {
