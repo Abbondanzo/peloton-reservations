@@ -75,7 +75,29 @@ if (app) {
       });
       if (windowClients.some((c) => c.visibilityState === "visible")) return;
     }
-    self.registration.showNotification(title, { body });
+    self.registration.showNotification(title, { body, data: payload.data });
+  });
+
+  self.addEventListener("notificationclick", (event) => {
+    event.notification.close();
+    const classUrl: string | undefined = event.notification.data?.classUrl;
+    const appUrl = classUrl
+      ? `/?classUrl=${encodeURIComponent(classUrl)}`
+      : "/";
+    event.waitUntil(
+      self.clients
+        .matchAll({ type: "window", includeUncontrolled: true })
+        .then((windowClients) => {
+          const appClient = windowClients.find(
+            (c) => new URL(c.url).origin === self.location.origin
+          );
+          if (appClient) {
+            (appClient as WindowClient).navigate(appUrl);
+            return (appClient as WindowClient).focus();
+          }
+          return self.clients.openWindow(appUrl);
+        })
+    );
   });
 }
 

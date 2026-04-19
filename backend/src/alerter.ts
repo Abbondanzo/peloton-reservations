@@ -233,7 +233,9 @@ export class Alerter implements DiffDelegate {
           requireInteraction: true,
         },
         fcmOptions: {
-          link: pending.classData.customer_url || "/",
+          link: pending.classData.customer_url
+            ? `/?classUrl=${encodeURIComponent(pending.classData.customer_url)}`
+            : "/",
         },
       },
     };
