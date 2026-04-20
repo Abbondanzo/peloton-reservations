@@ -58,7 +58,7 @@ const mapClass = (rawClass: any): Class => {
 
   return {
     ...rawClass,
-    id: rawClass.id,
+    id: String(rawClass.id),
     name: rawClass.name,
     start: rawClass.starts_at,
     end: rawClass.ends_at,
