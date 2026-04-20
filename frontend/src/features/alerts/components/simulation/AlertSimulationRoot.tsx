@@ -144,10 +144,11 @@ export const AlertSimulationRoot = () => {
                 class changes.
               </StatusText>
             )}
-            {days.map(({ label, snapshots }) => (
+            {days.map(({ label, dayIndex, snapshots }) => (
               <SimulationDaySection
                 key={label}
                 label={label}
+                dayIndex={dayIndex}
                 snapshots={snapshots}
                 alert={alert}
                 timezone={timezone}

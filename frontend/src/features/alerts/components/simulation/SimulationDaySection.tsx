@@ -24,10 +24,21 @@ const DayHeader = styled.h3`
   background-color: ${(props) => props.theme.colors.mainSurface};
   border-bottom: 1px solid ${(props) => props.theme.borderColor};
   z-index: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+`;
+
+const NotMonitored = styled.span`
+  font-size: 11px;
+  font-weight: 400;
+  color: ${(props) => props.theme.colors.secondary};
+  opacity: 0.6;
 `;
 
 interface Props {
   label: string;
+  dayIndex: number;
   snapshots: ClassSnapshot[];
   alert: Alert;
   timezone?: string;
@@ -35,10 +46,12 @@ interface Props {
 
 export const SimulationDaySection = ({
   label,
+  dayIndex,
   snapshots,
   alert,
   timezone,
 }: Props) => {
+  const monitored = !!alert.timeRanges[dayIndex];
   const matches: ClassSnapshot[] = [];
   const nearMisses: { snapshot: ClassSnapshot; reason: NearMissReason }[] = [];
   const skipped: ClassSnapshot[] = [];
@@ -56,7 +69,10 @@ export const SimulationDaySection = ({
 
   return (
     <Section>
-      <DayHeader>{label}</DayHeader>
+      <DayHeader>
+        {label}
+        {!monitored && <NotMonitored>not monitored</NotMonitored>}
+      </DayHeader>
       {matches.map((s, i) => (
         <MatchCard key={i} snapshot={s} timezone={timezone} />
       ))}
@@ -79,20 +95,27 @@ export const SimulationDaySection = ({
 export const groupByDay = (
   snapshots: ClassSnapshot[],
   timezone: string
-): { label: string; snapshots: ClassSnapshot[] }[] => {
-  const groups = new Map<string, ClassSnapshot[]>();
+): { label: string; dayIndex: number; snapshots: ClassSnapshot[] }[] => {
+  const groups = new Map<
+    string,
+    { dayIndex: number; snapshots: ClassSnapshot[] }
+  >();
   for (const snap of snapshots) {
-    const detectedAt = new Date(snap.snapshotAt).toISOString();
-    const label = getLocalDate(detectedAt, timezone, true);
-    const existing = groups.get(label);
-    if (existing) {
-      existing.push(snap);
-    } else {
-      groups.set(label, [snap]);
+    const detectedAt = new Date(snap.snapshotAt);
+    const label = getLocalDate(detectedAt.toISOString(), timezone, true);
+    if (!groups.has(label)) {
+      const localDate = new Date(
+        detectedAt.toLocaleString("en-US", { timeZone: timezone })
+      );
+      groups.set(label, { dayIndex: localDate.getDay(), snapshots: [] });
     }
+    groups.get(label)!.snapshots.push(snap);
   }
-  return Array.from(groups.entries()).map(([label, snaps]) => ({
-    label,
-    snapshots: snaps,
-  }));
+  return Array.from(groups.entries()).map(
+    ([label, { dayIndex, snapshots: snaps }]) => ({
+      label,
+      dayIndex,
+      snapshots: snaps,
+    })
+  );
 };
