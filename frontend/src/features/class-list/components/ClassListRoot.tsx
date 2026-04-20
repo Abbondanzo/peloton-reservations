@@ -41,6 +41,7 @@ const MainContent = styled.div<ToggleProps>`
   flex: 1;
   background-color: ${(p) => p.theme.colors.secondarySurface};
   padding: 20px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   position: relative;
   margin-left: ${SIDEBAR_WIDTH}px;
 
@@ -64,6 +65,7 @@ const MainContent = styled.div<ToggleProps>`
 
   @media only screen and (max-width: ${(p) => p.theme.widths.mobile}px) {
     padding: 12px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   }
 `;
 
