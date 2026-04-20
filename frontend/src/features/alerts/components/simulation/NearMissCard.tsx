@@ -25,6 +25,13 @@ const ClassInfo = styled.div`
   color: ${(props) => props.theme.colors.secondary};
 `;
 
+const DetectedAt = styled.div`
+  font-size: 11px;
+  color: ${(props) => props.theme.colors.secondary};
+  opacity: 0.6;
+  margin-top: 2px;
+`;
+
 const REASON_LABELS: Record<NearMissReason, string> = {
   instructor: "wrong instructor",
   time: "outside your time range",
@@ -43,6 +50,10 @@ export const NearMissCard = ({ snapshot, reason, timezone }: Props) => {
     ? getLocalDate(snapshot.starts_at, timezone, false)
     : "";
   const time = getLocalTime(snapshot.starts_at, timezone);
+  const detectedTime = getLocalTime(
+    new Date(snapshot.snapshotAt).toISOString(),
+    timezone
+  );
   const instructorName = snapshot.instructors[0]?.name ?? "Unknown instructor";
 
   return (
@@ -54,6 +65,7 @@ export const NearMissCard = ({ snapshot, reason, timezone }: Props) => {
         {" · "}
         {instructorName}
       </ClassInfo>
+      <DetectedAt>detected at {detectedTime}</DetectedAt>
     </Card>
   );
 };

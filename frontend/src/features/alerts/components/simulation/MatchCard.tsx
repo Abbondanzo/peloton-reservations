@@ -32,6 +32,13 @@ const Meta = styled.div`
   margin-top: 2px;
 `;
 
+const DetectedAt = styled.div`
+  font-size: 11px;
+  color: ${(props) => props.theme.colors.secondary};
+  opacity: 0.6;
+  margin-top: 2px;
+`;
+
 interface Props {
   snapshot: ClassSnapshot;
   timezone?: string;
@@ -42,6 +49,10 @@ export const MatchCard = ({ snapshot, timezone }: Props) => {
     ? getLocalDate(snapshot.starts_at, timezone, false)
     : "";
   const time = getLocalTime(snapshot.starts_at, timezone);
+  const detectedTime = getLocalTime(
+    new Date(snapshot.snapshotAt).toISOString(),
+    timezone
+  );
   const instructorName = snapshot.instructors[0]?.name ?? "Unknown instructor";
   const spotsLeft = snapshot.maxOccupancy - snapshot.occupancy;
 
@@ -61,6 +72,7 @@ export const MatchCard = ({ snapshot, timezone }: Props) => {
             ? `Waitlist · ${snapshot.waitingCount} waiting`
             : "Full"}
       </Meta>
+      <DetectedAt>detected at {detectedTime}</DetectedAt>
     </Card>
   );
 };

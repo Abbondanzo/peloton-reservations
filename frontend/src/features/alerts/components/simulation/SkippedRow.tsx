@@ -36,6 +36,14 @@ const Item = styled.li`
   padding: 4px 8px;
   background-color: ${(props) => props.theme.colors.secondarySurface};
   border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+`;
+
+const DetectedAt = styled.span`
+  font-size: 11px;
+  opacity: 0.6;
 `;
 
 interface Props {
@@ -55,14 +63,26 @@ export const SkippedRow = ({ snapshots, timezone }: Props) => {
       </Toggle>
       {expanded && (
         <List>
-          {snapshots.map((s, i) => (
-            <Item key={i}>
-              {timezone ? getLocalDate(s.starts_at, timezone, false) : ""}{" "}
-              {getLocalTime(s.starts_at, timezone)}
-              {s.name ? ` · ${s.name}` : ""}
-              {s.instructors[0] ? ` · ${s.instructors[0].name}` : ""}
-            </Item>
-          ))}
+          {snapshots.map((s, i) => {
+            const classDate = timezone
+              ? getLocalDate(s.starts_at, timezone, false)
+              : "";
+            const classTime = getLocalTime(s.starts_at, timezone);
+            const detectedTime = getLocalTime(
+              new Date(s.snapshotAt).toISOString(),
+              timezone
+            );
+            return (
+              <Item key={i}>
+                <span>
+                  {classDate} {classTime}
+                  {s.name ? ` · ${s.name}` : ""}
+                  {s.instructors[0] ? ` · ${s.instructors[0].name}` : ""}
+                </span>
+                <DetectedAt>detected at {detectedTime}</DetectedAt>
+              </Item>
+            );
+          })}
         </List>
       )}
     </div>
