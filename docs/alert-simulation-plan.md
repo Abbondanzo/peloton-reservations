@@ -6,7 +6,7 @@ When a user views their alerts list, a "Test" button on each `AlertsListItem` op
 
 ## Data availability finding
 
-The live Peloton API (`schedule.studio.onepeloton.com/api/v2/events`) only retains ~3 days of past schedule data, and more importantly, `occupancy`/`waiting_count` reflect *current* state — not what they were when the class first appeared. This means status-based matching (free/waitlist) cannot be accurately simulated against the live API.
+The live Peloton API (`schedule.studio.onepeloton.com/api/v2/events`) only retains ~3 days of past schedule data, and more importantly, `occupancy`/`waiting_count` reflect _current_ state — not what they were when the class first appeared. This means status-based matching (free/waitlist) cannot be accurately simulated against the live API.
 
 **Solution: store class snapshots in Firebase from the backend.** The backend already polls every 10 seconds and sees class status at the moment of each change. Writing snapshots at that point gives us accurate historical data including occupancy at time of detection.
 
@@ -29,6 +29,7 @@ classHistory/{studioId}/{classId}/{snapshotTimestampMs}
 ```
 
 Firebase paths are defined in `shared/src/firebasePaths.ts`:
+
 - `PATHS.classHistory(studioId)` → `classHistory/{studioId}`
 - `PATHS.classSnapshot(studioId, classId)` → `classHistory/{studioId}/{classId}`
 
@@ -38,13 +39,14 @@ Retention: use Firebase security rules or a backend cleanup job to expire entrie
 
 ## Match tiers
 
-| Tier | Meaning | Display |
-|------|---------|---------|
-| **match** | All criteria satisfied — alert would have fired | Prominent card, green accent |
-| **near-miss** | Exactly one criterion fails | Dimmer card, amber accent + reason label |
-| **skipped** | Two or more criteria fail | Collapsed into count row |
+| Tier          | Meaning                                         | Display                                  |
+| ------------- | ----------------------------------------------- | ---------------------------------------- |
+| **match**     | All criteria satisfied — alert would have fired | Prominent card, green accent             |
+| **near-miss** | Exactly one criterion fails                     | Dimmer card, amber accent + reason label |
+| **skipped**   | Two or more criteria fail                       | Collapsed into count row                 |
 
 Near-miss reasons (from `shared/src/alertMatching.ts` `NearMissReason`):
+
 - `"instructor"` — right discipline/time/status but wrong instructor
 - `"time"` — right everything but outside the time window (e.g. Cody at 7am when window is 8am–8pm)
 - `"discipline"` — wrong discipline
@@ -92,10 +94,10 @@ Near-miss reasons (from `shared/src/alertMatching.ts` `NearMissReason`):
 
 ### Backend
 
-| File | Change |
-|------|--------|
+| File                     | Change                                                                                                                                                                                                 |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `backend/src/alerter.ts` | In `handleAddition`, write a snapshot for each new class. In `handleChange`, write a snapshot only when `getBookableStatus` crosses a tier boundary (free↔waitlist↔full) — skip pure occupancy noise |
-| `backend/src/alerter.ts` | Add cleanup: periodically remove snapshot entries older than 7 days |
+| `backend/src/alerter.ts` | Add cleanup: periodically remove snapshot entries older than 7 days                                                                                                                                    |
 
 #### Write strategy — status-change filtering
 
@@ -109,38 +111,39 @@ Pure occupancy fluctuations within the same tier (e.g. 5 spots → 4 spots, both
 **Expected volume:** ~15–20 new classes/day per studio + ~2–5 status transitions per class lifetime = **50–150 writes/day** vs. 1,800 raw changes. This is a 10–35× reduction.
 
 **Firebase tier impact:**
+
 - Storage: ~50–150 records/day × 7 days × ~300 bytes ≈ **0.3 MB per studio** — negligible against the 1 GB Spark free tier
 - Downloads per simulation page load: same ~0.3 MB — well within the 10 GB/month free download quota even with regular use
 
 ### Shared (already done)
 
-| File | Status |
-|------|--------|
+| File                          | Status                                                                                               |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------- |
 | `shared/src/alertMatching.ts` | ✅ — `matchesAlert`, `classifyMatch`, `getChangeType`, `ChangeType`, `MatchDetail`, `NearMissReason` |
-| `shared/src/classStatus.ts` | ✅ — `WAITLIST_MAX`, `isFree`, `isWaitlistFull`, `getBookableStatus` |
-| `shared/src/firebasePaths.ts` | ✅ — `PATHS` with `classHistory` and `classSnapshot` |
-| `shared/src/timeRanges.ts` | ✅ — `ALL_DAY_TIME_RANGE`, `isAllDay` etc. |
-| `shared/src/optional.ts` | ✅ — `isEmpty`, `isNotEmpty` |
+| `shared/src/classStatus.ts`   | ✅ — `WAITLIST_MAX`, `isFree`, `isWaitlistFull`, `getBookableStatus`                                 |
+| `shared/src/firebasePaths.ts` | ✅ — `PATHS` with `classHistory` and `classSnapshot`                                                 |
+| `shared/src/timeRanges.ts`    | ✅ — `ALL_DAY_TIME_RANGE`, `isAllDay` etc.                                                           |
+| `shared/src/optional.ts`      | ✅ — `isEmpty`, `isNotEmpty`                                                                         |
 
 ### Frontend — new files
 
-| File | Purpose |
-|------|---------|
-| `frontend/src/features/alerts/components/simulation/AlertSimulationRoot.tsx` | Page container: reads alert from context by ID, fetches class history from Firebase, groups by day, renders |
-| `frontend/src/features/alerts/components/simulation/SimulationDaySection.tsx` | One day's section with sticky header, match count summary, cards, collapsible skipped row |
-| `frontend/src/features/alerts/components/simulation/MatchCard.tsx` | Prominent "would have triggered" card with green accent |
-| `frontend/src/features/alerts/components/simulation/NearMissCard.tsx` | Amber-accented card showing class + reason label |
-| `frontend/src/features/alerts/components/simulation/SkippedRow.tsx` | Collapsible "(X classes skipped)" row expanding to compact class list |
-| `frontend/src/features/alerts/components/simulation/SimulationSummary.tsx` | Top strip: total matches + near-miss count |
-| `frontend/src/features/alerts/hooks/useClassHistory.ts` | Firebase listener for `classHistory/{studioId}`, returns `AsyncData<ClassSnapshot[]>` |
-| `frontend/src/features/alerts/types/ClassSnapshot.ts` | Frontend type for a stored class snapshot |
+| File                                                                          | Purpose                                                                                                     |
+| ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `frontend/src/features/alerts/components/simulation/AlertSimulationRoot.tsx`  | Page container: reads alert from context by ID, fetches class history from Firebase, groups by day, renders |
+| `frontend/src/features/alerts/components/simulation/SimulationDaySection.tsx` | One day's section with sticky header, match count summary, cards, collapsible skipped row                   |
+| `frontend/src/features/alerts/components/simulation/MatchCard.tsx`            | Prominent "would have triggered" card with green accent                                                     |
+| `frontend/src/features/alerts/components/simulation/NearMissCard.tsx`         | Amber-accented card showing class + reason label                                                            |
+| `frontend/src/features/alerts/components/simulation/SkippedRow.tsx`           | Collapsible "(X classes skipped)" row expanding to compact class list                                       |
+| `frontend/src/features/alerts/components/simulation/SimulationSummary.tsx`    | Top strip: total matches + near-miss count                                                                  |
+| `frontend/src/features/alerts/hooks/useClassHistory.ts`                       | Firebase listener for `classHistory/{studioId}`, returns `AsyncData<ClassSnapshot[]>`                       |
+| `frontend/src/features/alerts/types/ClassSnapshot.ts`                         | Frontend type for a stored class snapshot                                                                   |
 
 ### Frontend — modified files
 
-| File | Change |
-|------|--------|
+| File                                                              | Change                                                 |
+| ----------------------------------------------------------------- | ------------------------------------------------------ |
 | `frontend/src/features/alerts/components/list/AlertsListItem.tsx` | Add "Test" icon button alongside Edit/Duplicate/Delete |
-| Router config (wherever routes are defined) | Add `/alerts/:alertId/test` route |
+| Router config (wherever routes are defined)                       | Add `/alerts/:alertId/test` route                      |
 
 ---
 
