@@ -41,7 +41,6 @@ const Brand = styled(Link)`
   justify-self: start;
 `;
 
-
 const BrandName = styled.span`
   font-size: 16px;
   font-weight: 600;
@@ -65,7 +64,9 @@ const NavItem = styled(NavLink)`
   padding: 7px 14px;
   border-radius: 6px;
   color: rgba(255, 255, 255, 0.6);
-  transition: color 0.15s, background-color 0.15s;
+  transition:
+    color 0.15s,
+    background-color 0.15s;
   white-space: nowrap;
 
   &:hover {

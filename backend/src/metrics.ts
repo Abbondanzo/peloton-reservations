@@ -50,7 +50,8 @@ export class Metrics {
       updates["failed"] = admin.database.ServerValue.increment(failed);
     }
     if (usersReached) {
-      updates["usersReached"] = admin.database.ServerValue.increment(usersReached);
+      updates["usersReached"] =
+        admin.database.ServerValue.increment(usersReached);
     }
     await admin
       .database()

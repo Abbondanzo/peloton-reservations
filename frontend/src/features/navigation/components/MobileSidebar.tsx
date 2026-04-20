@@ -59,7 +59,6 @@ const Brand = styled(Link)`
   color: inherit;
 `;
 
-
 const BrandName = styled.span`
   font-size: 15px;
   font-weight: 600;
@@ -114,7 +113,13 @@ const SessionSection = styled.div`
 `;
 
 const CloseIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 18 18"
+    fill="none"
+    aria-hidden="true"
+  >
     <path
       d="M4 4l10 10M14 4L4 14"
       stroke="currentColor"

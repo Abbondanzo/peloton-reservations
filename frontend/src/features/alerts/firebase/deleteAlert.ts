@@ -1,4 +1,5 @@
 import { ref, remove } from "firebase/database";
+import { PATHS } from "shared";
 import { database } from "../../firebase/constants/database";
 
 export const deleteAlert = async (
@@ -9,5 +10,5 @@ export const deleteAlert = async (
   if (!db) {
     throw new Error("No Firebase database connection to use");
   }
-  await remove(ref(db, `alerts/${userId}/${alertId}`));
+  await remove(ref(db, PATHS.alert(userId, alertId)));
 };

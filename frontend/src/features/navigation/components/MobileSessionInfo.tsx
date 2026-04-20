@@ -47,7 +47,9 @@ const SignOutButton = styled.button`
   border: 1px solid ${(p) => p.theme.borderColor};
   border-radius: ${(p) => p.theme.borderRadius};
   cursor: pointer;
-  transition: background-color 0.15s, color 0.15s;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
 
   &:hover {
     background-color: rgba(0, 0, 0, 0.04);

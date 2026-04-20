@@ -115,7 +115,9 @@ export const ClassList = ({ classes, fulfilledTimeStamp }: Props) => {
           <GroupHeader>
             <GroupDate>{group.formattedDate}</GroupDate>
             {index === 0 && lastUpdated && (
-              <GroupMeta>Times in studio timezone · loaded {lastUpdated}</GroupMeta>
+              <GroupMeta>
+                Times in studio timezone · loaded {lastUpdated}
+              </GroupMeta>
             )}
             {index === 0 && !lastUpdated && (
               <GroupMeta>All times in studio timezone</GroupMeta>

@@ -9,7 +9,7 @@
     "url": "https://github.com/Abbondanzo/peloton-reservations/issues"
   },
   "homepage": "https://github.com/Abbondanzo/peloton-reservations#readme",
-"scripts": {
+  "scripts": {
     "prettier": "prettier --write ."
   },
   "dependencies": {

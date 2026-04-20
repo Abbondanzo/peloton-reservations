@@ -1,7 +1,13 @@
 import * as Sentry from "@sentry/node";
 import * as fs from "fs/promises";
 import * as path from "path";
-import { RawClass, RawClassResponse } from "shared";
+import {
+  RawClass,
+  RawClassResponse,
+  buildEventsUrl,
+  fetchAllPelotonPages,
+  getPelotonHeaders,
+} from "shared";
 import { logger } from "./logger";
 
 interface Diff {
@@ -75,32 +81,10 @@ export class Schedule {
   }
 
   private async fetchAllClasses(): Promise<RawClass[]> {
-    const queryParams = new URLSearchParams({
-      expand: "instructors,offering_type,offering_type.category",
-      local_starts_at_gte: new Date().toISOString().replace("Z", ""),
-      page_size: "500",
-      sort: "start",
+    const url = buildEventsUrl({
+      expand: ["instructors", "offering_type", "offering_type.category"],
     });
-    const baseUrl = `https://schedule.studio.onepeloton.com/api/v2/events?${queryParams}`;
-
-    const firstPage = await this.fetchPage(baseUrl);
-    if (!firstPage.next) {
-      return firstPage.results;
-    }
-    // Only paginate when the schedule grows beyond a single page
-    const allClasses = [...firstPage.results];
-    let nextUrl: string | null = this.rebaseNextUrl(firstPage.next);
-    while (nextUrl) {
-      const page = await this.fetchPage(nextUrl);
-      allClasses.push(...page.results);
-      nextUrl = page.next ? this.rebaseNextUrl(page.next) : null;
-    }
-    return allClasses;
-  }
-
-  private rebaseNextUrl(next: string): string {
-    const { search } = new URL(next);
-    return `https://schedule.studio.onepeloton.com/api/v2/events${search}`;
+    return fetchAllPelotonPages(url, (pageUrl) => this.fetchPage(pageUrl));
   }
 
   private async fetchPage(url: string): Promise<RawClassResponse> {
@@ -110,13 +94,7 @@ export class Schedule {
         op: "http.client",
         attributes: { "studio.id": this.studioId },
       },
-      () =>
-        fetch(url, {
-          headers: {
-            "Teamup-Request-Mode": "customer",
-            "Teamup-Provider-ID": this.studioId,
-          },
-        })
+      () => fetch(url, { headers: getPelotonHeaders(this.studioId) })
     );
     if (!response.ok) {
       throw new Error(

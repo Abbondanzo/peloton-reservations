@@ -152,7 +152,9 @@ export const StepFilters = ({
   useEffect(() => {
     const initial = initialDisciplines.current;
     if (!disciplinesQuery.currentData || !isNotEmpty(initial)) return;
-    const valid = new Set(disciplinesQuery.currentData.map((d) => String(d.id)));
+    const valid = new Set(
+      disciplinesQuery.currentData.map((d) => String(d.id))
+    );
     const filtered = initial.filter((id) => valid.has(String(id)));
     if (filtered.length < initial.length) {
       setSelectedDisciplines(filtered);
