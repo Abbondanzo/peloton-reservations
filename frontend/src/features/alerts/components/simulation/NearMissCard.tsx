@@ -42,13 +42,11 @@ const REASON_LABELS: Record<NearMissReason, string> = {
 interface Props {
   snapshot: ClassSnapshot;
   reason: NearMissReason;
-  timezone?: string;
+  timezone: string;
 }
 
 export const NearMissCard = ({ snapshot, reason, timezone }: Props) => {
-  const date = timezone
-    ? getLocalDate(snapshot.starts_at, timezone, false)
-    : "";
+  const date = getLocalDate(snapshot.starts_at, timezone, false);
   const time = getLocalTime(snapshot.starts_at, timezone);
   const detectedTime = getLocalTime(
     new Date(snapshot.snapshotAt).toISOString(),

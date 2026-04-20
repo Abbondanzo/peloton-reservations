@@ -41,13 +41,11 @@ const DetectedAt = styled.div`
 
 interface Props {
   snapshot: ClassSnapshot;
-  timezone?: string;
+  timezone: string;
 }
 
 export const MatchCard = ({ snapshot, timezone }: Props) => {
-  const date = timezone
-    ? getLocalDate(snapshot.starts_at, timezone, false)
-    : "";
+  const date = getLocalDate(snapshot.starts_at, timezone, false);
   const time = getLocalTime(snapshot.starts_at, timezone);
   const detectedTime = getLocalTime(
     new Date(snapshot.snapshotAt).toISOString(),

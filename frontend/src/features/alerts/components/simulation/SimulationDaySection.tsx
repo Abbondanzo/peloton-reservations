@@ -40,7 +40,7 @@ interface Props {
   dayIndex: number;
   snapshots: ClassSnapshot[];
   alert: Alert;
-  timezone?: string;
+  timezone: string;
 }
 
 export const SimulationDaySection = ({

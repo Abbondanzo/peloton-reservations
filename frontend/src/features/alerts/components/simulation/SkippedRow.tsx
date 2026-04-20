@@ -48,7 +48,7 @@ const DetectedAt = styled.span`
 
 interface Props {
   snapshots: ClassSnapshot[];
-  timezone?: string;
+  timezone: string;
 }
 
 export const SkippedRow = ({ snapshots, timezone }: Props) => {
@@ -64,9 +64,7 @@ export const SkippedRow = ({ snapshots, timezone }: Props) => {
       {expanded && (
         <List>
           {snapshots.map((s, i) => {
-            const classDate = timezone
-              ? getLocalDate(s.starts_at, timezone, false)
-              : "";
+            const classDate = getLocalDate(s.starts_at, timezone, false);
             const classTime = getLocalTime(s.starts_at, timezone);
             const detectedTime = getLocalTime(
               new Date(s.snapshotAt).toISOString(),
