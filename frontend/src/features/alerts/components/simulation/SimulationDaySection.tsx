@@ -61,7 +61,12 @@ export const SimulationDaySection = ({
         <MatchCard key={i} snapshot={s} timezone={timezone} />
       ))}
       {nearMisses.map(({ snapshot, reason }, i) => (
-        <NearMissCard key={i} snapshot={snapshot} reason={reason} timezone={timezone} />
+        <NearMissCard
+          key={i}
+          snapshot={snapshot}
+          reason={reason}
+          timezone={timezone}
+        />
       ))}
       {skipped.length > 0 && (
         <SkippedRow snapshots={skipped} timezone={timezone} />
@@ -70,14 +75,15 @@ export const SimulationDaySection = ({
   );
 };
 
-/** Groups snapshots by local calendar date label using studio timezone. */
+/** Groups snapshots by the day the alert would have fired (snapshotAt), in studio timezone. */
 export const groupByDay = (
   snapshots: ClassSnapshot[],
   timezone: string
 ): { label: string; snapshots: ClassSnapshot[] }[] => {
   const groups = new Map<string, ClassSnapshot[]>();
   for (const snap of snapshots) {
-    const label = getLocalDate(snap.starts_at, timezone, true);
+    const detectedAt = new Date(snap.snapshotAt).toISOString();
+    const label = getLocalDate(detectedAt, timezone, true);
     const existing = groups.get(label);
     if (existing) {
       existing.push(snap);

@@ -131,9 +131,7 @@ export const AlertSimulationRoot = () => {
       </Header>
       <Body>
         {isLoading && <StatusText>Loading…</StatusText>}
-        {!isLoading && !alert && (
-          <StatusText>Alert not found.</StatusText>
-        )}
+        {!isLoading && !alert && <StatusText>Alert not found.</StatusText>}
         {!isLoading && alert && historyState.state === "fulfilled" && (
           <>
             <SimulationSummary

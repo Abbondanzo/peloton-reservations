@@ -1,5 +1,6 @@
 import type { ClassSnapshot, NearMissReason } from "shared";
 import styled from "styled-components";
+import { getLocalDate } from "../../../class-list/operators/getLocalDate";
 import { getLocalTime } from "../../../class-list/operators/getLocalTime";
 
 const Card = styled.div`
@@ -38,6 +39,9 @@ interface Props {
 }
 
 export const NearMissCard = ({ snapshot, reason, timezone }: Props) => {
+  const date = timezone
+    ? getLocalDate(snapshot.starts_at, timezone, false)
+    : "";
   const time = getLocalTime(snapshot.starts_at, timezone);
   const instructorName = snapshot.instructors[0]?.name ?? "Unknown instructor";
 
@@ -45,7 +49,7 @@ export const NearMissCard = ({ snapshot, reason, timezone }: Props) => {
     <Card>
       <Label>◌ Near miss — {REASON_LABELS[reason]}</Label>
       <ClassInfo>
-        {time}
+        {date} {time}
         {snapshot.name ? ` · ${snapshot.name}` : ""}
         {" · "}
         {instructorName}

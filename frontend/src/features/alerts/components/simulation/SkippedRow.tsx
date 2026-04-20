@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { ClassSnapshot } from "shared";
 import styled from "styled-components";
+import { getLocalDate } from "../../../class-list/operators/getLocalDate";
 import { getLocalTime } from "../../../class-list/operators/getLocalTime";
 
 const Toggle = styled.button`
@@ -56,6 +57,7 @@ export const SkippedRow = ({ snapshots, timezone }: Props) => {
         <List>
           {snapshots.map((s, i) => (
             <Item key={i}>
+              {timezone ? getLocalDate(s.starts_at, timezone, false) : ""}{" "}
               {getLocalTime(s.starts_at, timezone)}
               {s.name ? ` · ${s.name}` : ""}
               {s.instructors[0] ? ` · ${s.instructors[0].name}` : ""}

@@ -1,5 +1,6 @@
 import type { ClassSnapshot } from "shared";
 import styled from "styled-components";
+import { getLocalDate } from "../../../class-list/operators/getLocalDate";
 import { getLocalTime } from "../../../class-list/operators/getLocalTime";
 
 const Card = styled.div`
@@ -37,6 +38,9 @@ interface Props {
 }
 
 export const MatchCard = ({ snapshot, timezone }: Props) => {
+  const date = timezone
+    ? getLocalDate(snapshot.starts_at, timezone, false)
+    : "";
   const time = getLocalTime(snapshot.starts_at, timezone);
   const instructorName = snapshot.instructors[0]?.name ?? "Unknown instructor";
   const spotsLeft = snapshot.maxOccupancy - snapshot.occupancy;
@@ -45,7 +49,7 @@ export const MatchCard = ({ snapshot, timezone }: Props) => {
     <Card>
       <Label>● Would have triggered</Label>
       <ClassInfo>
-        {time}
+        {date} {time}
         {snapshot.name ? ` · ${snapshot.name}` : ""}
         {" · "}
         {instructorName}

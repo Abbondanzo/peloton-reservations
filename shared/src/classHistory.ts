@@ -30,7 +30,10 @@ export const buildSnapshot = (
 ): ClassSnapshot => ({
   snapshotAt: now,
   starts_at: rawClass.starts_at,
-  instructors: rawClass.instructors.map(({ id, name }) => ({ id: String(id), name })),
+  instructors: rawClass.instructors.map(({ id, name }) => ({
+    id: String(id),
+    name,
+  })),
   disciplineId: String(rawClass.offering_type.category.id),
   occupancy: rawClass.occupancy,
   maxOccupancy: rawClass.max_occupancy,
@@ -76,9 +79,7 @@ export const classifySnapshotMatch = (
 
   if (
     alert.instructors &&
-    !snapshot.instructors.some(
-      (i) => alert.instructors!.indexOf(i.id) !== -1
-    )
+    !snapshot.instructors.some((i) => alert.instructors!.indexOf(i.id) !== -1)
   )
     failures.push("instructor");
 
