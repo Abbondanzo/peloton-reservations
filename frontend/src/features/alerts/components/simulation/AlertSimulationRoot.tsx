@@ -6,7 +6,8 @@ import { mediaMobile } from "../../../theme/constants/queries";
 import { border } from "../../../theme/constants/styles";
 import { AlertsContext } from "../../context/AlertsContext";
 import { useClassHistory } from "../../hooks/useClassHistory";
-import { SimulationDaySection, groupByDay } from "./SimulationDaySection";
+import { groupByDay } from "../../operators/groupByDay";
+import { SimulationDaySection } from "./SimulationDaySection";
 import { SimulationSummary } from "./SimulationSummary";
 
 const Page = styled.div`
@@ -88,7 +89,7 @@ export const AlertSimulationRoot = () => {
     return alertsState.data.find((a) => a.id === alertId) ?? null;
   }, [alertsState, alertId]);
 
-  const historyState = useClassHistory(alert?.studioId ?? "");
+  const historyState = useClassHistory(alert?.studioId ?? null);
   const timezone = alert ? (STUDIOS[alert.studioId]?.timezone ?? "UTC") : "UTC";
 
   const days = useMemo(() => {

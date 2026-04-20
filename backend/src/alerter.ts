@@ -346,8 +346,11 @@ export class Alerter implements DiffDelegate {
         if (!history) continue;
         const removals: Promise<void>[] = [];
         for (const [classId, snapshots] of Object.entries(history)) {
+          if (!snapshots || typeof snapshots !== "object") continue;
           for (const timestampStr of Object.keys(snapshots)) {
-            if (Number(timestampStr) < cutoff) {
+            const ts = Number(timestampStr);
+            if (!Number.isFinite(ts)) continue;
+            if (ts < cutoff) {
               removals.push(
                 db
                   .ref(

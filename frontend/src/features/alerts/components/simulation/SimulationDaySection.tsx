@@ -2,7 +2,6 @@ import type { ClassSnapshot, NearMissReason } from "shared";
 import { classifySnapshotMatch } from "shared";
 import type { Alert } from "shared";
 import styled from "styled-components";
-import { getLocalDate } from "../../../class-list/operators/getLocalDate";
 import { MatchCard } from "./MatchCard";
 import { NearMissCard } from "./NearMissCard";
 import { SkippedRow } from "./SkippedRow";
@@ -88,34 +87,5 @@ export const SimulationDaySection = ({
         <SkippedRow snapshots={skipped} timezone={timezone} />
       )}
     </Section>
-  );
-};
-
-/** Groups snapshots by the day the alert would have fired (snapshotAt), in studio timezone. */
-export const groupByDay = (
-  snapshots: ClassSnapshot[],
-  timezone: string
-): { label: string; dayIndex: number; snapshots: ClassSnapshot[] }[] => {
-  const groups = new Map<
-    string,
-    { dayIndex: number; snapshots: ClassSnapshot[] }
-  >();
-  for (const snap of snapshots) {
-    const detectedAt = new Date(snap.snapshotAt);
-    const label = getLocalDate(detectedAt.toISOString(), timezone, true);
-    if (!groups.has(label)) {
-      const localDate = new Date(
-        detectedAt.toLocaleString("en-US", { timeZone: timezone })
-      );
-      groups.set(label, { dayIndex: localDate.getDay(), snapshots: [] });
-    }
-    groups.get(label)!.snapshots.push(snap);
-  }
-  return Array.from(groups.entries()).map(
-    ([label, { dayIndex, snapshots: snaps }]) => ({
-      label,
-      dayIndex,
-      snapshots: snaps,
-    })
   );
 };

@@ -10,15 +10,35 @@ export interface ClassHistoryEntry extends ClassSnapshot {
   classId: string;
 }
 
-/** Returns all snapshots for a studio, flattened and sorted by starts_at. */
+const isValidSnapshot = (val: unknown): val is ClassSnapshot => {
+  if (!val || typeof val !== "object") return false;
+  const s = val as Record<string, unknown>;
+  return (
+    typeof s.snapshotAt === "number" &&
+    typeof s.starts_at === "string" &&
+    Array.isArray(s.instructors) &&
+    typeof s.disciplineId === "string" &&
+    typeof s.occupancy === "number" &&
+    typeof s.maxOccupancy === "number" &&
+    typeof s.waitingCount === "number" &&
+    typeof s.status === "string"
+  );
+};
+
+/** Returns all snapshots for a studio, flattened and sorted by snapshotAt. */
 export const useClassHistory = (
-  studioId: string
+  studioId: string | null
 ): AsyncData<ClassHistoryEntry[]> => {
   const [state, setState] = useState<AsyncData<ClassHistoryEntry[]>>({
     state: "loading",
   });
 
   useEffect(() => {
+    if (!studioId) {
+      setState({ state: "fulfilled", data: [] });
+      return;
+    }
+
     setState({ state: "loading" });
     const db = database;
     if (!db) {
@@ -32,7 +52,7 @@ export const useClassHistory = (
       (snapshot) => {
         const raw = snapshot.val() as Record<
           string,
-          Record<string, ClassSnapshot>
+          Record<string, unknown>
         > | null;
 
         if (!raw) {
@@ -42,15 +62,15 @@ export const useClassHistory = (
 
         const entries: ClassHistoryEntry[] = [];
         for (const [classId, snapshots] of Object.entries(raw)) {
+          if (!snapshots || typeof snapshots !== "object") continue;
           for (const snap of Object.values(snapshots)) {
-            entries.push({ ...snap, classId });
+            if (isValidSnapshot(snap)) {
+              entries.push({ ...snap, classId });
+            }
           }
         }
 
-        entries.sort(
-          (a, b) =>
-            new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime()
-        );
+        entries.sort((a, b) => a.snapshotAt - b.snapshotAt);
 
         setState({ state: "fulfilled", data: entries });
       },
