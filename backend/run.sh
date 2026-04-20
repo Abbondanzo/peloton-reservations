@@ -17,6 +17,12 @@ if [ -n "$SENTRY_DSN" ]; then
   export SENTRY_DSN
 fi
 
+# Optionally export frontend URL if configured in add-on options
+FRONTEND_URL=$(node -e "try { const o = JSON.parse(require('fs').readFileSync('/data/options.json','utf8')); process.stdout.write(o.frontend_url||''); } catch(e) {}")
+if [ -n "$FRONTEND_URL" ]; then
+  export FRONTEND_URL
+fi
+
 export DATA_DIR=/data
 
 cd /app/backend

@@ -21,6 +21,15 @@ import { Metrics } from "./metrics";
 
 type StudioGroup = { [key: string]: Alert[] };
 
+// Trailing slash stripped so we can append "/?classUrl=..." cleanly.
+const FRONTEND_URL = (process.env.FRONTEND_URL ?? "").replace(/\/$/, "");
+
+function buildNotificationLink(classUrl: string | null | undefined): string {
+  const base = FRONTEND_URL || "/";
+  if (!classUrl) return base;
+  return `${FRONTEND_URL}/?classUrl=${encodeURIComponent(classUrl)}`;
+}
+
 /** How often to flush the pending-notification queue. */
 const PENDING_CHECK_INTERVAL_MS = 30 * 1000;
 /** How long to retain class history snapshots. */
@@ -248,9 +257,7 @@ export class Alerter implements DiffDelegate {
           requireInteraction: true,
         },
         fcmOptions: {
-          link: pending.classData.customer_url
-            ? `/?classUrl=${encodeURIComponent(pending.classData.customer_url)}`
-            : "/",
+          link: buildNotificationLink(pending.classData.customer_url),
         },
       },
     };
