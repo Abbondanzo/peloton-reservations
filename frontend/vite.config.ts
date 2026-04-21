@@ -7,7 +7,6 @@ export default ({ mode }: { mode: string }) => {
   process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
 
   const base = process.env.BASE_URL || "/";
-  const isPreview = process.env.VITE_IS_PREVIEW === "true";
 
   return defineConfig({
     base,
@@ -20,7 +19,6 @@ export default ({ mode }: { mode: string }) => {
         srcDir: "src",
         filename: "messaging-sw.ts",
         registerType: "autoUpdate",
-        selfDestroying: isPreview,
         scope: base,
         base,
         strategies: "injectManifest",
