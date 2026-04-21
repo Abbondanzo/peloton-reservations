@@ -70,7 +70,7 @@ export const useClassHistory = (
           }
         }
 
-        entries.sort((a, b) => a.snapshotAt - b.snapshotAt);
+        entries.sort((a, b) => b.snapshotAt - a.snapshotAt);
 
         setState({ state: "fulfilled", data: entries });
       },
