@@ -10,3 +10,10 @@ configuration:
     description: >-
       Optional. Paste your Sentry DSN here to enable error reporting.
       Leave blank to disable Sentry.
+  frontend_url:
+    name: Frontend URL
+    description: >-
+      Optional. The base URL where the frontend is hosted (e.g.
+      https://abbondanzo.github.io/peloton-reservations). When set, push
+      notification clicks will open the app at this URL and redirect directly
+      to the relevant class booking page. Leave blank to disable deep linking.
