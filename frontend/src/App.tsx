@@ -23,6 +23,7 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
+      <div style={{ background: "red", color: "white", padding: "8px", textAlign: "center", fontWeight: "bold" }}>SW cache busted ✓</div>
       <Provider store={store}>
         <SessionProvider>
           <MessagingProvider>
