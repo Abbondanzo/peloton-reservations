@@ -80,10 +80,12 @@ if (app) {
 
   self.addEventListener("notificationclick", (event) => {
     event.notification.close();
+    const swPathname = self.location.pathname;
+    const basePath = swPathname.substring(0, swPathname.lastIndexOf("/") + 1);
     const classUrl: string | undefined = event.notification.data?.classUrl;
     const appUrl = classUrl
-      ? `/?classUrl=${encodeURIComponent(classUrl)}`
-      : "/";
+      ? `${basePath}?classUrl=${encodeURIComponent(classUrl)}`
+      : basePath;
     event.waitUntil(
       self.clients
         .matchAll({ type: "window", includeUncontrolled: true })
