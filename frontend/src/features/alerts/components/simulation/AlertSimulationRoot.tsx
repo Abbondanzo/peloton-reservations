@@ -1,4 +1,4 @@
-import { useContext, useMemo } from "react";
+import { useCallback, useContext, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { classifySnapshotMatch, STUDIOS } from "shared";
 import styled from "styled-components";
@@ -27,6 +27,33 @@ const Header = styled.div`
   ${mediaMobile`
     padding: 16px;
   `}
+`;
+
+const HeaderRow = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+`;
+
+const TestNotificationButton = styled.button<{ $sent: boolean }>`
+  flex-shrink: 0;
+  padding: 6px 12px;
+  border: 1px solid ${(props) => props.theme.borderColor};
+  border-radius: ${(props) => props.theme.borderRadius};
+  background: none;
+  font-family: inherit;
+  font-size: 12px;
+  color: ${(props) =>
+    props.$sent ? "#2e7d32" : props.theme.colors.secondary};
+  cursor: ${(props) => (props.disabled ? "default" : "pointer")};
+  transition: all 0.15s;
+  white-space: nowrap;
+
+  &:hover:not(:disabled) {
+    border-color: ${(props) => props.theme.colors.accent};
+    color: ${(props) => props.theme.colors.accent};
+  }
 `;
 
 const BackButton = styled.button`
@@ -79,10 +106,13 @@ const StatusText = styled.p`
   padding: 32px 0;
 `;
 
+type TestNotifStatus = "idle" | "sending" | "sent" | "error";
+
 export const AlertSimulationRoot = () => {
   const { alertId } = useParams<{ alertId: string }>();
   const navigate = useNavigate();
   const alertsState = useContext(AlertsContext);
+  const [testStatus, setTestStatus] = useState<TestNotifStatus>("idle");
 
   const alert = useMemo(() => {
     if (alertsState.state !== "fulfilled") return null;
@@ -115,7 +145,48 @@ export const AlertSimulationRoot = () => {
     alertsState.state === "idle" ||
     historyState.state === "loading";
 
+  const notificationsSupported =
+    "Notification" in window && "serviceWorker" in navigator;
+
+  const sendTestNotification = useCallback(async () => {
+    if (!notificationsSupported) return;
+    setTestStatus("sending");
+    try {
+      if (Notification.permission !== "granted") {
+        const permission = await Notification.requestPermission();
+        if (permission !== "granted") {
+          setTestStatus("idle");
+          return;
+        }
+      }
+      const reg = await navigator.serviceWorker.ready;
+      const studio = alert ? STUDIOS[alert.studioId] : null;
+      const title = "Spot opened up!";
+      const body = `${alert?.name ?? "Test alert"} — ${studio?.location ?? "Studio"} · test notification`;
+      await reg.showNotification(title, {
+        body,
+        icon: "/icons/icon-192x192.png",
+        badge: "/icons/icon-96x96.png",
+        data: { classUrl: "/p/7248695-peloton-studios-new-york/e/99586855-30-min-intervals-ride/" },
+      });
+      setTestStatus("sent");
+      setTimeout(() => setTestStatus("idle"), 3000);
+    } catch {
+      setTestStatus("error");
+      setTimeout(() => setTestStatus("idle"), 3000);
+    }
+  }, [alert, notificationsSupported]);
+
   const alertName = alert?.name ?? "Alert";
+
+  const testButtonLabel =
+    testStatus === "sending"
+      ? "Sending…"
+      : testStatus === "sent"
+        ? "Sent!"
+        : testStatus === "error"
+          ? "Error"
+          : "Send test notification";
 
   return (
     <Page>
@@ -123,7 +194,22 @@ export const AlertSimulationRoot = () => {
         <BackButton type="button" onClick={() => navigate(-1)}>
           ← Alerts
         </BackButton>
-        <Title>{alertName} — Past 7 Days</Title>
+        <HeaderRow>
+          <div>
+            <Title>{alertName} — Past 7 Days</Title>
+          </div>
+          {notificationsSupported && (
+            <TestNotificationButton
+              type="button"
+              $sent={testStatus === "sent"}
+              disabled={testStatus === "sending"}
+              onClick={sendTestNotification}
+              title="Fire a test push notification to verify delivery and the notification URL"
+            >
+              {testButtonLabel}
+            </TestNotificationButton>
+          )}
+        </HeaderRow>
         <Subtitle>
           {alert
             ? `${STUDIOS[alert.studioId]?.location ?? alert.studioId}`
