@@ -18,7 +18,9 @@ function App() {
       "",
       window.location.pathname + window.location.hash
     );
-    window.location.assign(classUrl);
+    window.location.assign(
+      new URL(classUrl, "https://schedule.studio.onepeloton.com").href
+    );
   }, []);
 
   return (
