@@ -2,6 +2,7 @@ import type { ClassSnapshot, NearMissReason } from "shared";
 import { classifySnapshotMatch } from "shared";
 import type { Alert } from "shared";
 import styled from "styled-components";
+import { NAV_HEIGHT } from "../../../navigation/constants/height";
 import { MatchCard } from "./MatchCard";
 import { NearMissCard } from "./NearMissCard";
 import { SkippedRow } from "./SkippedRow";
@@ -14,7 +15,7 @@ const Section = styled.section`
 
 const DayHeader = styled.h3`
   position: sticky;
-  top: 0;
+  top: calc(${NAV_HEIGHT}px + env(safe-area-inset-top, 0px));
   margin: 0;
   padding: 8px 0;
   font-size: 13px;
