@@ -13,7 +13,7 @@ const NavWrapper = styled.div`
   position: sticky;
   height: calc(${NAV_HEIGHT}px + env(safe-area-inset-top));
   top: 0;
-  z-index: 1;
+  z-index: 2;
 `;
 
 const BodyWrapper = styled.div`

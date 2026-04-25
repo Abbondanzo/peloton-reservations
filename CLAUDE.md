@@ -60,6 +60,10 @@ Types are defined in `shared/src/alerts.ts` and `frontend/src/features/`. Look t
 - `useId()` in `TextInput`, `aria-describedby`, `aria-expanded`/`aria-haspopup` on popovers
 - `React.memo` on `ClassListItem`, `AlertsListItem`
 
+## Git & PR Conventions
+- PR titles must use semantic prefixes: `[feat]`, `[fix]`, `[chore]`, `[refactor]`, `[docs]`, `[test]`, `[style]`
+- Example: `[fix] Fix navbar overlapping sticky alert simulation day headers`
+
 ## Gotchas
 - Vite `preserveSymlinks: true` + pnpm causes duplicate React — fixed with `resolve.dedupe: ["react", "react-dom"]` in vite.config.ts
 - DisciplineIcon color matching: exact match first, then `.includes()` fallback (because "Outdoor Run" is substring of "Outdoor Run/Walk")
