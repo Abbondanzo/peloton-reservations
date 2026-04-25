@@ -48,6 +48,18 @@ export default ({ mode }: { mode: string }) => {
           orientation: "portrait-primary",
           icons: [
             {
+              src: "images/icon.svg",
+              sizes: "any",
+              type: "image/svg+xml",
+              purpose: "any",
+            },
+            {
+              src: "images/icon-maskable.svg",
+              sizes: "any",
+              type: "image/svg+xml",
+              purpose: "maskable",
+            },
+            {
               src: "images/icon-48x48.png",
               sizes: "48x48",
               type: "image/png",
