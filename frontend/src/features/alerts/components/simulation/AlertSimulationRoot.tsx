@@ -45,7 +45,9 @@ const TestNotificationButton = styled.button<{ $sent: boolean }>`
   font-family: inherit;
   font-size: 12px;
   color: ${(props) =>
-    props.$sent ? "#2e7d32" : props.theme.colors.secondary};
+    props.$sent
+      ? props.theme.colors.status.free.text
+      : props.theme.colors.secondary};
   cursor: ${(props) => (props.disabled ? "default" : "pointer")};
   transition: all 0.15s;
   white-space: nowrap;

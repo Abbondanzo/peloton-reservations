@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/react";
 import { useMemo } from "react";
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
 import type { Discipline } from "../types/Discipline";
 
 const COLOR_MAP: { [key: string]: string } = {
@@ -47,6 +47,7 @@ interface Props {
 }
 
 export const DisciplineIcon = ({ discipline, size = 32 }: Props) => {
+  const theme = useTheme();
   const color = useMemo(() => {
     const keys = Object.keys(COLOR_MAP);
     const dLC = discipline.name.toLowerCase();
@@ -62,9 +63,9 @@ export const DisciplineIcon = ({ discipline, size = 32 }: Props) => {
       const message = `Received unsupported discipline ${discipline.name}`;
       console.log(message);
       Sentry.captureMessage(message);
-      return "#fafafa";
+      return theme.colors.secondarySurface;
     }
-  }, [discipline.name]);
+  }, [discipline.name, theme.colors.secondarySurface]);
   return (
     <IconWrapper color={color} size={size}>
       <ImageWrapper

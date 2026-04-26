@@ -43,6 +43,7 @@ const Input = styled.input`
   font-family: inherit;
   font-size: 14px;
   color: ${(props) => props.theme.colors.main};
+  background-color: ${(props) => props.theme.colors.mainSurface};
   width: 80px;
 
   &:focus {
@@ -63,11 +64,17 @@ const Hint = styled.span`
 const SaveButton = styled.button<{ $saved?: boolean }>`
   padding: 8px 20px;
   border: 1px solid
-    ${(props) => (props.$saved ? "#2e7d32" : props.theme.colors.accent)};
+    ${(props) =>
+      props.$saved
+        ? props.theme.colors.status.free.text
+        : props.theme.colors.accent};
   border-radius: ${(props) => props.theme.borderRadius};
   background-color: ${(props) =>
-    props.$saved ? "#e8f5e9" : props.theme.colors.accent};
-  color: ${(props) => (props.$saved ? "#2e7d32" : "#fff")};
+    props.$saved
+      ? props.theme.colors.status.free.bg
+      : props.theme.colors.accent};
+  color: ${(props) =>
+    props.$saved ? props.theme.colors.status.free.text : "#fff"};
   font-family: inherit;
   font-size: 13px;
   font-weight: 500;
@@ -101,7 +108,7 @@ const StatusText = styled.p`
 const ErrorText = styled.p`
   margin: 0;
   font-size: 14px;
-  color: #d93025;
+  color: ${(props) => props.theme.colors.error};
   text-align: center;
   padding: 16px;
 `;

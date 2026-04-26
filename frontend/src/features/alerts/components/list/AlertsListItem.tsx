@@ -69,16 +69,16 @@ const StatusBadge = styled.span<{ $status: string }>`
   font-weight: 500;
   background-color: ${(props) =>
     props.$status === "free"
-      ? "#e8f5e9"
+      ? props.theme.colors.status.free.bg
       : props.$status === "waitlist"
-        ? "#fff3e0"
-        : "#fce4ec"};
+        ? props.theme.colors.status.waitlist.bg
+        : `${props.theme.colors.error}20`};
   color: ${(props) =>
     props.$status === "free"
-      ? "#2e7d32"
+      ? props.theme.colors.status.free.text
       : props.$status === "waitlist"
-        ? "#e65100"
-        : "#c62828"};
+        ? props.theme.colors.status.waitlist.text
+        : props.theme.colors.error};
 `;
 
 const DetailRow = styled.div`
@@ -153,8 +153,8 @@ const ActionButton = styled.button`
 
 const DeleteButton = styled(ActionButton)`
   &:hover {
-    border-color: #d93025;
-    color: #d93025;
+    border-color: ${(props) => props.theme.colors.error};
+    color: ${(props) => props.theme.colors.error};
   }
 `;
 

@@ -91,7 +91,7 @@ const LoadingText = styled.p`
 `;
 
 const ErrorText = styled.p`
-  color: #d93025;
+  color: ${(props) => props.theme.colors.error};
   font-size: 14px;
   padding: 16px;
 `;

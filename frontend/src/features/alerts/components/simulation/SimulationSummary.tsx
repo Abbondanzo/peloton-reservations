@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
 
 const Strip = styled.div`
   display: flex;
@@ -22,15 +22,19 @@ interface Props {
   nearMissCount: number;
 }
 
-export const SimulationSummary = ({ matchCount, nearMissCount }: Props) => (
-  <Strip>
-    <Stat>
-      <Count $color="#2e7d32">{matchCount}</Count>{" "}
-      {matchCount === 1 ? "class" : "classes"} would have triggered
-    </Stat>
-    <Stat>
-      <Count $color="#e65100">{nearMissCount}</Count> near{" "}
-      {nearMissCount === 1 ? "miss" : "misses"}
-    </Stat>
-  </Strip>
-);
+export const SimulationSummary = ({ matchCount, nearMissCount }: Props) => {
+  const theme = useTheme();
+
+  return (
+    <Strip>
+      <Stat>
+        <Count $color={theme.colors.status.free.text}>{matchCount}</Count>{" "}
+        {matchCount === 1 ? "class" : "classes"} would have triggered
+      </Stat>
+      <Stat>
+        <Count $color={theme.colors.status.waitlist.text}>{nearMissCount}</Count>{" "}
+        near {nearMissCount === 1 ? "miss" : "misses"}
+      </Stat>
+    </Strip>
+  );
+};

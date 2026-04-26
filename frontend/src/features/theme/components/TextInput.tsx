@@ -16,6 +16,8 @@ const StyledInput = styled.input`
   ${border}
   padding: 12px 8px;
   font-family: inherit;
+  background-color: ${(props) => props.theme.colors.mainSurface};
+  color: ${(props) => props.theme.colors.main};
 `;
 
 const Hint = styled.span`

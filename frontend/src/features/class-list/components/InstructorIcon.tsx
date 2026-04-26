@@ -10,9 +10,9 @@ const InstructorImage = styled.img<InstructorImageProps>`
   min-width: ${(props) => props.size}px;
   height: ${(props) => props.size}px;
   overflow: hidden;
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: ${(props) => props.theme.colors.secondarySurface};
   border-radius: 50%;
-  color: #bbb;
+  color: ${(props) => props.theme.colors.secondary};
 `;
 
 interface Props {

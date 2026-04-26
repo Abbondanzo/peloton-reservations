@@ -24,7 +24,7 @@ const StateText = styled.p`
 
 const ErrorText = styled.p`
   font-size: 14px;
-  color: #d93025;
+  color: ${(p) => p.theme.colors.error};
   margin: 0 0 6px;
 `;
 

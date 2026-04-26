@@ -44,7 +44,8 @@ const Select = styled.select`
   ${focus}
   font-family: inherit;
   padding: 8px;
-  background-color: inherit;
+  background-color: ${(props) => props.theme.colors.mainSurface};
+  color: ${(props) => props.theme.colors.main};
   cursor: pointer;
 `;
 
@@ -57,7 +58,8 @@ const CopyToAllButton = styled.button`
   ${hover}
   font-family: inherit;
   padding: 8px;
-  background-color: inherit;
+  background-color: ${(props) => props.theme.colors.mainSurface};
+  color: ${(props) => props.theme.colors.main};
   cursor: pointer;
 `;
 
