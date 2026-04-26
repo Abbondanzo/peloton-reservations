@@ -5,6 +5,7 @@ import { auth } from "../../firebase/constants/auth";
 import { MessagingContext } from "../../messaging/context/MessagingContext";
 import { selectSession } from "../../session/selectors/selectSession";
 import { useAppSelector } from "../../store/hooks/useStore";
+import { ThemeToggle } from "../../theme/components/ThemeToggle";
 import { Paths } from "../constants/paths";
 
 const SignInLink = styled(Link)`
@@ -52,7 +53,7 @@ const SignOutButton = styled.button`
     color 0.15s;
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.04);
+    background-color: ${(p) => p.theme.colors.secondarySurface};
     color: ${(p) => p.theme.colors.main};
   }
 `;
@@ -77,6 +78,7 @@ export const MobileSessionInfo = () => {
   return (
     <>
       <AccountInfo>{sessionState.data.displayName}</AccountInfo>
+      <ThemeToggle />
       <SignOutButton type="button" onClick={onSignOut}>
         Sign out
       </SignOutButton>
