@@ -6,6 +6,7 @@ import { MessagingContext } from "../../messaging/context/MessagingContext";
 import { selectSession } from "../../session/selectors/selectSession";
 import { useAppSelector } from "../../store/hooks/useStore";
 import { Popover } from "../../theme/components/Popover";
+import { ThemeToggle } from "../../theme/components/ThemeToggle";
 import { Paths } from "../constants/paths";
 
 const SignInLink = styled(Link)<{ $disabled?: boolean }>`
@@ -65,6 +66,12 @@ const ButtonWrapper = styled.div`
   position: relative;
 `;
 
+const Divider = styled.hr`
+  margin: 4px 0;
+  border: none;
+  border-top: 1px solid ${(p) => p.theme.borderColor};
+`;
+
 const SignOutButton = styled.button`
   display: block;
   width: 100%;
@@ -78,7 +85,7 @@ const SignOutButton = styled.button`
   cursor: pointer;
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: ${(p) => p.theme.colors.secondarySurface};
   }
 `;
 
@@ -117,6 +124,8 @@ export const SessionInfo = () => {
         {sessionState.data.displayName}
       </AccountButton>
       <Popover open={showPopover} onClose={() => setShowPopover(false)}>
+        <ThemeToggle />
+        <Divider />
         <SignOutButton type="button" onClick={onSignOut}>
           Sign out
         </SignOutButton>

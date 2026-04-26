@@ -78,7 +78,7 @@ const ErrorText = styled.p`
   margin: 0;
   padding: 24px;
   text-align: center;
-  color: #d93025;
+  color: ${(props) => props.theme.colors.error};
   font-size: 14px;
 `;
 

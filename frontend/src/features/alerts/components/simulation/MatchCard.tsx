@@ -4,10 +4,10 @@ import { getLocalDate } from "../../../class-list/operators/getLocalDate";
 import { getLocalTime } from "../../../class-list/operators/getLocalTime";
 
 const Card = styled.div`
-  border: 1px solid #a5d6a7;
-  border-left: 4px solid #43a047;
+  border: 1px solid ${(props) => props.theme.colors.status.free.text}40;
+  border-left: 4px solid ${(props) => props.theme.colors.status.free.text};
   border-radius: ${(props) => props.theme.borderRadius};
-  background-color: #f1f8f1;
+  background-color: ${(props) => props.theme.colors.status.free.bg};
   padding: 12px 14px;
 `;
 
@@ -16,7 +16,7 @@ const Label = styled.div`
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #2e7d32;
+  color: ${(props) => props.theme.colors.status.free.text};
   margin-bottom: 6px;
 `;
 

@@ -6,9 +6,14 @@ import { MessagingProvider } from "./features/messaging/providers/MessagingProvi
 import { router } from "./features/navigation/constants/router";
 import { SessionProvider } from "./features/session/components/SessionProvider";
 import { store } from "./features/store/constants/store";
-import { theme } from "./features/theme/constants/theme";
+import { darkTheme, lightTheme } from "./features/theme/constants/theme";
+import { ThemeModeContext } from "./features/theme/context/ThemeModeContext";
+import { GlobalStyle } from "./features/theme/components/GlobalStyle";
+import { useThemeMode } from "./features/theme/hooks/useThemeMode";
 
 function App() {
+  const { isDark, toggle } = useThemeMode();
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const classUrl = params.get("classUrl");
@@ -24,15 +29,18 @@ function App() {
   }, []);
 
   return (
-    <ThemeProvider theme={theme}>
-      <Provider store={store}>
-        <SessionProvider>
-          <MessagingProvider>
-            <RouterProvider router={router} />
-          </MessagingProvider>
-        </SessionProvider>
-      </Provider>
-    </ThemeProvider>
+    <ThemeModeContext.Provider value={{ isDark, toggle }}>
+      <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
+        <GlobalStyle />
+        <Provider store={store}>
+          <SessionProvider>
+            <MessagingProvider>
+              <RouterProvider router={router} />
+            </MessagingProvider>
+          </SessionProvider>
+        </Provider>
+      </ThemeProvider>
+    </ThemeModeContext.Provider>
   );
 }
 

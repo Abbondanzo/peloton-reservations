@@ -1,12 +1,5 @@
 html {
   height: 100%;
-  background: linear-gradient(
-      to bottom,
-      #181a2f 0,
-      #181a2f calc(60px + env(safe-area-inset-top, 0px)),
-      #ededed calc(60px + env(safe-area-inset-top, 0px))
-    )
-    fixed;
 }
 
 body,
@@ -16,7 +9,6 @@ body,
 
 body {
   margin: 0;
-  background-color: #ededed;
   font-family:
     "Inter",
     -apple-system,
@@ -32,7 +24,6 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #15141a;
 }
 
 code {

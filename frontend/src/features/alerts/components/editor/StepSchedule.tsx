@@ -111,7 +111,7 @@ const TimeSelect = styled.select`
   font-family: inherit;
   font-size: 13px;
   padding: 6px 8px;
-  background-color: inherit;
+  background-color: ${(props) => props.theme.colors.mainSurface};
   cursor: pointer;
   color: ${(props) => props.theme.colors.main};
 

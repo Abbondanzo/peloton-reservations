@@ -9,12 +9,12 @@ export const border = css`
 
 export const hover = css`
   &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: ${(props) => props.theme.colors.hoverSurface};
   }
 `;
 
 export const focus = css`
   &:focus {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: ${(props) => props.theme.colors.hoverSurface};
   }
 `;

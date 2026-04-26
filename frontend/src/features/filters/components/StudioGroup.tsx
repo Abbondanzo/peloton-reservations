@@ -44,7 +44,7 @@ const OptionCard = styled.label<SelectedProps>`
         `
       : css`
           &:hover {
-            background-color: rgba(0, 0, 0, 0.03);
+            background-color: ${(p) => p.theme.colors.hoverSurface};
           }
         `}
 `;

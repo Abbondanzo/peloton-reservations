@@ -25,7 +25,7 @@ export const FilterItem = styled.li<CheckedProps>`
         `
       : css`
           &:hover {
-            background-color: rgba(0, 0, 0, 0.03);
+            background-color: ${(p) => p.theme.colors.hoverSurface};
           }
         `}
 `;

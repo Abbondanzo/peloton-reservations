@@ -88,8 +88,8 @@ const RemoveButton = styled.button`
   flex-shrink: 0;
 
   &:hover {
-    border-color: #d93025;
-    color: #d93025;
+    border-color: ${(props) => props.theme.colors.error};
+    color: ${(props) => props.theme.colors.error};
   }
 
   ${mediaMobile`
@@ -116,7 +116,7 @@ const StatusText = styled.p`
 const ErrorText = styled.p`
   margin: 0;
   font-size: 14px;
-  color: #d93025;
+  color: ${(props) => props.theme.colors.error};
   text-align: center;
   padding: 16px;
 `;

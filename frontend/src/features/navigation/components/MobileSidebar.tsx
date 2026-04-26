@@ -97,7 +97,7 @@ const NavItem = styled(NavLink)`
   transition: background-color 0.1s;
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.04);
+    background-color: ${(p) => p.theme.colors.hoverSurface};
   }
 
   &.active {

@@ -45,7 +45,9 @@ const TestNotificationButton = styled.button<{ $sent: boolean }>`
   font-family: inherit;
   font-size: 12px;
   color: ${(props) =>
-    props.$sent ? "#2e7d32" : props.theme.colors.secondary};
+    props.$sent
+      ? props.theme.colors.status.free.text
+      : props.theme.colors.secondary};
   cursor: ${(props) => (props.disabled ? "default" : "pointer")};
   transition: all 0.15s;
   white-space: nowrap;
@@ -167,7 +169,10 @@ export const AlertSimulationRoot = () => {
         body,
         icon: "/icons/icon-192x192.png",
         badge: "/icons/icon-96x96.png",
-        data: { classUrl: "/p/7248695-peloton-studios-new-york/e/99586855-30-min-intervals-ride/" },
+        data: {
+          classUrl:
+            "/p/7248695-peloton-studios-new-york/e/99586855-30-min-intervals-ride/",
+        },
       });
       setTestStatus("sent");
       setTimeout(() => setTestStatus("idle"), 3000);

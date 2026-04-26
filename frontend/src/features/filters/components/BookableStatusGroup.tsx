@@ -1,19 +1,7 @@
-import styled, { css } from "styled-components";
+import styled, { css, useTheme } from "styled-components";
 import { useBookableStatuses } from "../hooks/useBookableStatuses";
 import type { BookableStatus } from "../types/BookableStatus";
 import { FilterGroupHeader } from "./atoms/FilterGroupHeader";
-
-interface Option {
-  label: string;
-  status: BookableStatus;
-  color: string;
-}
-
-const OPTIONS: Option[] = [
-  { label: "Free", status: "free", color: "#2e7d32" },
-  { label: "Waitlist", status: "waitlist", color: "#e65100" },
-  { label: "Full", status: "full", color: "#9e9e9e" },
-];
 
 const ChipsRow = styled.div`
   display: flex;
@@ -49,13 +37,24 @@ const Chip = styled.button<ChipProps>`
           color: ${p.theme.colors.secondary};
 
           &:hover {
-            background-color: rgba(0, 0, 0, 0.04);
+            background-color: ${p.theme.colors.hoverSurface};
           }
         `}
 `;
 
 export const BookableStatusGroup = () => {
   const { bookableStatuses, toggleBookableStatus } = useBookableStatuses();
+  const theme = useTheme();
+
+  const options: { label: string; status: BookableStatus; color: string }[] = [
+    { label: "Free", status: "free", color: theme.colors.status.free.text },
+    {
+      label: "Waitlist",
+      status: "waitlist",
+      color: theme.colors.status.waitlist.text,
+    },
+    { label: "Full", status: "full", color: theme.colors.status.full.text },
+  ];
 
   return (
     <fieldset style={{ border: "none", margin: 0, padding: 0 }}>
@@ -63,7 +62,7 @@ export const BookableStatusGroup = () => {
         <FilterGroupHeader label="Status" />
       </legend>
       <ChipsRow>
-        {OPTIONS.map((option) => {
+        {options.map((option) => {
           const active = bookableStatuses.includes(option.status);
           return (
             <Chip

@@ -110,7 +110,7 @@ const GoogleButton = styled.button`
   transition: background-color 0.15s;
 
   &:hover:not(:disabled) {
-    background-color: rgba(0, 0, 0, 0.04);
+    background-color: ${(p) => p.theme.colors.hoverSurface};
   }
 
   &:disabled {
@@ -139,7 +139,7 @@ const Divider = styled.div`
 const ErrorMessage = styled.p`
   margin: 0;
   font-size: 13px;
-  color: #d93025;
+  color: ${(p) => p.theme.colors.error};
 `;
 
 const ToggleRow = styled.p`

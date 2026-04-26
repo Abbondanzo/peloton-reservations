@@ -11,37 +11,10 @@ import { InstructorIcon } from "./InstructorIcon";
 
 type BookStatus = "free" | "waitlist" | "full";
 
-const STATUS_CONFIG: Record<
-  BookStatus,
-  {
-    accentColor: string;
-    buttonBg: string;
-    buttonText: string;
-    buttonBorder: string;
-    label: string;
-  }
-> = {
-  free: {
-    accentColor: "#2e7d32",
-    buttonBg: "#cb3449",
-    buttonText: "#fff",
-    buttonBorder: "#cb3449",
-    label: "Book",
-  },
-  waitlist: {
-    accentColor: "#e65100",
-    buttonBg: "transparent",
-    buttonText: "#e65100",
-    buttonBorder: "#e65100",
-    label: "Waitlist",
-  },
-  full: {
-    accentColor: "#c4c4c4",
-    buttonBg: "transparent",
-    buttonText: "#aaa",
-    buttonBorder: "#d1d1d1",
-    label: "Full",
-  },
+const STATUS_CONFIG: Record<BookStatus, { label: string }> = {
+  free: { label: "Book" },
+  waitlist: { label: "Waitlist" },
+  full: { label: "Full" },
 };
 
 interface StatusProps {
@@ -57,7 +30,13 @@ const ItemAnchor = styled.a<StatusProps>`
   color: inherit;
   background-color: ${(p) => p.theme.colors.mainSurface};
   border: 1px solid ${(p) => p.theme.borderColor};
-  border-left: 4px solid ${(p) => STATUS_CONFIG[p.$status].accentColor};
+  border-left: 4px solid
+    ${(p) =>
+      p.$status === "free"
+        ? p.theme.colors.status.free.text
+        : p.$status === "waitlist"
+          ? p.theme.colors.status.waitlist.text
+          : p.theme.colors.status.full.text};
   border-radius: ${(p) => p.theme.borderRadius};
   padding: 14px 18px;
   transition: box-shadow 0.15s;
@@ -164,10 +143,22 @@ const MobileDisciplineIcon = styled.div`
 
 const ActionButton = styled.button<{ $status: BookStatus }>`
   flex-shrink: 0;
-  border: 1px solid ${(p) => STATUS_CONFIG[p.$status].buttonBorder};
+  border: 1px solid
+    ${(p) =>
+      p.$status === "free"
+        ? p.theme.colors.accent
+        : p.$status === "waitlist"
+          ? p.theme.colors.status.waitlist.text
+          : p.theme.colors.status.full.text};
   border-radius: ${(p) => p.theme.borderRadius};
-  background-color: ${(p) => STATUS_CONFIG[p.$status].buttonBg};
-  color: ${(p) => STATUS_CONFIG[p.$status].buttonText};
+  background-color: ${(p) =>
+    p.$status === "free" ? p.theme.colors.accent : "transparent"};
+  color: ${(p) =>
+    p.$status === "free"
+      ? "#fff"
+      : p.$status === "waitlist"
+        ? p.theme.colors.status.waitlist.text
+        : p.theme.colors.status.full.text};
   font-family: inherit;
   font-size: 14px;
   font-weight: 500;

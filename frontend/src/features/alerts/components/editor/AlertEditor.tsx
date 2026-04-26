@@ -25,7 +25,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 0;
-  background-color: white;
+  background-color: ${(props) => props.theme.colors.mainSurface};
   border: 1px solid ${(props) => props.theme.borderColor};
   border-radius: ${(props) => props.theme.borderRadius};
 `;
@@ -113,7 +113,7 @@ const FooterRight = styled.div`
 const StatusMessage = styled.span<{ $error?: boolean }>`
   font-size: 13px;
   color: ${(props) =>
-    props.$error ? "#d93025" : props.theme.colors.secondary};
+    props.$error ? props.theme.colors.error : props.theme.colors.secondary};
 
   ${mediaMobile`
     font-size: 12px;
