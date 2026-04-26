@@ -169,7 +169,10 @@ export const AlertSimulationRoot = () => {
         body,
         icon: "/icons/icon-192x192.png",
         badge: "/icons/icon-96x96.png",
-        data: { classUrl: "/p/7248695-peloton-studios-new-york/e/99586855-30-min-intervals-ride/" },
+        data: {
+          classUrl:
+            "/p/7248695-peloton-studios-new-york/e/99586855-30-min-intervals-ride/",
+        },
       });
       setTestStatus("sent");
       setTimeout(() => setTestStatus("idle"), 3000);

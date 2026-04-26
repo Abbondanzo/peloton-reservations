@@ -32,7 +32,9 @@ export const SimulationSummary = ({ matchCount, nearMissCount }: Props) => {
         {matchCount === 1 ? "class" : "classes"} would have triggered
       </Stat>
       <Stat>
-        <Count $color={theme.colors.status.waitlist.text}>{nearMissCount}</Count>{" "}
+        <Count $color={theme.colors.status.waitlist.text}>
+          {nearMissCount}
+        </Count>{" "}
         near {nearMissCount === 1 ? "miss" : "misses"}
       </Stat>
     </Strip>
