@@ -101,13 +101,22 @@ export const useSwipeToRefresh = ({ refresh }: Options) => {
           el.style.opacity = "1";
         }
 
-        refresh().finally(() => {
+        let settled = false;
+        const hideSpinner = () => {
+          if (settled) return;
+          settled = true;
           isRefreshing = false;
           const el = spinnerRef.current;
           if (el) {
             el.classList.remove("animate");
             resetSpinner(true);
           }
+        };
+        // Guard against refresh() never settling (e.g. network hang)
+        const timeoutId = setTimeout(hideSpinner, 10_000);
+        refresh().finally(() => {
+          clearTimeout(timeoutId);
+          hideSpinner();
         });
       } else {
         shouldRefresh = false;

@@ -91,7 +91,7 @@ const Spinner = styled.div`
   --sp-color: ${(p) => p.theme.colors.accent};
 
   &.animate div {
-    animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1);
+    animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
     border-color: var(--sp-color) transparent transparent transparent;
   }
 
