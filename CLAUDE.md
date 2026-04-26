@@ -61,8 +61,12 @@ Types are defined in `shared/src/alerts.ts` and `frontend/src/features/`. Look t
 - `React.memo` on `ClassListItem`, `AlertsListItem`
 
 ## Git & PR Conventions
-- PR titles must use semantic prefixes: `[feat]`, `[fix]`, `[chore]`, `[refactor]`, `[docs]`, `[test]`, `[style]`
-- Example: `[fix] Fix navbar overlapping sticky alert simulation day headers`
+Both commit messages and PR titles must use the same semantic prefix format: `[feat]`, `[fix]`, `[chore]`, `[refactor]`, `[docs]`, `[test]`, `[style]`
+
+- Commit example: `[fix] Fix navbar overlapping sticky alert simulation day headers`
+- PR title example: `[fix] Fix navbar overlapping sticky alert simulation day headers`
+
+When running `gh pr create`, always include the prefix in the `--title` argument, e.g. `--title "[fix] Fix PWA pull-to-refresh spinner getting stuck"`.
 
 ## Gotchas
 - Vite `preserveSymlinks: true` + pnpm causes duplicate React — fixed with `resolve.dedupe: ["react", "react-dom"]` in vite.config.ts
