@@ -184,8 +184,8 @@ const formatStatus = (status: string) =>
 
 interface Props {
   alert: Alert;
-  onDuplicate: () => void;
-  onEdit: () => void;
+  onDuplicate: (alert: Alert) => void;
+  onEdit: (alert: Alert) => void;
 }
 
 export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
@@ -205,20 +205,30 @@ export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
     return formatter.format(alert.created);
   }, [alert.created]);
 
+  const instructorNameById = useMemo(
+    () => new Map(allInstructors?.map((i) => [i.id, i.name])),
+    [allInstructors]
+  );
+
+  const disciplineNameById = useMemo(
+    () => new Map(allDisciplines?.map((d) => [d.id, d.name])),
+    [allDisciplines]
+  );
+
   const alertTitle = useMemo(() => {
     if (alert.name) return alert.name;
 
     const instructorNames =
       isNotEmpty(alert.instructors) && allInstructors
         ? alert.instructors
-            .map((id) => allInstructors.find((i) => i.id === id)?.name)
+            .map((id) => instructorNameById.get(id))
             .filter((n): n is string => Boolean(n))
         : null;
 
     const disciplineNames =
       isNotEmpty(alert.disciplines) && allDisciplines
         ? alert.disciplines
-            .map((id) => allDisciplines.find((d) => d.id === id)?.name)
+            .map((id) => disciplineNameById.get(id))
             .filter((n): n is string => Boolean(n))
         : null;
 
@@ -229,6 +239,8 @@ export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
     alert.disciplines,
     allInstructors,
     allDisciplines,
+    instructorNameById,
+    disciplineNameById,
   ]);
 
   const studioLabel =
@@ -276,12 +288,12 @@ export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
           >
             Test
           </ActionButton>
-          <ActionButton type="button" onClick={onEdit} aria-label="Edit alert">
+          <ActionButton type="button" onClick={() => onEdit(alert)} aria-label="Edit alert">
             Edit
           </ActionButton>
           <ActionButton
             type="button"
-            onClick={onDuplicate}
+            onClick={() => onDuplicate(alert)}
             aria-label="Duplicate alert"
           >
             Duplicate

@@ -1,16 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { type Alert, DEFAULT_STUDIO_ID, type TimeRange } from "shared";
+import { useCallback, useState } from "react";
+import { type Alert } from "shared";
 import styled from "styled-components";
 import { captureException } from "@sentry/react";
-import { getStoredStudioId } from "../../../class-list/operators/studioStorage";
-import { selectStudioId } from "../../../class-list/selectors/selectStudioId";
 import { setStudioId } from "../../../class-list/slices/studioSlice";
-import type { BookableStatus } from "../../../filters/types/BookableStatus";
 import { selectUserId } from "../../../session/selectors/selectUserId";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks/useStore";
 import { mediaMobile } from "../../../theme/constants/queries";
-import { DAY_NAMES } from "../../constants/days";
-import { DEFAULT_TIME_RANGE } from "../../constants/timeRanges";
 import { addAlert } from "../../firebase/addAlert";
 import { editAlert } from "../../firebase/editAlert";
 import { StepBasics } from "./StepBasics";
@@ -18,6 +13,7 @@ import { StepFilters } from "./StepFilters";
 import { StepIndicator } from "./StepIndicator";
 import { StepReview } from "./StepReview";
 import { StepSchedule } from "./StepSchedule";
+import { useAlertEditorState } from "./useAlertEditorState";
 
 const STEPS = ["Basics", "Filters", "Schedule", "Review"];
 
@@ -128,52 +124,26 @@ interface Props {
 
 export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
   const dispatch = useAppDispatch();
-  const selectedStudioId = useAppSelector(selectStudioId);
   const userId = useAppSelector(selectUserId);
 
-  // --- Step state ---
   const [currentStep, setCurrentStep] = useState(0);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string>();
 
-  // --- Form state ---
-  useEffect(() => {
-    if (alertToEdit.studioId) {
-      dispatch(setStudioId(alertToEdit.studioId));
-    } else {
-      dispatch(setStudioId(getStoredStudioId(DEFAULT_STUDIO_ID)));
-    }
-  }, [alertToEdit.studioId, dispatch]);
+  const {
+    selectedStudioId,
+    name,
+    setName,
+    selectedInstructors,
+    setSelectedInstructors,
+    selectedDisciplines,
+    setSelectedDisciplines,
+    timeRanges,
+    setTimeRanges,
+    maxStatus,
+    setMaxStatus,
+  } = useAlertEditorState(alertToEdit);
 
-  const [name, setName] = useState(alertToEdit.name || "");
-  const [selectedInstructors, setSelectedInstructors] = useState<
-    Optional<string[]>
-  >(alertToEdit.instructors || null);
-  const [selectedDisciplines, setSelectedDisciplines] = useState<
-    Optional<string[]>
-  >(alertToEdit.disciplines || null);
-  const [timeRanges, setTimeRanges] = useState<Optional<TimeRange>[]>(
-    () => alertToEdit.timeRanges || DAY_NAMES.map(() => DEFAULT_TIME_RANGE)
-  );
-  const [maxStatus, setMaxStatus] = useState<BookableStatus>(
-    alertToEdit.maxStatus || "free"
-  );
-
-  // Reset filters when studio changes
-  const lastStudioRef = useRef<string | undefined>(alertToEdit.studioId);
-  useEffect(() => {
-    if (
-      selectedStudioId &&
-      lastStudioRef.current &&
-      selectedStudioId !== lastStudioRef.current
-    ) {
-      setSelectedInstructors((cur) => (cur ? [] : cur));
-      setSelectedDisciplines((cur) => (cur ? [] : cur));
-    }
-    lastStudioRef.current = selectedStudioId;
-  }, [selectedStudioId]);
-
-  // --- Navigation ---
   const canGoNext = currentStep < STEPS.length - 1;
   const canGoBack = currentStep > 0;
   const isReview = currentStep === STEPS.length - 1;
@@ -186,7 +156,6 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
     if (canGoBack) setCurrentStep((s) => s - 1);
   }, [canGoBack]);
 
-  // --- Save ---
   const handleSave = useCallback(async () => {
     if (!selectedStudioId || !userId) return;
     setSaving(true);

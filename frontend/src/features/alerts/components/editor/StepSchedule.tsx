@@ -208,20 +208,20 @@ export const StepSchedule = ({ timeRanges, setTimeRanges }: Props) => {
     [timeRanges, setTimeRanges]
   );
 
-  const selectAll = () => {
+  const selectAll = useCallback(() => {
     setTimeRanges(DAY_NAMES.map(() => DEFAULT_TIME_RANGE));
-  };
+  }, [setTimeRanges]);
 
-  const clearAll = () => {
+  const clearAll = useCallback(() => {
     setTimeRanges(DAY_NAMES.map(() => null));
-  };
+  }, [setTimeRanges]);
 
-  const copyFirstToAll = () => {
+  const copyFirstToAll = useCallback(() => {
     const first = timeRanges.find(Boolean);
     if (first) {
       setTimeRanges(timeRanges.map((tr) => (tr ? { ...first } : null)));
     }
-  };
+  }, [timeRanges, setTimeRanges]);
 
   return (
     <Section>

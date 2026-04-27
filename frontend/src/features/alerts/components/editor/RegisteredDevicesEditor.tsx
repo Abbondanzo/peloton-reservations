@@ -1,4 +1,4 @@
-import { useContext, useMemo } from "react";
+import { memo, useCallback, useContext, useMemo } from "react";
 import styled from "styled-components";
 import { MessagingContext } from "../../../messaging/context/MessagingContext";
 import { RegisteredDevicesContext } from "../../../messaging/context/RegisteredDevicesContext";
@@ -132,12 +132,13 @@ const getDeviceIcon = (ua?: string): string => {
 };
 
 interface DeviceItemProps {
+  deviceToken: string;
   device: RegisteredDevice;
   isCurrentDevice: boolean;
-  onDelete: () => void;
+  onDelete: (token: string) => void;
 }
 
-const DeviceItem = ({ device, isCurrentDevice, onDelete }: DeviceItemProps) => {
+const DeviceItem = memo(({ deviceToken, device, isCurrentDevice, onDelete }: DeviceItemProps) => {
   const formattedDate = useMemo(() => {
     const date = new Date(device.timestamp);
     const isThisYear = date.getFullYear() === new Date().getFullYear();
@@ -165,14 +166,14 @@ const DeviceItem = ({ device, isCurrentDevice, onDelete }: DeviceItemProps) => {
       </DeviceInfo>
       <RemoveButton
         type="button"
-        onClick={onDelete}
+        onClick={() => onDelete(deviceToken)}
         aria-label={`Remove ${friendlyName}`}
       >
         Remove
       </RemoveButton>
     </ItemWrapper>
   );
-};
+});
 
 interface DevicesListProps {
   devices: [string, RegisteredDevice][];
@@ -183,11 +184,11 @@ const RegisteredDevicesList = ({ devices }: DevicesListProps) => {
   const currentDevice = messaging.token;
 
   const userId = useAppSelector(selectUserId);
-  const onDelete = (deviceToken: string) => {
+  const onDelete = useCallback((deviceToken: string) => {
     if (userId) {
       deleteToken(userId, deviceToken).catch(console.error);
     }
-  };
+  }, [userId]);
 
   if (devices.length === 0) {
     return (
@@ -200,6 +201,7 @@ const RegisteredDevicesList = ({ devices }: DevicesListProps) => {
       {devices.map(([deviceToken, device]) => (
         <DeviceItem
           key={deviceToken}
+          deviceToken={deviceToken}
           device={device}
           isCurrentDevice={
             currentDevice !== undefined
@@ -207,7 +209,7 @@ const RegisteredDevicesList = ({ devices }: DevicesListProps) => {
               : device.userAgent !== undefined &&
                 device.userAgent === navigator.userAgent
           }
-          onDelete={() => onDelete(deviceToken)}
+          onDelete={onDelete}
         />
       ))}
     </ListWrapper>

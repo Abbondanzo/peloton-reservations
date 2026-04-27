@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { memo, useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { DisciplineIcon } from "../../../class-list/components/DisciplineIcon";
 import { InstructorIcon } from "../../../class-list/components/InstructorIcon";
@@ -162,25 +162,31 @@ export const StepFilters = ({
     }
   }, [disciplinesQuery.currentData, setSelectedDisciplines]);
 
-  const toggleInstructor = (id: string) => {
-    if (!isNotEmpty(selectedInstructors)) return;
-    const has = selectedInstructors.includes(id);
-    setSelectedInstructors(
-      has
-        ? selectedInstructors.filter((i) => i !== id)
-        : [...selectedInstructors, id]
-    );
-  };
+  const toggleInstructor = useCallback(
+    (id: string) => {
+      if (!isNotEmpty(selectedInstructors)) return;
+      const has = selectedInstructors.includes(id);
+      setSelectedInstructors(
+        has
+          ? selectedInstructors.filter((i) => i !== id)
+          : [...selectedInstructors, id]
+      );
+    },
+    [selectedInstructors, setSelectedInstructors]
+  );
 
-  const toggleDiscipline = (id: string) => {
-    if (!isNotEmpty(selectedDisciplines)) return;
-    const has = selectedDisciplines.includes(id);
-    setSelectedDisciplines(
-      has
-        ? selectedDisciplines.filter((d) => d !== id)
-        : [...selectedDisciplines, id]
-    );
-  };
+  const toggleDiscipline = useCallback(
+    (id: string) => {
+      if (!isNotEmpty(selectedDisciplines)) return;
+      const has = selectedDisciplines.includes(id);
+      setSelectedDisciplines(
+        has
+          ? selectedDisciplines.filter((d) => d !== id)
+          : [...selectedDisciplines, id]
+      );
+    },
+    [selectedDisciplines, setSelectedDisciplines]
+  );
 
   const isFilteringInstructors = isNotEmpty(selectedInstructors);
   const isFilteringDisciplines = isNotEmpty(selectedDisciplines);
@@ -272,7 +278,7 @@ interface InstructorsListProps {
   onToggle: (id: string) => void;
 }
 
-const InstructorsList = ({
+const InstructorsList = memo(({
   query,
   selectedIds,
   onToggle,
@@ -284,7 +290,7 @@ const InstructorsList = ({
     return (
       <ErrorText>
         Couldn't load instructors.{" "}
-        <RetryButton type="button" onClick={() => query.refetch()}>
+        <RetryButton type="button" onClick={query.refetch}>
           Try again
         </RetryButton>
       </ErrorText>
@@ -307,7 +313,7 @@ const InstructorsList = ({
       ))}
     </Grid>
   );
-};
+});
 
 interface DisciplinesListProps {
   query: ReturnType<typeof useGetDisciplinesQuery>;
@@ -315,7 +321,7 @@ interface DisciplinesListProps {
   onToggle: (id: string) => void;
 }
 
-const DisciplinesList = ({
+const DisciplinesList = memo(({
   query,
   selectedIds,
   onToggle,
@@ -327,7 +333,7 @@ const DisciplinesList = ({
     return (
       <ErrorText>
         Couldn't load disciplines.{" "}
-        <RetryButton type="button" onClick={() => query.refetch()}>
+        <RetryButton type="button" onClick={query.refetch}>
           Try again
         </RetryButton>
       </ErrorText>
@@ -350,4 +356,4 @@ const DisciplinesList = ({
       ))}
     </Grid>
   );
-};
+});

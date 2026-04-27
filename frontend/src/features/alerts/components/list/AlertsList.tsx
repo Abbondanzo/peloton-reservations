@@ -24,8 +24,8 @@ export const AlertsList = ({ alerts, onDuplicate, onEdit }: Props) => {
         <AlertsListItem
           key={alert.id}
           alert={alert}
-          onDuplicate={() => onDuplicate(alert)}
-          onEdit={() => onEdit(alert)}
+          onDuplicate={onDuplicate}
+          onEdit={onEdit}
         />
       ))}
     </ListWrapper>
