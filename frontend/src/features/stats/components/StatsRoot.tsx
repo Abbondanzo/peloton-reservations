@@ -76,88 +76,52 @@ const StatusMessage = styled.p`
 `;
 
 // ---------------------------------------------------------------------------
-// Bar chart
+// Chart shared primitives
 // ---------------------------------------------------------------------------
 
-const MAX_BAR_HEIGHT = 120;
+// Coordinate space — X stretches to fill any container, Y is fixed.
+const VB_W = 1000;
+const VB_H = 140;
+const TOP_PAD = 12;
+const BOT_PAD = 4;
+const PLOT_H = VB_H - TOP_PAD - BOT_PAD;
+
+function xAt(i: number, n: number): number {
+  return n <= 1 ? VB_W / 2 : (i / (n - 1)) * VB_W;
+}
+
+function yAt(value: number, maxValue: number): number {
+  return TOP_PAD + PLOT_H * (1 - value / maxValue);
+}
+
+const GRID_FRACTIONS = [0.25, 0.5, 0.75];
 
 const ChartOuter = styled.div`
   background: ${(p) => p.theme.colors.mainSurface};
   border: 1px solid ${(p) => p.theme.borderColor};
   border-radius: ${(p) => p.theme.borderRadius};
-  padding: 20px 16px 12px;
+  padding: 16px 16px 12px;
 `;
 
-const ChartInner = styled.div`
+const ChartSvg = styled.svg`
+  display: block;
+  width: 100%;
+  height: 140px;
+  /* currentColor is used by grid lines so they inherit the theme secondary color */
+  color: ${(p) => p.theme.colors.secondary};
+`;
+
+const DayLabelsRow = styled.div`
   display: flex;
-  gap: 4px;
+  margin-top: 6px;
 `;
 
-const DayGroup = styled.div`
+const DayLabelCell = styled.div`
   flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-`;
-
-// Stacked bar primitives
-const BarsArea = styled.div`
-  position: relative;
-  height: ${MAX_BAR_HEIGHT}px;
-  width: 100%;
-`;
-
-const BarStack = styled.div`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  flex-direction: column-reverse;
-  border-radius: 3px 3px 0 0;
-  overflow: hidden;
-`;
-
-const BarSegment = styled.div<{ $height: number; $color: string }>`
-  height: ${(p) => p.$height}px;
-  flex-shrink: 0;
-  background-color: ${(p) => p.$color};
-`;
-
-// Grouped bar primitives
-const BarsRow = styled.div`
-  display: flex;
-  align-items: flex-end;
-  gap: 2px;
-  height: ${MAX_BAR_HEIGHT}px;
-  width: 100%;
-`;
-
-const GroupedBarWrapper = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  height: 100%;
-`;
-
-const GroupedBar = styled.div<{ $height: number; $color: string }>`
-  width: 100%;
-  height: ${(p) => p.$height}px;
-  background-color: ${(p) => p.$color};
-  border-radius: 2px 2px 0 0;
-  min-height: 1px;
-`;
-
-const DayLabel = styled.div`
+  text-align: center;
   font-size: 10px;
   color: ${(p) => p.theme.colors.secondary};
-  white-space: nowrap;
   overflow: hidden;
-  text-align: center;
-  width: 100%;
 `;
 
 const Legend = styled.div`
@@ -192,74 +156,26 @@ function shortDate(iso: string): string {
   return `${parseInt(month)}/${parseInt(day)}`;
 }
 
-interface BarSpec {
+interface SeriesSpec {
   value: number;
   color: string;
   label: string;
 }
 
-// stacked=true: one column per day with segments stacked bottom-to-top.
-// stacked=false: grouped bars side-by-side within each day column.
-function BarChart({
+function ChartFooter({
   days,
-  barsForDay,
   legend,
-  stacked = false,
 }: {
   days: DayMetrics[];
-  barsForDay: (day: DayMetrics) => BarSpec[];
   legend: { color: string; label: string }[];
-  stacked?: boolean;
 }) {
-  const maxValue = Math.max(
-    ...(stacked
-      ? days.map((d) => barsForDay(d).reduce((sum, b) => sum + b.value, 0))
-      : days.flatMap((d) => barsForDay(d).map((b) => b.value))),
-    1
-  );
-
   return (
-    <ChartOuter>
-      <ChartInner>
-        {days.map((day) => {
-          const bars = barsForDay(day);
-          return (
-            <DayGroup key={day.date}>
-              {stacked ? (
-                <BarsArea>
-                  <BarStack>
-                    {bars.map((bar) =>
-                      bar.value > 0 ? (
-                        <BarSegment
-                          key={bar.label}
-                          $height={Math.round(
-                            (bar.value / maxValue) * MAX_BAR_HEIGHT
-                          )}
-                          $color={bar.color}
-                        />
-                      ) : null
-                    )}
-                  </BarStack>
-                </BarsArea>
-              ) : (
-                <BarsRow>
-                  {bars.map((bar) => (
-                    <GroupedBarWrapper key={bar.label}>
-                      <GroupedBar
-                        $height={Math.round(
-                          (bar.value / maxValue) * MAX_BAR_HEIGHT
-                        )}
-                        $color={bar.color}
-                      />
-                    </GroupedBarWrapper>
-                  ))}
-                </BarsRow>
-              )}
-              <DayLabel>{shortDate(day.date)}</DayLabel>
-            </DayGroup>
-          );
-        })}
-      </ChartInner>
+    <>
+      <DayLabelsRow>
+        {days.map((day) => (
+          <DayLabelCell key={day.date}>{shortDate(day.date)}</DayLabelCell>
+        ))}
+      </DayLabelsRow>
       <Legend>
         {legend.map((item) => (
           <LegendItem key={item.label}>
@@ -268,6 +184,175 @@ function BarChart({
           </LegendItem>
         ))}
       </Legend>
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Stacked area chart
+// ---------------------------------------------------------------------------
+// Layers are stacked bottom-to-top in the order provided. The area for each
+// layer spans from the top of the previous layer to the top of this one,
+// so there is no visual overlap and the total height = sum of all values.
+
+function StackedAreaChart({
+  days,
+  layersForDay,
+  legend,
+}: {
+  days: DayMetrics[];
+  layersForDay: (day: DayMetrics) => SeriesSpec[];
+  legend: { color: string; label: string }[];
+}) {
+  const n = days.length;
+
+  // cumulative[dayIdx][layerIdx] = running sum up to (not including) that layer
+  const cumulative = days.map((day) => {
+    const layers = layersForDay(day);
+    const sums = [0];
+    for (const layer of layers) {
+      sums.push(sums[sums.length - 1] + layer.value);
+    }
+    return sums;
+  });
+
+  const maxTotal = Math.max(...cumulative.map((s) => s[s.length - 1]), 1);
+  const sampleLayers = layersForDay(days[0]);
+  const layerCount = sampleLayers.length;
+
+  return (
+    <ChartOuter>
+      <ChartSvg
+        viewBox={`0 0 ${VB_W} ${VB_H}`}
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        {GRID_FRACTIONS.map((f) => {
+          const y = (TOP_PAD + PLOT_H * (1 - f)).toFixed(1);
+          return (
+            <line
+              key={f}
+              x1={0}
+              y1={y}
+              x2={VB_W}
+              y2={y}
+              stroke="currentColor"
+              strokeOpacity={0.1}
+              strokeWidth={1}
+              vectorEffect="non-scaling-stroke"
+            />
+          );
+        })}
+
+        {Array.from({ length: layerCount }, (_, li) => {
+          const color = sampleLayers[li].color;
+          // Top boundary (left → right), bottom boundary (right → left)
+          const topPts = cumulative.map((s, i) => ({
+            x: xAt(i, n),
+            y: yAt(s[li + 1], maxTotal),
+          }));
+          const botPts = cumulative.map((s, i) => ({
+            x: xAt(i, n),
+            y: yAt(s[li], maxTotal),
+          }));
+          const d = [
+            ...topPts.map(({ x, y }, i) =>
+              `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`
+            ),
+            ...[...botPts]
+              .reverse()
+              .map(({ x, y }) => `L${x.toFixed(1)},${y.toFixed(1)}`),
+            "Z",
+          ].join(" ");
+          return <path key={li} d={d} fill={color} fillOpacity={0.85} />;
+        })}
+      </ChartSvg>
+      <ChartFooter days={days} legend={legend} />
+    </ChartOuter>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Line chart
+// ---------------------------------------------------------------------------
+// Each series is drawn as a stroked path with a light filled area underneath.
+// Used for independent metrics that shouldn't be stacked.
+
+function LineChart({
+  days,
+  seriesForDay,
+  legend,
+}: {
+  days: DayMetrics[];
+  seriesForDay: (day: DayMetrics) => SeriesSpec[];
+  legend: { color: string; label: string }[];
+}) {
+  const n = days.length;
+  const allSeries = days.map(seriesForDay);
+  const maxValue = Math.max(
+    ...allSeries.flatMap((s) => s.map((v) => v.value)),
+    1
+  );
+  const seriesCount = allSeries[0].length;
+  const baseY = yAt(0, maxValue).toFixed(1);
+
+  return (
+    <ChartOuter>
+      <ChartSvg
+        viewBox={`0 0 ${VB_W} ${VB_H}`}
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        {GRID_FRACTIONS.map((f) => {
+          const y = (TOP_PAD + PLOT_H * (1 - f)).toFixed(1);
+          return (
+            <line
+              key={f}
+              x1={0}
+              y1={y}
+              x2={VB_W}
+              y2={y}
+              stroke="currentColor"
+              strokeOpacity={0.1}
+              strokeWidth={1}
+              vectorEffect="non-scaling-stroke"
+            />
+          );
+        })}
+
+        {Array.from({ length: seriesCount }, (_, si) => {
+          const color = allSeries[0][si].color;
+          const pts = allSeries.map((s, i) => ({
+            x: xAt(i, n),
+            y: yAt(s[si].value, maxValue),
+          }));
+          const linePts = pts
+            .map(({ x, y }, i) => `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`)
+            .join(" ");
+          const fillD = [
+            linePts,
+            `L${xAt(n - 1, n).toFixed(1)},${baseY}`,
+            `L${xAt(0, n).toFixed(1)},${baseY}`,
+            "Z",
+          ].join(" ");
+
+          return (
+            <g key={si}>
+              <path d={fillD} fill={color} fillOpacity={0.12} />
+              <path
+                d={linePts}
+                fill="none"
+                stroke={color}
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                vectorEffect="non-scaling-stroke"
+              />
+            </g>
+          );
+        })}
+      </ChartSvg>
+      <ChartFooter days={days} legend={legend} />
     </ChartOuter>
   );
 }
@@ -365,24 +450,12 @@ export const StatsRoot = () => {
 
         <Section>
           <SectionTitle>Push notifications (14 days)</SectionTitle>
-          <BarChart
+          <LineChart
             days={days}
-            barsForDay={(day) => [
-              {
-                value: day.notifications.sent,
-                color: COLORS.sent,
-                label: "Sent",
-              },
-              {
-                value: day.notifications.failed,
-                color: COLORS.failed,
-                label: "Failed",
-              },
-              {
-                value: day.notifications.usersReached,
-                color: COLORS.usersReached,
-                label: "Users reached",
-              },
+            seriesForDay={(day) => [
+              { value: day.notifications.sent, color: COLORS.sent, label: "Sent" },
+              { value: day.notifications.failed, color: COLORS.failed, label: "Failed" },
+              { value: day.notifications.usersReached, color: COLORS.usersReached, label: "Users reached" },
             ]}
             legend={[
               { color: COLORS.sent, label: "Sent" },
@@ -398,9 +471,9 @@ export const StatsRoot = () => {
               Schedule changes — {STUDIOS[studioId]?.location ?? studioId} (14
               days)
             </SectionTitle>
-            <BarChart
+            <StackedAreaChart
               days={days}
-              barsForDay={(day) => {
+              layersForDay={(day) => {
                 const s = day.diffs[studioId] ?? {
                   added: 0,
                   changed: 0,
@@ -408,16 +481,8 @@ export const StatsRoot = () => {
                 };
                 return [
                   { value: s.added, color: COLORS.added, label: "Added" },
-                  {
-                    value: s.changed,
-                    color: COLORS.changed,
-                    label: "Changed",
-                  },
-                  {
-                    value: s.removed,
-                    color: COLORS.removed,
-                    label: "Removed",
-                  },
+                  { value: s.changed, color: COLORS.changed, label: "Changed" },
+                  { value: s.removed, color: COLORS.removed, label: "Removed" },
                 ];
               }}
               legend={[
@@ -425,7 +490,6 @@ export const StatsRoot = () => {
                 { color: COLORS.changed, label: "Changed" },
                 { color: COLORS.removed, label: "Removed" },
               ]}
-              stacked
             />
           </Section>
         ))}
