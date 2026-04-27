@@ -1,31 +1,49 @@
 import { type PayloadAction, createSlice } from "@reduxjs/toolkit";
 import type { Alert } from "shared";
+import type { AsyncData } from "../../store/types/AsyncData";
 
-interface AlertState {
-  alerts: Alert[];
+interface AlertsCacheState {
+  userId: string | null;
+  data: AsyncData<Alert[]>;
 }
 
-const initialState: AlertState = {
-  alerts: [],
+const initialState: AlertsCacheState = {
+  userId: null,
+  data: { state: "idle" },
 };
 
 const alertsSlice = createSlice({
   name: "alerts",
   initialState,
-  // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
-    addAlert(state, action: PayloadAction<Alert>) {
-      state.alerts.push(action.payload);
+    setAlertsLoading(
+      _state: AlertsCacheState,
+      action: PayloadAction<string>
+    ): AlertsCacheState {
+      return { userId: action.payload, data: { state: "loading" } };
     },
-    setAlerts(state, action: PayloadAction<Alert[]>) {
-      state.alerts = action.payload;
+    setAlertsData(
+      _state: AlertsCacheState,
+      action: PayloadAction<{ userId: string; data: Alert[] }>
+    ): AlertsCacheState {
+      return {
+        userId: action.payload.userId,
+        data: { state: "fulfilled", data: action.payload.data },
+      };
     },
-    removeAlerts(state) {
-      state.alerts = [];
+    setAlertsFailed(
+      _state: AlertsCacheState,
+      action: PayloadAction<{ userId: string; error: { message: string } }>
+    ): AlertsCacheState {
+      return {
+        userId: action.payload.userId,
+        data: { state: "failed", error: action.payload.error },
+      };
     },
   },
 });
 
-export const { addAlert, setAlerts, removeAlerts } = alertsSlice.actions;
+export const { setAlertsLoading, setAlertsData, setAlertsFailed } =
+  alertsSlice.actions;
 
 export default alertsSlice.reducer;

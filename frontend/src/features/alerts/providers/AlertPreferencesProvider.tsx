@@ -1,10 +1,16 @@
 import { onValue, ref } from "firebase/database";
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect } from "react";
 import type { AlertPreferences } from "shared";
 import { PATHS } from "shared";
 import { database } from "../../firebase/constants/database";
-import type { AsyncData } from "../../store/types/AsyncData";
+import { useAppDispatch, useAppSelector } from "../../store/hooks/useStore";
+import { store } from "../../store/constants/store";
 import { AlertPreferencesContext } from "../context/AlertPreferencesContext";
+import {
+  setAlertPreferencesData,
+  setAlertPreferencesFailed,
+  setAlertPreferencesLoading,
+} from "../slices/alertPreferencesSlice";
 
 interface Props {
   children: ReactNode;
@@ -12,37 +18,50 @@ interface Props {
 }
 
 export const AlertPreferencesProvider = ({ children, userId }: Props) => {
-  const [alertsState, setAlertsState] = useState<
-    AsyncData<Partial<AlertPreferences>>
-  >({
-    state: "idle",
-  });
+  const dispatch = useAppDispatch();
+  const preferencesCache = useAppSelector((state) => state.alertPreferences);
+
   useEffect(() => {
-    setAlertsState({ state: "loading" });
     const db = database;
     if (!db) {
-      setAlertsState({
-        state: "failed",
-        error: new Error("No database set up"),
-      });
+      dispatch(
+        setAlertPreferencesFailed({
+          userId,
+          error: { message: "No database set up" },
+        })
+      );
       return () => {};
     }
+
+    // Skip loading state if we already have data for this user
+    const cached = store.getState().alertPreferences;
+    if (cached.userId !== userId || cached.data.state !== "fulfilled") {
+      dispatch(setAlertPreferencesLoading(userId));
+    }
+
     const dbRef = ref(db, PATHS.alertPreferences(userId));
     const unsubscribe = onValue(
       dbRef,
       (snapshot) => {
         const values: Partial<AlertPreferences> | null = snapshot.val();
-        setAlertsState({ state: "fulfilled", data: values || {} });
+        dispatch(setAlertPreferencesData({ userId, data: values || {} }));
       },
       (error) => {
-        setAlertsState({ state: "failed", error });
+        dispatch(
+          setAlertPreferencesFailed({ userId, error: { message: error.message } })
+        );
       }
     );
     return () => unsubscribe();
-  }, [userId]);
+  }, [userId, dispatch]);
+
+  const contextValue =
+    preferencesCache.userId === userId
+      ? preferencesCache.data
+      : { state: "loading" as const };
 
   return (
-    <AlertPreferencesContext.Provider value={alertsState}>
+    <AlertPreferencesContext.Provider value={contextValue}>
       {children}
     </AlertPreferencesContext.Provider>
   );

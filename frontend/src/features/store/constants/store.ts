@@ -4,15 +4,19 @@ import {
   configureStore,
 } from "@reduxjs/toolkit";
 import alertsReducer from "../../alerts/slices/alertsSlice";
+import alertPreferencesReducer from "../../alerts/slices/alertPreferencesSlice";
 import { pelotonApi } from "../../class-list/services/pelotonApi";
 import { studioSlice } from "../../class-list/slices/studioSlice";
 import filtersReducer from "../../filters/slices/filtersSlice";
+import registeredDevicesReducer from "../../messaging/slices/registeredDevicesSlice";
 import sessionReducer from "../../session/slices/sessionSlice";
 
 export const store = configureStore({
   reducer: {
     alerts: alertsReducer,
+    alertPreferences: alertPreferencesReducer,
     filters: filtersReducer,
+    registeredDevices: registeredDevicesReducer,
     session: sessionReducer,
     [pelotonApi.reducerPath]: pelotonApi.reducer,
     [studioSlice.name]: studioSlice.reducer,
