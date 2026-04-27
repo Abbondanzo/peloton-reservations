@@ -1,3 +1,4 @@
+import { useState } from "react";
 import styled from "styled-components";
 import { STUDIOS } from "shared";
 import { NavbarProvider } from "../../navigation/components/NavbarProvider";
@@ -76,66 +77,52 @@ const StatusMessage = styled.p`
 `;
 
 // ---------------------------------------------------------------------------
-// Bar chart
+// Chart shared primitives
 // ---------------------------------------------------------------------------
 
-const MAX_BAR_HEIGHT = 80; // px
+// Coordinate space — X stretches to fill any container, Y is fixed.
+const VB_W = 1000;
+const VB_H = 140;
+const TOP_PAD = 12;
+const BOT_PAD = 4;
+const PLOT_H = VB_H - TOP_PAD - BOT_PAD;
+
+function xAt(i: number, n: number): number {
+  return n <= 1 ? VB_W / 2 : (i / (n - 1)) * VB_W;
+}
+
+function yAt(value: number, maxValue: number): number {
+  return TOP_PAD + PLOT_H * (1 - value / maxValue);
+}
+
+const GRID_FRACTIONS = [0.25, 0.5, 0.75];
 
 const ChartOuter = styled.div`
   background: ${(p) => p.theme.colors.mainSurface};
   border: 1px solid ${(p) => p.theme.borderColor};
   border-radius: ${(p) => p.theme.borderRadius};
-  padding: 20px 16px 12px;
-  overflow-x: auto;
+  padding: 16px 16px 12px;
 `;
 
-const ChartInner = styled.div`
+const ChartSvg = styled.svg`
+  display: block;
+  width: 100%;
+  height: 140px;
+  /* currentColor is used by grid lines so they inherit the theme secondary color */
+  color: ${(p) => p.theme.colors.secondary};
+`;
+
+const DayLabelsRow = styled.div`
   display: flex;
-  align-items: flex-end;
-  gap: 6px;
-  min-width: max-content;
+  margin-top: 6px;
 `;
 
-const DayGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-`;
-
-const Bars = styled.div`
-  display: flex;
-  align-items: flex-end;
-  gap: 2px;
-  height: ${MAX_BAR_HEIGHT + 16}px;
-`;
-
-const BarWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-`;
-
-const BarCount = styled.div<{ $color: string }>`
-  font-size: 9px;
-  font-weight: 600;
-  line-height: 1;
-  color: ${(p) => p.$color};
-`;
-
-const Bar = styled.div<{ $height: number; $color: string }>`
-  width: 10px;
-  height: ${(p) => p.$height}px;
-  background-color: ${(p) => p.$color};
-  border-radius: 2px 2px 0 0;
-  min-height: 1px;
-`;
-
-const DayLabel = styled.div`
+const DayLabelCell = styled.div`
+  flex: 1;
+  text-align: center;
   font-size: 10px;
   color: ${(p) => p.theme.colors.secondary};
-  white-space: nowrap;
+  overflow: hidden;
 `;
 
 const Legend = styled.div`
@@ -170,48 +157,26 @@ function shortDate(iso: string): string {
   return `${parseInt(month)}/${parseInt(day)}`;
 }
 
-interface BarSpec {
+interface SeriesSpec {
   value: number;
   color: string;
   label: string;
 }
 
-function BarChart({
+function ChartFooter({
   days,
-  barsForDay,
   legend,
 }: {
   days: DayMetrics[];
-  barsForDay: (day: DayMetrics) => BarSpec[];
   legend: { color: string; label: string }[];
 }) {
-  const allValues = days.flatMap((d) => barsForDay(d).map((b) => b.value));
-  const maxValue = Math.max(...allValues, 1);
-
   return (
-    <ChartOuter>
-      <ChartInner>
+    <>
+      <DayLabelsRow>
         {days.map((day) => (
-          <DayGroup key={day.date}>
-            <Bars>
-              {barsForDay(day).map((bar) => (
-                <BarWrapper key={bar.label}>
-                  {bar.value > 0 && (
-                    <BarCount $color={bar.color}>{bar.value}</BarCount>
-                  )}
-                  <Bar
-                    $height={Math.round(
-                      (bar.value / maxValue) * MAX_BAR_HEIGHT
-                    )}
-                    $color={bar.color}
-                  />
-                </BarWrapper>
-              ))}
-            </Bars>
-            <DayLabel>{shortDate(day.date)}</DayLabel>
-          </DayGroup>
+          <DayLabelCell key={day.date}>{shortDate(day.date)}</DayLabelCell>
         ))}
-      </ChartInner>
+      </DayLabelsRow>
       <Legend>
         {legend.map((item) => (
           <LegendItem key={item.label}>
@@ -220,6 +185,221 @@ function BarChart({
           </LegendItem>
         ))}
       </Legend>
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Interactive overlay (tooltip + dots)
+// ---------------------------------------------------------------------------
+
+const SvgWrapper = styled.div`
+  position: relative;
+`;
+
+const Tooltip = styled.div<{ $pct: number }>`
+  position: absolute;
+  top: 6px;
+  /* clamp keeps the box within the chart edges */
+  left: clamp(0px, calc(${(p) => p.$pct}% - 54px), calc(100% - 108px));
+  background: ${(p) => p.theme.colors.mainSurface};
+  border: 1px solid ${(p) => p.theme.borderColor};
+  border-radius: ${(p) => p.theme.borderRadius};
+  padding: 6px 10px;
+  pointer-events: none;
+  z-index: 10;
+  min-width: 108px;
+`;
+
+const TooltipDate = styled.div`
+  font-size: 11px;
+  font-weight: 600;
+  color: ${(p) => p.theme.colors.main};
+  margin-bottom: 4px;
+`;
+
+const TooltipRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: ${(p) => p.theme.colors.secondary};
+  line-height: 1.6;
+`;
+
+const TooltipDot = styled.div<{ $color: string }>`
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: ${(p) => p.$color};
+  flex-shrink: 0;
+`;
+
+const TooltipValue = styled.span`
+  margin-left: auto;
+  font-weight: 600;
+  color: ${(p) => p.theme.colors.main};
+`;
+
+// HTML dot — avoids SVG ellipse distortion from non-uniform preserveAspectRatio
+const HoverDot = styled.div<{ $color: string }>`
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: ${(p) => p.$color};
+  border: 2px solid ${(p) => p.theme.colors.mainSurface};
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+`;
+
+// ---------------------------------------------------------------------------
+// Line chart
+// ---------------------------------------------------------------------------
+// Each series is drawn as a stroked path with a light filled area underneath.
+// Used for independent metrics that shouldn't be stacked.
+
+function LineChart({
+  days,
+  seriesForDay,
+  legend,
+}: {
+  days: DayMetrics[];
+  seriesForDay: (day: DayMetrics) => SeriesSpec[];
+  legend: { color: string; label: string }[];
+}) {
+  const n = days.length;
+  const [activeDay, setActiveDay] = useState<number | null>(null);
+
+  const allSeries = days.map(seriesForDay);
+  const maxValue = Math.max(
+    ...allSeries.flatMap((s) => s.map((v) => v.value)),
+    1
+  );
+  const seriesCount = allSeries[0].length;
+  const baseY = yAt(0, maxValue).toFixed(1);
+
+  function pickDay(clientX: number, target: SVGSVGElement): number {
+    const { left, width } = target.getBoundingClientRect();
+    const frac = (clientX - left) / width;
+    return Math.max(0, Math.min(n - 1, Math.round(frac * (n - 1))));
+  }
+
+  // X position of activeDay as a percentage of the SVG width (0–100)
+  const activePct =
+    activeDay !== null ? (activeDay / (n - 1)) * 100 : null;
+
+  return (
+    <ChartOuter>
+      <SvgWrapper>
+        {activeDay !== null && activePct !== null && (
+          <>
+            <Tooltip $pct={activePct}>
+              <TooltipDate>{days[activeDay].date}</TooltipDate>
+              {allSeries[activeDay].map((s) => (
+                <TooltipRow key={s.label}>
+                  <TooltipDot $color={s.color} />
+                  {s.label}
+                  <TooltipValue>{s.value}</TooltipValue>
+                </TooltipRow>
+              ))}
+            </Tooltip>
+            {allSeries[activeDay].map((s, si) => (
+              <HoverDot
+                key={si}
+                $color={s.color}
+                style={{
+                  left: `${activePct}%`,
+                  // yAt maps to viewBox coords 0–VB_H; SVG CSS height = VB_H px
+                  top: `${(yAt(s.value, maxValue) / VB_H) * 100}%`,
+                }}
+              />
+            ))}
+          </>
+        )}
+        <ChartSvg
+          viewBox={`0 0 ${VB_W} ${VB_H}`}
+          preserveAspectRatio="none"
+          aria-hidden="true"
+          style={{ cursor: "crosshair", display: "block" }}
+          onMouseMove={(e) => setActiveDay(pickDay(e.clientX, e.currentTarget))}
+          onMouseLeave={() => setActiveDay(null)}
+          onTouchStart={(e) =>
+            setActiveDay(pickDay(e.touches[0].clientX, e.currentTarget))
+          }
+          onTouchMove={(e) =>
+            setActiveDay(pickDay(e.touches[0].clientX, e.currentTarget))
+          }
+          onTouchEnd={() => setActiveDay(null)}
+        >
+          {GRID_FRACTIONS.map((f) => {
+            const y = (TOP_PAD + PLOT_H * (1 - f)).toFixed(1);
+            return (
+              <line
+                key={f}
+                x1={0}
+                y1={y}
+                x2={VB_W}
+                y2={y}
+                stroke="currentColor"
+                strokeOpacity={0.1}
+                strokeWidth={1}
+                vectorEffect="non-scaling-stroke"
+              />
+            );
+          })}
+
+          {/* Vertical crosshair */}
+          {activeDay !== null && (
+            <line
+              x1={xAt(activeDay, n).toFixed(1)}
+              y1={TOP_PAD}
+              x2={xAt(activeDay, n).toFixed(1)}
+              y2={VB_H - BOT_PAD}
+              stroke="currentColor"
+              strokeOpacity={0.2}
+              strokeWidth={1}
+              vectorEffect="non-scaling-stroke"
+            />
+          )}
+
+          {Array.from({ length: seriesCount }, (_, si) => {
+            const color = allSeries[0][si].color;
+            const pts = allSeries.map((s, i) => ({
+              x: xAt(i, n),
+              y: yAt(s[si].value, maxValue),
+            }));
+            const linePts = pts
+              .map(
+                ({ x, y }, i) =>
+                  `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`
+              )
+              .join(" ");
+            const fillD = [
+              linePts,
+              `L${xAt(n - 1, n).toFixed(1)},${baseY}`,
+              `L${xAt(0, n).toFixed(1)},${baseY}`,
+              "Z",
+            ].join(" ");
+
+            return (
+              <g key={si}>
+                <path d={fillD} fill={color} fillOpacity={0.12} />
+                <path
+                  d={linePts}
+                  fill="none"
+                  stroke={color}
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  vectorEffect="non-scaling-stroke"
+                />
+              </g>
+            );
+          })}
+        </ChartSvg>
+      </SvgWrapper>
+      <ChartFooter days={days} legend={legend} />
     </ChartOuter>
   );
 }
@@ -266,7 +446,6 @@ export const StatsRoot = () => {
 
   const days = metrics.data;
 
-  // Aggregate totals across all days
   const totals = days.reduce(
     (acc, day) => {
       acc.sent += day.notifications.sent;
@@ -318,24 +497,12 @@ export const StatsRoot = () => {
 
         <Section>
           <SectionTitle>Push notifications (14 days)</SectionTitle>
-          <BarChart
+          <LineChart
             days={days}
-            barsForDay={(day) => [
-              {
-                value: day.notifications.sent,
-                color: COLORS.sent,
-                label: "Sent",
-              },
-              {
-                value: day.notifications.failed,
-                color: COLORS.failed,
-                label: "Failed",
-              },
-              {
-                value: day.notifications.usersReached,
-                color: COLORS.usersReached,
-                label: "Users reached",
-              },
+            seriesForDay={(day) => [
+              { value: day.notifications.sent, color: COLORS.sent, label: "Sent" },
+              { value: day.notifications.failed, color: COLORS.failed, label: "Failed" },
+              { value: day.notifications.usersReached, color: COLORS.usersReached, label: "Users reached" },
             ]}
             legend={[
               { color: COLORS.sent, label: "Sent" },
@@ -351,9 +518,9 @@ export const StatsRoot = () => {
               Schedule changes — {STUDIOS[studioId]?.location ?? studioId} (14
               days)
             </SectionTitle>
-            <BarChart
+            <LineChart
               days={days}
-              barsForDay={(day) => {
+              seriesForDay={(day) => {
                 const s = day.diffs[studioId] ?? {
                   added: 0,
                   changed: 0,
