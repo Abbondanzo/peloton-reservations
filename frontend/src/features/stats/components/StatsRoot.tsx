@@ -79,53 +79,72 @@ const StatusMessage = styled.p`
 // Bar chart
 // ---------------------------------------------------------------------------
 
-const MAX_BAR_HEIGHT = 80; // px
+const MAX_BAR_HEIGHT = 120;
 
 const ChartOuter = styled.div`
   background: ${(p) => p.theme.colors.mainSurface};
   border: 1px solid ${(p) => p.theme.borderColor};
   border-radius: ${(p) => p.theme.borderRadius};
   padding: 20px 16px 12px;
-  overflow-x: auto;
 `;
 
 const ChartInner = styled.div`
   display: flex;
-  align-items: flex-end;
-  gap: 6px;
-  min-width: max-content;
-`;
-
-const DayGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   gap: 4px;
 `;
 
-const Bars = styled.div`
-  display: flex;
-  align-items: flex-end;
-  gap: 2px;
-  height: ${MAX_BAR_HEIGHT + 16}px;
-`;
-
-const BarWrapper = styled.div`
+const DayGroup = styled.div`
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 6px;
+`;
+
+// Stacked bar primitives
+const BarsArea = styled.div`
+  position: relative;
+  height: ${MAX_BAR_HEIGHT}px;
+  width: 100%;
+`;
+
+const BarStack = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column-reverse;
+  border-radius: 3px 3px 0 0;
+  overflow: hidden;
+`;
+
+const BarSegment = styled.div<{ $height: number; $color: string }>`
+  height: ${(p) => p.$height}px;
+  flex-shrink: 0;
+  background-color: ${(p) => p.$color};
+`;
+
+// Grouped bar primitives
+const BarsRow = styled.div`
+  display: flex;
+  align-items: flex-end;
   gap: 2px;
+  height: ${MAX_BAR_HEIGHT}px;
+  width: 100%;
 `;
 
-const BarCount = styled.div<{ $color: string }>`
-  font-size: 9px;
-  font-weight: 600;
-  line-height: 1;
-  color: ${(p) => p.$color};
+const GroupedBarWrapper = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100%;
 `;
 
-const Bar = styled.div<{ $height: number; $color: string }>`
-  width: 10px;
+const GroupedBar = styled.div<{ $height: number; $color: string }>`
+  width: 100%;
   height: ${(p) => p.$height}px;
   background-color: ${(p) => p.$color};
   border-radius: 2px 2px 0 0;
@@ -136,6 +155,9 @@ const DayLabel = styled.div`
   font-size: 10px;
   color: ${(p) => p.theme.colors.secondary};
   white-space: nowrap;
+  overflow: hidden;
+  text-align: center;
+  width: 100%;
 `;
 
 const Legend = styled.div`
@@ -176,41 +198,67 @@ interface BarSpec {
   label: string;
 }
 
+// stacked=true: one column per day with segments stacked bottom-to-top.
+// stacked=false: grouped bars side-by-side within each day column.
 function BarChart({
   days,
   barsForDay,
   legend,
+  stacked = false,
 }: {
   days: DayMetrics[];
   barsForDay: (day: DayMetrics) => BarSpec[];
   legend: { color: string; label: string }[];
+  stacked?: boolean;
 }) {
-  const allValues = days.flatMap((d) => barsForDay(d).map((b) => b.value));
-  const maxValue = Math.max(...allValues, 1);
+  const maxValue = Math.max(
+    ...(stacked
+      ? days.map((d) => barsForDay(d).reduce((sum, b) => sum + b.value, 0))
+      : days.flatMap((d) => barsForDay(d).map((b) => b.value))),
+    1
+  );
 
   return (
     <ChartOuter>
       <ChartInner>
-        {days.map((day) => (
-          <DayGroup key={day.date}>
-            <Bars>
-              {barsForDay(day).map((bar) => (
-                <BarWrapper key={bar.label}>
-                  {bar.value > 0 && (
-                    <BarCount $color={bar.color}>{bar.value}</BarCount>
-                  )}
-                  <Bar
-                    $height={Math.round(
-                      (bar.value / maxValue) * MAX_BAR_HEIGHT
+        {days.map((day) => {
+          const bars = barsForDay(day);
+          return (
+            <DayGroup key={day.date}>
+              {stacked ? (
+                <BarsArea>
+                  <BarStack>
+                    {bars.map((bar) =>
+                      bar.value > 0 ? (
+                        <BarSegment
+                          key={bar.label}
+                          $height={Math.round(
+                            (bar.value / maxValue) * MAX_BAR_HEIGHT
+                          )}
+                          $color={bar.color}
+                        />
+                      ) : null
                     )}
-                    $color={bar.color}
-                  />
-                </BarWrapper>
-              ))}
-            </Bars>
-            <DayLabel>{shortDate(day.date)}</DayLabel>
-          </DayGroup>
-        ))}
+                  </BarStack>
+                </BarsArea>
+              ) : (
+                <BarsRow>
+                  {bars.map((bar) => (
+                    <GroupedBarWrapper key={bar.label}>
+                      <GroupedBar
+                        $height={Math.round(
+                          (bar.value / maxValue) * MAX_BAR_HEIGHT
+                        )}
+                        $color={bar.color}
+                      />
+                    </GroupedBarWrapper>
+                  ))}
+                </BarsRow>
+              )}
+              <DayLabel>{shortDate(day.date)}</DayLabel>
+            </DayGroup>
+          );
+        })}
       </ChartInner>
       <Legend>
         {legend.map((item) => (
@@ -266,7 +314,6 @@ export const StatsRoot = () => {
 
   const days = metrics.data;
 
-  // Aggregate totals across all days
   const totals = days.reduce(
     (acc, day) => {
       acc.sent += day.notifications.sent;
@@ -361,8 +408,16 @@ export const StatsRoot = () => {
                 };
                 return [
                   { value: s.added, color: COLORS.added, label: "Added" },
-                  { value: s.changed, color: COLORS.changed, label: "Changed" },
-                  { value: s.removed, color: COLORS.removed, label: "Removed" },
+                  {
+                    value: s.changed,
+                    color: COLORS.changed,
+                    label: "Changed",
+                  },
+                  {
+                    value: s.removed,
+                    color: COLORS.removed,
+                    label: "Removed",
+                  },
                 ];
               }}
               legend={[
@@ -370,6 +425,7 @@ export const StatsRoot = () => {
                 { color: COLORS.changed, label: "Changed" },
                 { color: COLORS.removed, label: "Removed" },
               ]}
+              stacked
             />
           </Section>
         ))}
