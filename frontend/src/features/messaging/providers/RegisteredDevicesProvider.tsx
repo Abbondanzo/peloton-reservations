@@ -1,8 +1,14 @@
 import { onValue, ref } from "firebase/database";
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect } from "react";
 import { database } from "../../firebase/constants/database";
-import type { AsyncData } from "../../store/types/AsyncData";
+import { useAppDispatch, useAppSelector } from "../../store/hooks/useStore";
+import { store } from "../../store/constants/store";
 import { RegisteredDevicesContext } from "../context/RegisteredDevicesContext";
+import {
+  setRegisteredDevicesData,
+  setRegisteredDevicesFailed,
+  setRegisteredDevicesLoading,
+} from "../slices/registeredDevicesSlice";
 import type { RegisteredDevice } from "../types/RegisteredDevice";
 
 interface Props {
@@ -11,38 +17,51 @@ interface Props {
 }
 
 export const RegisteredDevicesProvider = ({ children, userId }: Props) => {
-  const [state, setState] = useState<
-    AsyncData<{ [key: string]: RegisteredDevice }>
-  >({
-    state: "idle",
-  });
+  const dispatch = useAppDispatch();
+  const devicesCache = useAppSelector((state) => state.registeredDevices);
+
   useEffect(() => {
-    setState({ state: "loading" });
     const db = database;
     if (!db) {
-      setState({
-        state: "failed",
-        error: new Error("No database set up"),
-      });
+      dispatch(
+        setRegisteredDevicesFailed({
+          userId,
+          error: { message: "No database set up" },
+        })
+      );
       return () => {};
     }
+
+    // Skip loading state if we already have data for this user
+    const cached = store.getState().registeredDevices;
+    if (cached.userId !== userId || cached.data.state !== "fulfilled") {
+      dispatch(setRegisteredDevicesLoading(userId));
+    }
+
     const dbRef = ref(db, `messagingTokens/${userId}`);
     const unsubscribe = onValue(
       dbRef,
       (snapshot) => {
         const values: { [key: string]: RegisteredDevice } | null =
           snapshot.val();
-        setState({ state: "fulfilled", data: values || {} });
+        dispatch(setRegisteredDevicesData({ userId, data: values || {} }));
       },
       (error) => {
-        setState({ state: "failed", error });
+        dispatch(
+          setRegisteredDevicesFailed({ userId, error: { message: error.message } })
+        );
       }
     );
     return () => unsubscribe();
-  }, [userId]);
+  }, [userId, dispatch]);
+
+  const contextValue =
+    devicesCache.userId === userId
+      ? devicesCache.data
+      : { state: "loading" as const };
 
   return (
-    <RegisteredDevicesContext.Provider value={state}>
+    <RegisteredDevicesContext.Provider value={contextValue}>
       {children}
     </RegisteredDevicesContext.Provider>
   );
