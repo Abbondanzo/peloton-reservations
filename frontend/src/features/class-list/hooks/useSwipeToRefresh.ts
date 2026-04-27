@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useLayoutEffect } from "react";
 
 // Raw drag distance required to trigger a refresh
 const REFRESH_THRESHOLD = 150;
@@ -18,6 +18,10 @@ const getScrollTop = () =>
 export const useSwipeToRefresh = ({ refresh }: Options) => {
   const swipeRef = useRef<HTMLDivElement>(null);
   const spinnerRef = useRef<HTMLDivElement>(null);
+  const refreshRef = useRef(refresh);
+  useLayoutEffect(() => {
+    refreshRef.current = refresh;
+  });
 
   const requiresSwipeToRefresh = useMemo(() => {
     return (
@@ -114,7 +118,7 @@ export const useSwipeToRefresh = ({ refresh }: Options) => {
         };
         // Guard against refresh() never settling (e.g. network hang)
         const timeoutId = setTimeout(hideSpinner, 10_000);
-        refresh().finally(() => {
+        refreshRef.current().finally(() => {
           clearTimeout(timeoutId);
           hideSpinner();
         });
@@ -141,7 +145,7 @@ export const useSwipeToRefresh = ({ refresh }: Options) => {
       document.removeEventListener("touchend", touchEnd);
       document.removeEventListener("touchcancel", touchCancel);
     };
-  }, [refresh, requiresSwipeToRefresh]);
+  }, [requiresSwipeToRefresh]);
 
   return { swipeRef, spinnerRef };
 };
