@@ -471,9 +471,9 @@ export const StatsRoot = () => {
               Schedule changes — {STUDIOS[studioId]?.location ?? studioId} (14
               days)
             </SectionTitle>
-            <StackedAreaChart
+            <LineChart
               days={days}
-              layersForDay={(day) => {
+              seriesForDay={(day) => {
                 const s = day.diffs[studioId] ?? {
                   added: 0,
                   changed: 0,
