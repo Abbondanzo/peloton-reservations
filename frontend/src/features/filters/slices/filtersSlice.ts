@@ -69,6 +69,10 @@ const filtersSlice = createSlice({
       }
       setStoredDisciplines(state.selectedDisciplines);
     },
+    setDisciplines(state, action: PayloadAction<string[]>) {
+      state.selectedDisciplines = action.payload;
+      setStoredDisciplines(state.selectedDisciplines);
+    },
     resetDisciplines(state) {
       state.selectedDisciplines = [];
       setStoredDisciplines(state.selectedDisciplines);
@@ -81,6 +85,7 @@ export const {
   toggleInstructor,
   resetInstructors,
   toggleDiscipline,
+  setDisciplines,
   resetDisciplines,
 } = filtersSlice.actions;
 

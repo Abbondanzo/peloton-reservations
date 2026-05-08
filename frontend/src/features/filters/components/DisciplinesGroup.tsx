@@ -1,10 +1,11 @@
+import { useEffect, useRef } from "react";
 import { DisciplineIcon } from "../../class-list/components/DisciplineIcon";
 import { selectStudioId } from "../../class-list/selectors/selectStudioId";
 import { useGetDisciplinesQuery } from "../../class-list/services/pelotonApi";
 import type { Discipline } from "../../class-list/types/Discipline";
 import { useAppDispatch, useAppSelector } from "../../store/hooks/useStore";
 import { useDisciplineFilters } from "../hooks/useDisciplineFilters";
-import { resetDisciplines } from "../slices/filtersSlice";
+import { resetDisciplines, setDisciplines } from "../slices/filtersSlice";
 import {
   FilterCheckBox,
   FilterItem,
@@ -41,6 +42,18 @@ const DisciplinesGroupContent = () => {
   const studioId = useAppSelector(selectStudioId);
   const { currentData, isLoading, error } = useGetDisciplinesQuery(studioId);
   const { selectedDisciplines, toggleDiscipline } = useDisciplineFilters();
+  const dispatch = useAppDispatch();
+  const initialDisciplines = useRef(selectedDisciplines);
+
+  useEffect(() => {
+    const initial = initialDisciplines.current;
+    if (!currentData || initial.length === 0) return;
+    const valid = new Set(currentData.map((d) => d.id));
+    const filtered = initial.filter((id) => valid.has(id));
+    if (filtered.length < initial.length) {
+      dispatch(setDisciplines(filtered));
+    }
+  }, [currentData, dispatch]);
 
   if (error && !isLoading) {
     return <FilterStateText>Failed to load disciplines</FilterStateText>;
