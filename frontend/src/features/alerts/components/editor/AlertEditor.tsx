@@ -142,6 +142,8 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
     setTimeRanges,
     maxStatus,
     setMaxStatus,
+    waitlistAlerts,
+    setWaitlistAlerts,
   } = useAlertEditorState(alertToEdit);
 
   const canGoNext = currentStep < STEPS.length - 1;
@@ -171,6 +173,7 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
       disciplines: selectedDisciplines,
       timeRanges,
       maxStatus,
+      ...(waitlistAlerts ? { waitlistAlerts: true } : {}),
     };
 
     try {
@@ -195,6 +198,7 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
     selectedDisciplines,
     timeRanges,
     maxStatus,
+    waitlistAlerts,
     onSave,
   ]);
 
@@ -225,6 +229,8 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
             onStudioChange={(id) => dispatch(setStudioId(id))}
             maxStatus={maxStatus}
             onStatusChange={setMaxStatus}
+            waitlistAlerts={waitlistAlerts}
+            onWaitlistAlertsChange={setWaitlistAlerts}
           />
         )}
         {currentStep === 1 && (
@@ -247,6 +253,7 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
             selectedInstructors={selectedInstructors}
             selectedDisciplines={selectedDisciplines}
             timeRanges={timeRanges}
+            waitlistAlerts={waitlistAlerts}
           />
         )}
       </StepContent>

@@ -13,6 +13,7 @@ import {
   buildSnapshot,
   getBookableStatus,
   getChangeType,
+  getWaitlistChangeType,
   matchesAlert,
 } from "shared";
 import { logger } from "./logger";
@@ -28,6 +29,16 @@ function buildNotificationLink(classUrl: string | null | undefined): string {
   const base = FRONTEND_URL || "/";
   if (!classUrl) return base;
   return `${FRONTEND_URL}/?classUrl=${encodeURIComponent(classUrl)}`;
+}
+
+function buildWaitlistAlertLink(classData: RawClass, studioId: string): string {
+  const params = new URLSearchParams({
+    classId: String(classData.id),
+    studioId,
+    startsAt: classData.starts_at,
+    waitingCount: String(classData.waiting_count),
+  });
+  return `${FRONTEND_URL}/#/waitlist-alert?${params}`;
 }
 
 /** How often to flush the pending-notification queue. */
@@ -139,6 +150,20 @@ export class Alerter implements DiffDelegate {
           if (changeType) {
             this.enqueueNotification(userId, studioId, entry.new, changeType);
           }
+          const waitlistChangeType = getWaitlistChangeType(
+            alert,
+            entry.old,
+            entry.new
+          );
+          if (waitlistChangeType) {
+            this.enqueueNotification(
+              userId,
+              studioId,
+              entry.new,
+              waitlistChangeType,
+              String(entry.new.waiting_count)
+            );
+          }
         }
       }
     }
@@ -152,9 +177,12 @@ export class Alerter implements DiffDelegate {
     userId: string,
     studioId: string,
     classData: RawClass,
-    changeType: ChangeType
+    changeType: ChangeType,
+    extraKey?: string
   ) {
-    const debounceKey = `${userId}:${classData.id}:${changeType}`;
+    const debounceKey = extraKey
+      ? `${userId}:${classData.id}:${changeType}:${extraKey}`
+      : `${userId}:${classData.id}:${changeType}`;
     const now = Date.now();
     const delayMin = this.alertPreferences[userId]?.notificationDelayMin ?? 0;
     const delayMs = delayMin * 60 * 1000;
@@ -237,6 +265,11 @@ export class Alerter implements DiffDelegate {
 
     const { title, body } = this.buildNotificationContent(pending);
 
+    const isWaitlistChanged = pending.changeType === "waitlist_changed";
+    const notificationLink = isWaitlistChanged
+      ? buildWaitlistAlertLink(pending.classData, pending.studioId)
+      : buildNotificationLink(pending.classData.customer_url);
+
     const message: admin.messaging.MulticastMessage = {
       tokens,
       notification: { title, body },
@@ -247,6 +280,7 @@ export class Alerter implements DiffDelegate {
         changeType: pending.changeType,
         classUrl: pending.classData.customer_url ?? "",
         startsAt: pending.classData.starts_at,
+        waitingCount: String(pending.classData.waiting_count),
       },
       webpush: {
         notification: {
@@ -257,7 +291,7 @@ export class Alerter implements DiffDelegate {
           requireInteraction: true,
         },
         fcmOptions: {
-          link: buildNotificationLink(pending.classData.customer_url),
+          link: notificationLink,
         },
       },
     };
@@ -322,6 +356,13 @@ export class Alerter implements DiffDelegate {
           title: "Waitlist available!",
           body: `${instructorName} — ${className}${timeStr} waitlist is open`,
         };
+      case "waitlist_changed": {
+        const count = classData.waiting_count;
+        return {
+          title: "Waitlist count changed",
+          body: `${count} ${count === 1 ? "person" : "people"} on the waitlist — ${instructorName} — ${className}${timeStr}`,
+        };
+      }
     }
   }
 

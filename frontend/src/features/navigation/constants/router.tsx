@@ -13,6 +13,7 @@ import { ClassListRoot } from "../../class-list/components/ClassListRoot";
 import { AdminRoute } from "../../session/components/AdminRoute";
 import { SignInRoot } from "../../session/components/SignInRoot";
 import { StatsRoot } from "../../stats/components/StatsRoot";
+import { WaitlistAlertRoot } from "../../waitlist/components/WaitlistAlertRoot";
 import { Paths } from "./paths";
 
 export const router = createHashRouter(
@@ -24,6 +25,7 @@ export const router = createHashRouter(
         <Route path="edit" element={<AlertsEditorRoot />} />
         <Route path=":alertId/test" element={<AlertSimulationRoot />} />
       </Route>
+      <Route path={Paths.WAITLIST_ALERT} element={<WaitlistAlertRoot />} />
       <Route path={Paths.SIGN_IN} element={<SignInRoot />} />
       <Route path={Paths.ABOUT} element={<AboutRoot />} />
       <Route

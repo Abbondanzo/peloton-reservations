@@ -6,6 +6,7 @@ export const Paths = {
   ALERTS_EDITOR: "/alerts/edit",
   ALERTS_SIMULATION: "/alerts/:alertId/test",
   STATS: "/stats",
+  WAITLIST_ALERT: "/waitlist-alert",
 } as const;
 
 export const alertsSimulationPath = (alertId: string) =>

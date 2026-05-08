@@ -3,7 +3,11 @@ import type { RawClass } from "./classApi";
 import { isFree, isWaitlistFull } from "./classStatus";
 import { STUDIOS } from "./studios";
 
-export type ChangeType = "added" | "became_free" | "waitlist_opened";
+export type ChangeType =
+  | "added"
+  | "became_free"
+  | "waitlist_opened"
+  | "waitlist_changed";
 
 export type NearMissReason = "instructor" | "time" | "discipline" | "status";
 
@@ -64,6 +68,19 @@ export const classifyMatch = (
   if (failures.length === 0) return { type: "match" };
   if (failures.length === 1) return { type: "near-miss", reason: failures[0] };
   return { type: "skipped" };
+};
+
+export const getWaitlistChangeType = (
+  alert: Alert,
+  oldClass: RawClass,
+  newClass: RawClass
+): "waitlist_changed" | null => {
+  if (!alert.waitlistAlerts) return null;
+  if (oldClass.waiting_count === newClass.waiting_count) return null;
+  if (!checkDiscipline(newClass, alert)) return null;
+  if (!checkInstructor(newClass, alert)) return null;
+  if (!checkTimeRange(newClass, alert)) return null;
+  return "waitlist_changed";
 };
 
 export const getChangeType = (
