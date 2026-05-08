@@ -13,9 +13,10 @@ import { StepFilters } from "./StepFilters";
 import { StepIndicator } from "./StepIndicator";
 import { StepReview } from "./StepReview";
 import { StepSchedule } from "./StepSchedule";
+import { StepWaitlist } from "./StepWaitlist";
 import { useAlertEditorState } from "./useAlertEditorState";
 
-const STEPS = ["Basics", "Filters", "Schedule", "Review"];
+const STEPS = ["Basics", "Filters", "Schedule", "Waitlist", "Review"];
 
 const Wrapper = styled.div`
   display: flex;
@@ -144,6 +145,8 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
     setMaxStatus,
     waitlistAlerts,
     setWaitlistAlerts,
+    watchedClassIds,
+    setWatchedClassIds,
   } = useAlertEditorState(alertToEdit);
 
   const canGoNext = currentStep < STEPS.length - 1;
@@ -174,6 +177,9 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
       timeRanges,
       maxStatus,
       ...(waitlistAlerts ? { waitlistAlerts: true } : {}),
+      ...(waitlistAlerts && watchedClassIds !== null
+        ? { watchedClassIds }
+        : {}),
     };
 
     try {
@@ -199,6 +205,7 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
     timeRanges,
     maxStatus,
     waitlistAlerts,
+    watchedClassIds,
     onSave,
   ]);
 
@@ -229,8 +236,6 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
             onStudioChange={(id) => dispatch(setStudioId(id))}
             maxStatus={maxStatus}
             onStatusChange={setMaxStatus}
-            waitlistAlerts={waitlistAlerts}
-            onWaitlistAlertsChange={setWaitlistAlerts}
           />
         )}
         {currentStep === 1 && (
@@ -246,6 +251,18 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
           <StepSchedule timeRanges={timeRanges} setTimeRanges={setTimeRanges} />
         )}
         {currentStep === 3 && (
+          <StepWaitlist
+            studioId={selectedStudioId}
+            waitlistAlerts={waitlistAlerts}
+            onWaitlistAlertsChange={setWaitlistAlerts}
+            watchedClassIds={watchedClassIds}
+            onWatchedClassIdsChange={setWatchedClassIds}
+            selectedInstructors={selectedInstructors}
+            selectedDisciplines={selectedDisciplines}
+            timeRanges={timeRanges}
+          />
+        )}
+        {currentStep === 4 && (
           <StepReview
             name={name}
             studioId={selectedStudioId}
@@ -254,6 +271,7 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
             selectedDisciplines={selectedDisciplines}
             timeRanges={timeRanges}
             waitlistAlerts={waitlistAlerts}
+            watchedClassIds={watchedClassIds}
           />
         )}
       </StepContent>

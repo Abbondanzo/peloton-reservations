@@ -113,6 +113,7 @@ interface Props {
   selectedDisciplines: Optional<string[]>;
   timeRanges: Optional<TimeRange>[];
   waitlistAlerts: boolean;
+  watchedClassIds: Optional<string[]>;
 }
 
 export const StepReview = ({
@@ -123,6 +124,7 @@ export const StepReview = ({
   selectedDisciplines,
   timeRanges,
   waitlistAlerts,
+  watchedClassIds,
 }: Props) => {
   const studio = STUDIOS[studioId];
   const enabledDays = DAY_NAMES.filter((_, i) => timeRanges[i]);
@@ -212,7 +214,15 @@ export const StepReview = ({
 
         <SummaryRow>
           <RowLabel>Waitlist alerts</RowLabel>
-          <RowValue>{waitlistAlerts ? "On" : "Off"}</RowValue>
+          <RowValue>
+            {!waitlistAlerts
+              ? "Off"
+              : watchedClassIds === null
+                ? "On — any matching class"
+                : watchedClassIds.length === 0
+                  ? "On — no classes selected"
+                  : `On — ${watchedClassIds.length} ${watchedClassIds.length === 1 ? "class" : "classes"} selected`}
+          </RowValue>
         </SummaryRow>
       </SummaryCard>
     </Section>
