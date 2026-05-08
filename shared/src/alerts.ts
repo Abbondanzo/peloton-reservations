@@ -27,6 +27,7 @@ export interface Alert {
   maxStatus: BookableStatus;
   timeRanges: Optional<TimeRange>[];
   studioId: string;
+  waitlistAlerts?: boolean;
 }
 
 export interface AlertPreferences {

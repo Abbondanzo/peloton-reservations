@@ -20,6 +20,8 @@ export interface AlertEditorState {
   setTimeRanges: (ranges: Optional<TimeRange>[]) => void;
   maxStatus: BookableStatus;
   setMaxStatus: (status: BookableStatus) => void;
+  waitlistAlerts: boolean;
+  setWaitlistAlerts: (enabled: boolean) => void;
 }
 
 export const useAlertEditorState = (
@@ -49,6 +51,9 @@ export const useAlertEditorState = (
   const [maxStatus, setMaxStatus] = useState<BookableStatus>(
     alertToEdit.maxStatus || "free"
   );
+  const [waitlistAlerts, setWaitlistAlerts] = useState<boolean>(
+    alertToEdit.waitlistAlerts ?? false
+  );
 
   const lastStudioRef = useRef<string | undefined>(alertToEdit.studioId);
   useEffect(() => {
@@ -75,5 +80,7 @@ export const useAlertEditorState = (
     setTimeRanges,
     maxStatus,
     setMaxStatus,
+    waitlistAlerts,
+    setWaitlistAlerts,
   };
 };

@@ -96,10 +96,21 @@ if (self.location.pathname.includes("/pr-preview/")) {
       event.notification.close();
       const swPathname = self.location.pathname;
       const basePath = swPathname.substring(0, swPathname.lastIndexOf("/") + 1);
-      const classUrl: string | undefined = event.notification.data?.classUrl;
-      const appUrl = classUrl
-        ? `${basePath}?classUrl=${encodeURIComponent(classUrl)}`
-        : basePath;
+      const data: Record<string, string> = event.notification.data ?? {};
+      let appUrl: string;
+      if (data.changeType === "waitlist_changed") {
+        const params = new URLSearchParams({
+          classId: data.classId ?? "",
+          studioId: data.studioId ?? "",
+          startsAt: data.startsAt ?? "",
+          waitingCount: data.waitingCount ?? "",
+        });
+        appUrl = `${basePath}#/waitlist-alert?${params}`;
+      } else {
+        appUrl = data.classUrl
+          ? `${basePath}?classUrl=${encodeURIComponent(data.classUrl)}`
+          : basePath;
+      }
       event.waitUntil(
         self.clients
           .matchAll({ type: "window", includeUncontrolled: true })

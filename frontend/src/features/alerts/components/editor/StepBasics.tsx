@@ -1,7 +1,9 @@
+import { useId } from "react";
 import { STUDIOS } from "shared";
 import styled from "styled-components";
 import type { BookableStatus } from "../../../filters/types/BookableStatus";
 import { mediaMobile } from "../../../theme/constants/queries";
+import { border, hover } from "../../../theme/constants/styles";
 import { TextInput } from "../../../theme/components/TextInput";
 import { OptionCard } from "./OptionCard";
 
@@ -36,6 +38,47 @@ const SectionSpacer = styled.div`
   ${mediaMobile`
     margin-top: 24px;
   `}
+`;
+
+const CheckCard = styled.label`
+  ${border}
+  ${hover}
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
+
+  &:has(input:checked) {
+    border-color: ${(props) => props.theme.colors.accent};
+    background-color: ${(props) => props.theme.colors.accent}0a;
+  }
+`;
+
+const CheckCardTextBlock = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+`;
+
+const CheckCardLabel = styled.span`
+  font-weight: 500;
+  color: ${(props) => props.theme.colors.main};
+`;
+
+const CheckCardHint = styled.span`
+  font-size: 12px;
+  color: ${(props) => props.theme.colors.secondary};
+`;
+
+const CheckCardInput = styled.input`
+  accent-color: ${(props) => props.theme.colors.accent};
+  flex-shrink: 0;
 `;
 
 interface StudioOption {
@@ -74,6 +117,8 @@ interface Props {
   onStudioChange: (studioId: string) => void;
   maxStatus: BookableStatus;
   onStatusChange: (status: BookableStatus) => void;
+  waitlistAlerts: boolean;
+  onWaitlistAlertsChange: (enabled: boolean) => void;
 }
 
 export const StepBasics = ({
@@ -83,7 +128,10 @@ export const StepBasics = ({
   onStudioChange,
   maxStatus,
   onStatusChange,
+  waitlistAlerts,
+  onWaitlistAlertsChange,
 }: Props) => {
+  const waitlistCheckId = useId();
   return (
     <div>
       <TextInput
@@ -131,6 +179,30 @@ export const StepBasics = ({
             />
           ))}
         </OptionsStack>
+      </Section>
+
+      <SectionSpacer />
+
+      <Section>
+        <Legend>Waitlist position alerts</Legend>
+        <Description>
+          Get a notification whenever the waitlist count changes — useful for
+          monitoring if it&apos;s your turn to accept a spot.
+        </Description>
+        <CheckCard htmlFor={waitlistCheckId}>
+          <CheckCardInput
+            type="checkbox"
+            id={waitlistCheckId}
+            checked={waitlistAlerts}
+            onChange={(e) => onWaitlistAlertsChange(e.target.checked)}
+          />
+          <CheckCardTextBlock>
+            <CheckCardLabel>Notify me when the waitlist count changes</CheckCardLabel>
+            <CheckCardHint>
+              Opens a prompt to check your email when the count shifts
+            </CheckCardHint>
+          </CheckCardTextBlock>
+        </CheckCard>
       </Section>
     </div>
   );
