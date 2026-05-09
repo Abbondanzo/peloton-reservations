@@ -155,7 +155,9 @@ export const StepFilters = ({
     const valid = new Set(
       disciplinesQuery.currentData.map((d) => String(d.id))
     );
-    const filtered = initial.filter((id) => valid.has(String(id)));
+    const filtered = initial
+      .filter((id) => valid.has(String(id)))
+      .map(String);
     if (filtered.length < initial.length) {
       setSelectedDisciplines(filtered);
       initialDisciplines.current = filtered;
