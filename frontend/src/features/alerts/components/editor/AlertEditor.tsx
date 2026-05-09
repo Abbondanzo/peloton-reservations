@@ -283,9 +283,20 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
               {saving ? "Saving…" : "Save alert"}
             </FooterButton>
           ) : (
-            <FooterButton type="button" $primary onClick={goNext}>
-              Continue
-            </FooterButton>
+            <>
+              {isEditing && (
+                <FooterButton
+                  type="button"
+                  onClick={handleSave}
+                  disabled={saving}
+                >
+                  {saving ? "Saving…" : "Save"}
+                </FooterButton>
+              )}
+              <FooterButton type="button" $primary onClick={goNext}>
+                Continue
+              </FooterButton>
+            </>
           )}
         </FooterRight>
       </Footer>
