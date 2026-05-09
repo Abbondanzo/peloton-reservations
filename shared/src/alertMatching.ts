@@ -83,7 +83,7 @@ export const getWaitlistChangeType = (
   if (
     alert.watchedClassIds &&
     alert.watchedClassIds.length > 0 &&
-    !alert.watchedClassIds.includes(String(newClass.id))
+    alert.watchedClassIds.indexOf(String(newClass.id)) === -1
   )
     return null;
   return "waitlist_changed";
