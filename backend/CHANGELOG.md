@@ -1,7 +1,6 @@
 ## 0.0.20
 
 - Added `watchedClassIds` field to the `Alert` type. When set, `getWaitlistChangeType` skips `waitlist_changed` notifications for any class whose ID is not in the list, letting users target only the specific classes they have joined the waitlist for
-- Fixed TypeScript build error (TS2550): replaced `Array.prototype.includes` with `indexOf` in `alertMatching.ts` — `includes` is not available under the `es6` lib target
 
 ## 0.0.19
 
