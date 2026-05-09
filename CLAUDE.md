@@ -69,7 +69,7 @@ Every PR that contains a backend change (any file under `backend/` or `shared/`)
    - `backend/config.yaml` — `version:` field
    - `backend/CHANGELOG.md` — prepend a new `## 0.0.x` section describing the change
 
-The changelog entry should be written in plain English, one bullet per logical change, describing *what* changed and *why* it matters (not a list of files touched). Only include user-facing or behavioral changes — omit internal build fixes, type corrections, and refactors that don't affect runtime behavior.
+The changelog entry should be written in plain English, one bullet per logical change, describing *what changed behaviorally* for the user (not a list of files touched, type names, or method names). Only include user-facing or behavioral changes — omit internal build fixes, type corrections, and refactors that don't affect runtime behavior.
 
 ## Git & PR Conventions
 Both commit messages and PR titles must use the same semantic prefix format: `[feat]`, `[fix]`, `[chore]`, `[refactor]`, `[docs]`, `[test]`, `[style]`
