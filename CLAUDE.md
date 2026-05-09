@@ -60,6 +60,17 @@ Types are defined in `shared/src/alerts.ts` and `frontend/src/features/`. Look t
 - `useId()` in `TextInput`, `aria-describedby`, `aria-expanded`/`aria-haspopup` on popovers
 - `React.memo` on `ClassListItem`, `AlertsListItem`
 
+## Backend Versioning
+
+Every PR that contains a backend change (any file under `backend/` or `shared/`) **must** include a version bump and changelog entry as part of the same PR. Do this before committing/pushing the rest of the changes:
+
+1. Increment the patch version (`0.0.x → 0.0.x+1`) in **all three** of these files:
+   - `backend/package.json` — `"version"` field
+   - `backend/config.yaml` — `version:` field
+   - `backend/CHANGELOG.md` — prepend a new `## 0.0.x` section describing the change
+
+The changelog entry should be written in plain English, one bullet per logical change, describing *what* changed and *why* it matters (not a list of files touched).
+
 ## Git & PR Conventions
 Both commit messages and PR titles must use the same semantic prefix format: `[feat]`, `[fix]`, `[chore]`, `[refactor]`, `[docs]`, `[test]`, `[style]`
 

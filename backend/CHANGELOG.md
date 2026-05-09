@@ -1,3 +1,7 @@
+## 0.0.20
+
+- Fixed TypeScript build error (TS2550) caused by `Array.prototype.includes` not being available in the `es6` lib target. Replaced `.includes()` with `.indexOf()` in `alertMatching.ts`, consistent with existing usage in the same file
+
 ## 0.0.19
 
 - Added waitlist position alerts. Alerts with `waitlistAlerts` enabled now fire a `waitlist_changed` notification each time `waiting_count` changes for a matching class. Instructor, discipline, and schedule filters apply; the bookable-status threshold is ignored so the check works even when the class is full. Each distinct count value gets its own debounce key so every shift fires independently. The notification links to a dedicated in-app page (`/waitlist-alert`) rather than the class listing, prompting the user to check their email for the 2-hour acceptance window
