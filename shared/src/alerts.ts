@@ -28,6 +28,8 @@ export interface Alert {
   timeRanges: Optional<TimeRange>[];
   studioId: string;
   waitlistAlerts?: boolean;
+  /** When set, waitlist_changed notifications only fire for these class IDs. */
+  watchedClassIds?: string[];
 }
 
 export interface AlertPreferences {

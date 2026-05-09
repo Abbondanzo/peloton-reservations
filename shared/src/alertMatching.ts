@@ -80,6 +80,12 @@ export const getWaitlistChangeType = (
   if (!checkDiscipline(newClass, alert)) return null;
   if (!checkInstructor(newClass, alert)) return null;
   if (!checkTimeRange(newClass, alert)) return null;
+  if (
+    alert.watchedClassIds &&
+    alert.watchedClassIds.length > 0 &&
+    alert.watchedClassIds.indexOf(String(newClass.id)) === -1
+  )
+    return null;
   return "waitlist_changed";
 };
 

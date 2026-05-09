@@ -22,6 +22,8 @@ export interface AlertEditorState {
   setMaxStatus: (status: BookableStatus) => void;
   waitlistAlerts: boolean;
   setWaitlistAlerts: (enabled: boolean) => void;
+  watchedClassIds: Optional<string[]>;
+  setWatchedClassIds: (ids: Optional<string[]>) => void;
 }
 
 export const useAlertEditorState = (
@@ -54,6 +56,9 @@ export const useAlertEditorState = (
   const [waitlistAlerts, setWaitlistAlerts] = useState<boolean>(
     alertToEdit.waitlistAlerts ?? false
   );
+  const [watchedClassIds, setWatchedClassIds] = useState<Optional<string[]>>(
+    alertToEdit.watchedClassIds ?? null
+  );
 
   const lastStudioRef = useRef<string | undefined>(alertToEdit.studioId);
   useEffect(() => {
@@ -82,5 +87,7 @@ export const useAlertEditorState = (
     setMaxStatus,
     waitlistAlerts,
     setWaitlistAlerts,
+    watchedClassIds,
+    setWatchedClassIds,
   };
 };
