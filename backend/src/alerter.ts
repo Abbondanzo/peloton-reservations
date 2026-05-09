@@ -363,6 +363,10 @@ export class Alerter implements DiffDelegate {
           body: `${count} ${count === 1 ? "person" : "people"} on the waitlist — ${instructorName} — ${className}${timeStr}`,
         };
       }
+      default: {
+        const _exhaustive: never = changeType;
+        throw new Error(`Unhandled change type: ${_exhaustive}`);
+      }
     }
   }
 
