@@ -176,7 +176,7 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
       disciplines: selectedDisciplines,
       timeRanges,
       maxStatus,
-      ...(waitlistAlerts ? { waitlistAlerts: true } : {}),
+      waitlistAlerts,
       ...(waitlistAlerts && watchedClassIds !== null
         ? { watchedClassIds }
         : {}),
