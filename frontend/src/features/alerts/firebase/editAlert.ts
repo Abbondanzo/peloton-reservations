@@ -11,5 +11,12 @@ export const editAlert = async (
   if (!db) {
     throw new Error("No Firebase database connection to use");
   }
-  await update(ref(db, PATHS.alert(userId, alert.id)), alert);
+  // Firebase uses null to delete a key; coerce absent optional fields to null
+  // so stale values are removed rather than left unchanged.
+  const data: Record<string, unknown> = {
+    ...alert,
+    name: alert.name ?? null,
+    watchedClassIds: alert.watchedClassIds ?? null,
+  };
+  await update(ref(db, PATHS.alert(userId, alert.id)), data);
 };
