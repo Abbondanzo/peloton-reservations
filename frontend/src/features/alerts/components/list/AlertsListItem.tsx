@@ -1,4 +1,5 @@
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { type Alert, STUDIOS } from "shared";
 import styled from "styled-components";
@@ -131,8 +132,98 @@ const Actions = styled.div`
   `}
 `;
 
-const ActionButton = styled.button`
-  padding: 6px 12px;
+
+const OverflowContainer = styled.div`
+  position: relative;
+  flex-shrink: 0;
+`;
+
+const OverflowButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid ${(props) => props.theme.borderColor};
+  border-radius: ${(props) => props.theme.borderRadius};
+  background: none;
+  cursor: pointer;
+  color: ${(props) => props.theme.colors.secondary};
+  transition: all 0.15s;
+  padding: 0;
+
+  &:hover {
+    border-color: ${(props) => props.theme.colors.accent};
+    color: ${(props) => props.theme.colors.accent};
+  }
+`;
+
+const OverflowMenuDropdown = styled.ul<{ $top: number; $right: number }>`
+  position: fixed;
+  top: ${(props) => props.$top}px;
+  right: ${(props) => props.$right}px;
+  background: ${(props) => props.theme.colors.mainSurface};
+  border: 1px solid ${(props) => props.theme.borderColor};
+  border-radius: ${(props) => props.theme.borderRadius};
+  padding: 4px 0;
+  margin: 0;
+  list-style: none;
+  min-width: 130px;
+  z-index: 1000;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+`;
+
+const OverflowMenuItem = styled.button`
+  display: block;
+  width: 100%;
+  padding: 8px 14px;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 13px;
+  text-align: left;
+  color: ${(props) => props.theme.colors.main};
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.1s;
+
+  &:hover {
+    background: ${(props) => props.theme.colors.secondarySurface};
+  }
+`;
+
+const DeleteMenuItem = styled(OverflowMenuItem)`
+  color: ${(props) => props.theme.colors.error};
+`;
+
+const MenuDivider = styled.li`
+  height: 1px;
+  background: ${(props) => props.theme.borderColor};
+  margin: 4px 0;
+`;
+
+const DeleteConfirm = styled.div`
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+const DeleteConfirmText = styled.p`
+  margin: 0;
+  font-size: 13px;
+  color: ${(props) => props.theme.colors.main};
+  white-space: nowrap;
+`;
+
+const DeleteConfirmButtons = styled.div`
+  display: flex;
+  gap: 6px;
+`;
+
+const DeleteConfirmCancel = styled.button`
+  flex: 1;
+  padding: 5px 10px;
   border: 1px solid ${(props) => props.theme.borderColor};
   border-radius: ${(props) => props.theme.borderRadius};
   background: none;
@@ -140,24 +231,28 @@ const ActionButton = styled.button`
   font-size: 12px;
   color: ${(props) => props.theme.colors.secondary};
   cursor: pointer;
-  transition: all 0.15s;
-  white-space: nowrap;
+  transition: all 0.1s;
 
   &:hover {
-    border-color: ${(props) => props.theme.colors.accent};
-    color: ${(props) => props.theme.colors.accent};
+    border-color: ${(props) => props.theme.colors.main};
+    color: ${(props) => props.theme.colors.main};
   }
-
-  ${mediaMobile`
-    padding: 6px 10px;
-    font-size: 11px;
-  `}
 `;
 
-const DeleteButton = styled(ActionButton)`
+const DeleteConfirmSubmit = styled.button`
+  flex: 1;
+  padding: 5px 10px;
+  border: 1px solid ${(props) => props.theme.colors.error};
+  border-radius: ${(props) => props.theme.borderRadius};
+  background: ${(props) => props.theme.colors.error};
+  font-family: inherit;
+  font-size: 12px;
+  color: #fff;
+  cursor: pointer;
+  transition: opacity 0.1s;
+
   &:hover {
-    border-color: ${(props) => props.theme.colors.error};
-    color: ${(props) => props.theme.colors.error};
+    opacity: 0.85;
   }
 `;
 
@@ -196,10 +291,54 @@ export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
   const userId = useAppSelector(selectUserId);
   const isDisabled = !!alert.disabled;
 
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState(false);
+  const [menuCoords, setMenuCoords] = useState({ top: 0, right: 0 });
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const dropdownRef = useRef<HTMLUListElement>(null);
+
   const handleToggleDisabled = useCallback(() => {
     if (!userId) return;
     editAlert(userId, { ...alert, disabled: !isDisabled });
   }, [userId, alert, isDisabled]);
+
+  const closeMenu = useCallback(() => {
+    setMenuOpen(false);
+    setPendingDelete(false);
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!menuOpen || !buttonRef.current) return;
+    const rect = buttonRef.current.getBoundingClientRect();
+    setMenuCoords({
+      top: rect.bottom + 4,
+      right: window.innerWidth - rect.right,
+    });
+  }, [menuOpen]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeMenu();
+    };
+    const handleClick = (e: MouseEvent) => {
+      if (!(e.target instanceof Node)) return closeMenu();
+      if (
+        !buttonRef.current?.contains(e.target) &&
+        !dropdownRef.current?.contains(e.target)
+      )
+        closeMenu();
+    };
+    const timeoutId = setTimeout(() => {
+      document.addEventListener("keydown", handleKey);
+      document.addEventListener("click", handleClick, true);
+    }, 0);
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener("keydown", handleKey);
+      document.removeEventListener("click", handleClick, true);
+    };
+  }, [menuOpen]);
   const { data: allInstructors } = useGetInstructorsQuery(alert.studioId);
   const { data: allDisciplines } = useGetDisciplinesQuery(alert.studioId);
 
@@ -296,30 +435,104 @@ export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
             onChange={handleToggleDisabled}
             aria-label={isDisabled ? "Enable alert" : "Disable alert"}
           />
-          <ActionButton
-            type="button"
-            onClick={() => navigate(alertsSimulationPath(alert.id))}
-            aria-label="Test alert"
-          >
-            Test
-          </ActionButton>
-          <ActionButton type="button" onClick={() => onEdit(alert)} aria-label="Edit alert">
-            Edit
-          </ActionButton>
-          <ActionButton
-            type="button"
-            onClick={() => onDuplicate(alert)}
-            aria-label="Duplicate alert"
-          >
-            Duplicate
-          </ActionButton>
-          <DeleteButton
-            type="button"
-            onClick={() => userId && deleteAlert(userId, alert.id)}
-            aria-label="Delete alert"
-          >
-            Delete
-          </DeleteButton>
+          <OverflowContainer>
+            <OverflowButton
+              ref={buttonRef}
+              type="button"
+              aria-label="More options"
+              aria-expanded={menuOpen}
+              aria-haspopup="menu"
+              onClick={() => setMenuOpen((o) => !o)}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <circle cx="8" cy="3" r="1.5" />
+                <circle cx="8" cy="8" r="1.5" />
+                <circle cx="8" cy="13" r="1.5" />
+              </svg>
+            </OverflowButton>
+            {menuOpen &&
+              createPortal(
+                <OverflowMenuDropdown
+                  ref={dropdownRef}
+                  role="menu"
+                  $top={menuCoords.top}
+                  $right={menuCoords.right}
+                >
+                  <li>
+                    <OverflowMenuItem
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        closeMenu();
+                        navigate(alertsSimulationPath(alert.id));
+                      }}
+                    >
+                      Test
+                    </OverflowMenuItem>
+                  </li>
+                  <li>
+                    <OverflowMenuItem
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        closeMenu();
+                        onEdit(alert);
+                      }}
+                    >
+                      Edit
+                    </OverflowMenuItem>
+                  </li>
+                  <li>
+                    <OverflowMenuItem
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        closeMenu();
+                        onDuplicate(alert);
+                      }}
+                    >
+                      Duplicate
+                    </OverflowMenuItem>
+                  </li>
+                  <MenuDivider />
+                  {pendingDelete ? (
+                    <li>
+                      <DeleteConfirm>
+                        <DeleteConfirmText>Delete this alert?</DeleteConfirmText>
+                        <DeleteConfirmButtons>
+                          <DeleteConfirmCancel
+                            type="button"
+                            onClick={() => setPendingDelete(false)}
+                          >
+                            Cancel
+                          </DeleteConfirmCancel>
+                          <DeleteConfirmSubmit
+                            type="button"
+                            onClick={() => {
+                              closeMenu();
+                              userId && deleteAlert(userId, alert.id);
+                            }}
+                          >
+                            Delete
+                          </DeleteConfirmSubmit>
+                        </DeleteConfirmButtons>
+                      </DeleteConfirm>
+                    </li>
+                  ) : (
+                    <li>
+                      <DeleteMenuItem
+                        type="button"
+                        role="menuitem"
+                        onClick={() => setPendingDelete(true)}
+                      >
+                        Delete
+                      </DeleteMenuItem>
+                    </li>
+                  )}
+                </OverflowMenuDropdown>,
+                document.body
+              )}
+          </OverflowContainer>
         </Actions>
       </TopRow>
     </Wrapper>
