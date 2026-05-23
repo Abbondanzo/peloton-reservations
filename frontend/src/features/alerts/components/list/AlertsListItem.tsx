@@ -202,6 +202,60 @@ const MenuDivider = styled.li`
   margin: 4px 0;
 `;
 
+const DeleteConfirm = styled.div`
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+const DeleteConfirmText = styled.p`
+  margin: 0;
+  font-size: 13px;
+  color: ${(props) => props.theme.colors.main};
+  white-space: nowrap;
+`;
+
+const DeleteConfirmButtons = styled.div`
+  display: flex;
+  gap: 6px;
+`;
+
+const DeleteConfirmCancel = styled.button`
+  flex: 1;
+  padding: 5px 10px;
+  border: 1px solid ${(props) => props.theme.borderColor};
+  border-radius: ${(props) => props.theme.borderRadius};
+  background: none;
+  font-family: inherit;
+  font-size: 12px;
+  color: ${(props) => props.theme.colors.secondary};
+  cursor: pointer;
+  transition: all 0.1s;
+
+  &:hover {
+    border-color: ${(props) => props.theme.colors.main};
+    color: ${(props) => props.theme.colors.main};
+  }
+`;
+
+const DeleteConfirmSubmit = styled.button`
+  flex: 1;
+  padding: 5px 10px;
+  border: 1px solid ${(props) => props.theme.colors.error};
+  border-radius: ${(props) => props.theme.borderRadius};
+  background: ${(props) => props.theme.colors.error};
+  font-family: inherit;
+  font-size: 12px;
+  color: #fff;
+  cursor: pointer;
+  transition: opacity 0.1s;
+
+  &:hover {
+    opacity: 0.85;
+  }
+`;
+
 const CreatedText = styled.span`
   font-size: 11px;
   color: ${(props) => props.theme.colors.secondary};
@@ -238,6 +292,7 @@ export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
   const isDisabled = !!alert.disabled;
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState(false);
   const [menuCoords, setMenuCoords] = useState({ top: 0, right: 0 });
   const buttonRef = useRef<HTMLButtonElement>(null);
   const dropdownRef = useRef<HTMLUListElement>(null);
@@ -246,6 +301,11 @@ export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
     if (!userId) return;
     editAlert(userId, { ...alert, disabled: !isDisabled });
   }, [userId, alert, isDisabled]);
+
+  const closeMenu = useCallback(() => {
+    setMenuOpen(false);
+    setPendingDelete(false);
+  }, []);
 
   useLayoutEffect(() => {
     if (!menuOpen || !buttonRef.current) return;
@@ -259,15 +319,15 @@ export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
   useEffect(() => {
     if (!menuOpen) return;
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setMenuOpen(false);
+      if (e.key === "Escape") closeMenu();
     };
     const handleClick = (e: MouseEvent) => {
-      if (!(e.target instanceof Node)) return setMenuOpen(false);
+      if (!(e.target instanceof Node)) return closeMenu();
       if (
         !buttonRef.current?.contains(e.target) &&
         !dropdownRef.current?.contains(e.target)
       )
-        setMenuOpen(false);
+        closeMenu();
     };
     const timeoutId = setTimeout(() => {
       document.addEventListener("keydown", handleKey);
@@ -403,7 +463,7 @@ export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
                       type="button"
                       role="menuitem"
                       onClick={() => {
-                        setMenuOpen(false);
+                        closeMenu();
                         navigate(alertsSimulationPath(alert.id));
                       }}
                     >
@@ -415,7 +475,7 @@ export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
                       type="button"
                       role="menuitem"
                       onClick={() => {
-                        setMenuOpen(false);
+                        closeMenu();
                         onEdit(alert);
                       }}
                     >
@@ -427,7 +487,7 @@ export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
                       type="button"
                       role="menuitem"
                       onClick={() => {
-                        setMenuOpen(false);
+                        closeMenu();
                         onDuplicate(alert);
                       }}
                     >
@@ -435,18 +495,40 @@ export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
                     </OverflowMenuItem>
                   </li>
                   <MenuDivider />
-                  <li>
-                    <DeleteMenuItem
-                      type="button"
-                      role="menuitem"
-                      onClick={() => {
-                        setMenuOpen(false);
-                        userId && deleteAlert(userId, alert.id);
-                      }}
-                    >
-                      Delete
-                    </DeleteMenuItem>
-                  </li>
+                  {pendingDelete ? (
+                    <li>
+                      <DeleteConfirm>
+                        <DeleteConfirmText>Delete this alert?</DeleteConfirmText>
+                        <DeleteConfirmButtons>
+                          <DeleteConfirmCancel
+                            type="button"
+                            onClick={() => setPendingDelete(false)}
+                          >
+                            Cancel
+                          </DeleteConfirmCancel>
+                          <DeleteConfirmSubmit
+                            type="button"
+                            onClick={() => {
+                              closeMenu();
+                              userId && deleteAlert(userId, alert.id);
+                            }}
+                          >
+                            Delete
+                          </DeleteConfirmSubmit>
+                        </DeleteConfirmButtons>
+                      </DeleteConfirm>
+                    </li>
+                  ) : (
+                    <li>
+                      <DeleteMenuItem
+                        type="button"
+                        role="menuitem"
+                        onClick={() => setPendingDelete(true)}
+                      >
+                        Delete
+                      </DeleteMenuItem>
+                    </li>
+                  )}
                 </OverflowMenuDropdown>,
                 document.body
               )}
