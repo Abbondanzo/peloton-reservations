@@ -7,6 +7,7 @@ import { mediaMobile } from "../../../theme/constants/queries";
 import { border } from "../../../theme/constants/styles";
 import { AlertPreferencesContext } from "../../context/AlertPreferencesContext";
 import { setPreferences } from "../../firebase/setPreferences";
+import { Toggle } from "../atoms/Toggle";
 
 const Form = styled.form`
   display: flex;
@@ -113,6 +114,33 @@ const ErrorText = styled.p`
   padding: 16px;
 `;
 
+const PauseRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid ${(props) => props.theme.borderColor};
+  margin-bottom: 4px;
+`;
+
+const PauseInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`;
+
+const PauseLabel = styled.span`
+  font-size: 13px;
+  font-weight: 500;
+  color: ${(props) => props.theme.colors.main};
+`;
+
+const PauseHint = styled.span`
+  font-size: 12px;
+  color: ${(props) => props.theme.colors.secondary};
+`;
+
 interface EditorProps {
   alertPreferences: Partial<AlertPreferences>;
 }
@@ -124,6 +152,7 @@ const Editor = ({ alertPreferences }: EditorProps) => {
   );
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const pauseAll = !!alertPreferences.pauseAll;
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -148,28 +177,52 @@ const Editor = ({ alertPreferences }: EditorProps) => {
     [userId, notificationDelayMin]
   );
 
+  const handleTogglePauseAll = useCallback(
+    async (checked: boolean) => {
+      if (!userId) return;
+      await setPreferences(userId, { pauseAll: !checked });
+    },
+    [userId]
+  );
+
   return (
-    <Form onSubmit={handleSubmit}>
-      <FieldGroup>
-        <Label htmlFor="delay-input">Cooldown (minutes)</Label>
-        <Hint>Minimum delay between consecutive alert notifications</Hint>
-      </FieldGroup>
-      <InputRow>
-        <Input
-          id="delay-input"
-          type="number"
-          min={0}
-          value={notificationDelayMin}
-          onChange={(e) => {
-            const val = parseInt(e.target.value, 10);
-            if (!Number.isNaN(val)) setNotificationDelayMin(val);
-          }}
+    <>
+      <PauseRow>
+        <PauseInfo>
+          <PauseLabel>Enable all notifications</PauseLabel>
+          <PauseHint>
+            Globally pause or resume notifications for all alerts
+          </PauseHint>
+        </PauseInfo>
+        <Toggle
+          id="pause-all-toggle"
+          checked={!pauseAll}
+          onChange={handleTogglePauseAll}
+          aria-label={pauseAll ? "Resume all notifications" : "Pause all notifications"}
         />
-        <SaveButton type="submit" disabled={saving} $saved={saved}>
-          {saving ? "Saving…" : saved ? "Saved ✓" : "Save"}
-        </SaveButton>
-      </InputRow>
-    </Form>
+      </PauseRow>
+      <Form onSubmit={handleSubmit}>
+        <FieldGroup>
+          <Label htmlFor="delay-input">Cooldown (minutes)</Label>
+          <Hint>Minimum delay between consecutive alert notifications</Hint>
+        </FieldGroup>
+        <InputRow>
+          <Input
+            id="delay-input"
+            type="number"
+            min={0}
+            value={notificationDelayMin}
+            onChange={(e) => {
+              const val = parseInt(e.target.value, 10);
+              if (!Number.isNaN(val)) setNotificationDelayMin(val);
+            }}
+          />
+          <SaveButton type="submit" disabled={saving} $saved={saved}>
+            {saving ? "Saving…" : saved ? "Saved ✓" : "Save"}
+          </SaveButton>
+        </InputRow>
+      </Form>
+    </>
   );
 };
 

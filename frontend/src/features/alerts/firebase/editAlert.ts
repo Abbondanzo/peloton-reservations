@@ -17,6 +17,7 @@ export const editAlert = async (
     ...alert,
     name: alert.name ?? null,
     watchedClassIds: alert.watchedClassIds ?? null,
+    disabled: alert.disabled ?? null,
   };
   await update(ref(db, PATHS.alert(userId, alert.id)), data);
 };

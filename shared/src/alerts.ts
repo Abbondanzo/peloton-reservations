@@ -30,9 +30,13 @@ export interface Alert {
   waitlistAlerts?: boolean;
   /** When set, waitlist_changed notifications only fire for these class IDs. */
   watchedClassIds?: string[];
+  /** When true, the alert is stored but no notifications are sent. */
+  disabled?: boolean;
 }
 
 export interface AlertPreferences {
   lastUpdated: number;
   notificationDelayMin: number;
+  /** When true, all alert notifications are suppressed globally. */
+  pauseAll?: boolean;
 }

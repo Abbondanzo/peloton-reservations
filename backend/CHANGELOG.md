@@ -1,3 +1,8 @@
+## 0.0.21
+
+- Alerts can now be individually disabled. A disabled alert is stored but never fires notifications until re-enabled
+- Added a global "pause all" preference. When enabled, all notifications are suppressed for the user regardless of individual alert settings
+
 ## 0.0.20
 
 - Waitlist alerts can now be scoped to specific classes. When an alert has a class selection configured, `waitlist_changed` notifications only fire for those classes rather than every class matching the alert's filters

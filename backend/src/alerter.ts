@@ -180,6 +180,13 @@ export class Alerter implements DiffDelegate {
     changeType: ChangeType,
     extraKey?: string
   ) {
+    if (this.alertPreferences[userId]?.pauseAll) {
+      logger.log(
+        `Suppressing ${changeType} for user ${userId}: all notifications paused`
+      );
+      return;
+    }
+
     const debounceKey = extraKey
       ? `${userId}:${classData.id}:${changeType}:${extraKey}`
       : `${userId}:${classData.id}:${changeType}`;
@@ -439,6 +446,7 @@ export class Alerter implements DiffDelegate {
         }
       }
       for (const alert of Object.values(alerts)) {
+        if (alert.disabled) continue;
         this.initializeUser(alert.studioId, userId);
         this.alertGroups[alert.studioId][userId].push(alert);
       }
