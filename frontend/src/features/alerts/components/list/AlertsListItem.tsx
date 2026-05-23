@@ -1,4 +1,4 @@
-import { memo, useMemo } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { type Alert, STUDIOS } from "shared";
 import styled from "styled-components";
@@ -9,17 +9,20 @@ import { mediaMobile } from "../../../theme/constants/queries";
 import { border } from "../../../theme/constants/styles";
 import { DAY_NAMES } from "../../constants/days";
 import { deleteAlert } from "../../firebase/deleteAlert";
+import { editAlert } from "../../firebase/editAlert";
 import { isNotEmpty } from "../../../utils/optional";
 import {
   useGetInstructorsQuery,
   useGetDisciplinesQuery,
 } from "../../../class-list/services/pelotonApi";
 import { generateAlertTitle } from "../../operators/generateAlertTitle";
+import { Toggle } from "../atoms/Toggle";
 
-const Wrapper = styled.li`
+const Wrapper = styled.li<{ $disabled: boolean }>`
   ${border}
   padding: 16px;
   transition: box-shadow 0.15s;
+  opacity: ${(props) => (props.$disabled ? 0.55 : 1)};
 
   &:hover {
     box-shadow: rgba(0, 0, 0, 0.06) 0px 2px 12px;
@@ -191,6 +194,12 @@ interface Props {
 export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
   const navigate = useNavigate();
   const userId = useAppSelector(selectUserId);
+  const isDisabled = !!alert.disabled;
+
+  const handleToggleDisabled = useCallback(() => {
+    if (!userId) return;
+    editAlert(userId, { ...alert, disabled: !isDisabled });
+  }, [userId, alert, isDisabled]);
   const { data: allInstructors } = useGetInstructorsQuery(alert.studioId);
   const { data: allDisciplines } = useGetDisciplinesQuery(alert.studioId);
 
@@ -249,7 +258,7 @@ export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
   const statusInfo = formatStatus(alert.maxStatus);
 
   return (
-    <Wrapper>
+    <Wrapper $disabled={isDisabled}>
       <TopRow>
         <Info>
           <TitleRow>
@@ -281,6 +290,12 @@ export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
         </Info>
 
         <Actions>
+          <Toggle
+            id={`toggle-${alert.id}`}
+            checked={!isDisabled}
+            onChange={handleToggleDisabled}
+            aria-label={isDisabled ? "Enable alert" : "Disable alert"}
+          />
           <ActionButton
             type="button"
             onClick={() => navigate(alertsSimulationPath(alert.id))}
