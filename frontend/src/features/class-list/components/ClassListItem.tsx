@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/react";
-import { memo, useMemo } from "react";
+import { memo, useCallback, useMemo } from "react";
 import styled, { css } from "styled-components";
 import { useAppSelector } from "../../store/hooks/useStore";
 import { mediaMobile } from "../../theme/constants/queries";
@@ -195,6 +195,18 @@ export const ClassListItem = memo(({ clazz }: Props) => {
       .href;
   }, [clazz]);
 
+  // In PWA standalone mode, target="_blank" is intercepted by the PWA window
+  // on iOS. Using window.open() from a click handler reliably opens the system
+  // browser instead.
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>) => {
+      if (!reservationUrl) return;
+      e.preventDefault();
+      window.open(reservationUrl, "_blank", "noopener,noreferrer");
+    },
+    [reservationUrl]
+  );
+
   const time = useMemo(() => {
     return getLocalTime(clazz.start, studio?.timezone);
   }, [clazz.start, studio?.timezone]);
@@ -207,6 +219,8 @@ export const ClassListItem = memo(({ clazz }: Props) => {
       $interactive={interactive}
       href={reservationUrl}
       target="_blank"
+      rel="noopener noreferrer"
+      onClick={handleClick}
       aria-label={`${config.label} ${clazz.name} at ${time}`}
     >
       <TimeColumn>
