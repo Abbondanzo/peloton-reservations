@@ -6,5 +6,6 @@ export * from "./classApi";
 export * from "./classStatus";
 export * from "./firebasePaths";
 export * from "./optional";
+export * from "./selloutStats";
 export * from "./studios";
 export * from "./timeRanges";
