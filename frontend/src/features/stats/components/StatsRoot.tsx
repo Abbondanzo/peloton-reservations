@@ -1,10 +1,15 @@
+import type { ReactNode } from "react";
 import { useState } from "react";
 import styled from "styled-components";
 import { STUDIOS } from "shared";
 import { NavbarProvider } from "../../navigation/components/NavbarProvider";
+import { border } from "../../theme/constants/styles";
 import { mediaMobile } from "../../theme/constants/queries";
 import type { DayMetrics } from "../hooks/useMetrics";
 import { useMetrics } from "../hooks/useMetrics";
+import type { InstructorSelloutStats } from "../hooks/useSelloutStats";
+import { useSelloutStats } from "../hooks/useSelloutStats";
+import { formatDuration } from "../utils/formatDuration";
 
 // ---------------------------------------------------------------------------
 // Layout
@@ -286,8 +291,7 @@ function LineChart({
   }
 
   // X position of activeDay as a percentage of the SVG width (0–100)
-  const activePct =
-    activeDay !== null ? (activeDay / (n - 1)) * 100 : null;
+  const activePct = activeDay !== null ? (activeDay / (n - 1)) * 100 : null;
 
   return (
     <ChartOuter>
@@ -405,6 +409,114 @@ function LineChart({
 }
 
 // ---------------------------------------------------------------------------
+// Sellout speed table
+// ---------------------------------------------------------------------------
+
+const TableScroll = styled.div`
+  overflow-x: auto;
+  ${border}
+`;
+
+const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 480px;
+`;
+
+const Th = styled.th`
+  text-align: left;
+  padding: 10px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: ${(p) => p.theme.colors.secondary};
+  background: ${(p) => p.theme.colors.mainSurface};
+  border-bottom: 1px solid ${(p) => p.theme.borderColor};
+  white-space: nowrap;
+`;
+
+const Tr = styled.tr`
+  &:not(:last-child) td {
+    border-bottom: 1px solid ${(p) => p.theme.borderColor};
+  }
+`;
+
+const Td = styled.td`
+  padding: 10px 16px;
+  font-size: 13px;
+  color: ${(p) => p.theme.colors.main};
+  white-space: nowrap;
+`;
+
+const SampleSize = styled.span`
+  color: ${(p) => p.theme.colors.secondary};
+  font-size: 11px;
+  margin-left: 4px;
+`;
+
+function formatMedianCell(
+  medianMs: number | null,
+  sampleSize: number
+): ReactNode {
+  if (medianMs === null) return <SampleSize>—</SampleSize>;
+  return (
+    <>
+      {formatDuration(medianMs)}
+      <SampleSize>(n={sampleSize})</SampleSize>
+    </>
+  );
+}
+
+function SelloutStatsTable({ stats }: { stats: InstructorSelloutStats[] }) {
+  if (stats.length === 0) {
+    return <StatusMessage>No sellout data recorded yet.</StatusMessage>;
+  }
+
+  // Fastest median time-to-waitlist first; instructors without any
+  // waitlist data yet are pushed to the bottom.
+  const sorted = [...stats].sort((a, b) => {
+    if (a.medianTimeToWaitlistMs === null && b.medianTimeToWaitlistMs === null)
+      return a.instructorName.localeCompare(b.instructorName);
+    if (a.medianTimeToWaitlistMs === null) return 1;
+    if (b.medianTimeToWaitlistMs === null) return -1;
+    return a.medianTimeToWaitlistMs - b.medianTimeToWaitlistMs;
+  });
+
+  return (
+    <TableScroll>
+      <Table>
+        <thead>
+          <Tr>
+            <Th>Instructor</Th>
+            <Th>Classes tracked</Th>
+            <Th>Median time to waitlist</Th>
+            <Th>Median time to waitlist full</Th>
+          </Tr>
+        </thead>
+        <tbody>
+          {sorted.map((s) => (
+            <Tr key={s.instructorId}>
+              <Td>{s.instructorName}</Td>
+              <Td>{s.classCount}</Td>
+              <Td>
+                {formatMedianCell(
+                  s.medianTimeToWaitlistMs,
+                  s.waitlistSampleSize
+                )}
+              </Td>
+              <Td>
+                {formatMedianCell(s.medianTimeToFullMs, s.fullSampleSize)}
+              </Td>
+            </Tr>
+          ))}
+        </tbody>
+      </Table>
+    </TableScroll>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
 
@@ -419,6 +531,7 @@ const COLORS = {
 
 export const StatsRoot = () => {
   const metrics = useMetrics(14);
+  const selloutStats = useSelloutStats();
 
   if (metrics.state === "idle" || metrics.state === "loading") {
     return (
@@ -500,9 +613,21 @@ export const StatsRoot = () => {
           <LineChart
             days={days}
             seriesForDay={(day) => [
-              { value: day.notifications.sent, color: COLORS.sent, label: "Sent" },
-              { value: day.notifications.failed, color: COLORS.failed, label: "Failed" },
-              { value: day.notifications.usersReached, color: COLORS.usersReached, label: "Users reached" },
+              {
+                value: day.notifications.sent,
+                color: COLORS.sent,
+                label: "Sent",
+              },
+              {
+                value: day.notifications.failed,
+                color: COLORS.failed,
+                label: "Failed",
+              },
+              {
+                value: day.notifications.usersReached,
+                color: COLORS.usersReached,
+                label: "Users reached",
+              },
             ]}
             legend={[
               { color: COLORS.sent, label: "Sent" },
@@ -510,6 +635,20 @@ export const StatsRoot = () => {
               { color: COLORS.usersReached, label: "Users reached" },
             ]}
           />
+        </Section>
+
+        <Section>
+          <SectionTitle>Class sellout speed by instructor</SectionTitle>
+          {selloutStats.state === "idle" || selloutStats.state === "loading" ? (
+            <StatusMessage>Loading…</StatusMessage>
+          ) : selloutStats.state === "failed" ? (
+            <StatusMessage>
+              Failed to load sellout stats:{" "}
+              {selloutStats.error.message ?? "unknown error"}
+            </StatusMessage>
+          ) : (
+            <SelloutStatsTable stats={selloutStats.data} />
+          )}
         </Section>
 
         {studioIds.map((studioId) => (

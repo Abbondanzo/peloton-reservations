@@ -8,4 +8,7 @@ export const PATHS = {
   classHistory: (studioId: string) => `classHistory/${studioId}`,
   classSnapshot: (studioId: string, classId: string | number) =>
     `classHistory/${studioId}/${classId}`,
+  selloutStats: (instructorId: string) => `selloutStats/${instructorId}`,
+  selloutRecord: (instructorId: string, classId: string | number) =>
+    `selloutStats/${instructorId}/${classId}`,
 } as const;

@@ -9,6 +9,7 @@ import {
   type ClassSnapshot,
   PATHS,
   RawClass,
+  type SelloutRecord,
   STUDIOS,
   buildSnapshot,
   getBookableStatus,
@@ -47,6 +48,8 @@ const PENDING_CHECK_INTERVAL_MS = 30 * 1000;
 const HISTORY_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
 /** How often to clean up old class history snapshots. */
 const HISTORY_CLEANUP_INTERVAL_MS = 60 * 60 * 1000;
+/** How many recent classes' sellout-speed records to retain per instructor. */
+const MAX_SELLOUT_RECORDS_PER_INSTRUCTOR = 50;
 
 interface PendingNotification {
   userId: string;
@@ -72,6 +75,9 @@ export class Alerter implements DiffDelegate {
   /** key: `${userId}:${classId}:${changeType}` */
   private readonly pendingNotifications: Map<string, PendingNotification>;
 
+  /** key: `${studioId}:${classId}:${"waitlist" | "full"}` — dedupes sellout-speed writes */
+  private readonly recordedSelloutMilestones: Set<string>;
+
   constructor() {
     this.alertGroups = {};
     this.alertPreferences = {};
@@ -79,6 +85,7 @@ export class Alerter implements DiffDelegate {
     this.lastNotifiedAt = {};
     this.messagingTokens = {};
     this.pendingNotifications = new Map();
+    this.recordedSelloutMilestones = new Set();
   }
 
   async initialize() {
@@ -138,8 +145,22 @@ export class Alerter implements DiffDelegate {
     classes: { new: RawClass; old: RawClass }[]
   ): void {
     for (const entry of classes) {
-      if (getBookableStatus(entry.old) !== getBookableStatus(entry.new)) {
-        this.writeSnapshot(studioId, entry.new);
+      const oldStatus = getBookableStatus(entry.old);
+      const newStatus = getBookableStatus(entry.new);
+      if (oldStatus !== newStatus) {
+        const now = Date.now();
+        this.writeSnapshot(studioId, entry.new, now);
+        if (oldStatus === "free" && newStatus === "waitlist") {
+          this.recordSelloutMilestone(
+            studioId,
+            entry.new,
+            "timeToWaitlistMs",
+            now
+          );
+        }
+        if (newStatus === "full") {
+          this.recordSelloutMilestone(studioId, entry.new, "timeToFullMs", now);
+        }
       }
       if (!this.alertGroups[studioId]) continue;
       for (const [userId, alerts] of Object.entries(
@@ -377,8 +398,12 @@ export class Alerter implements DiffDelegate {
   // Class history
   // ---------------------------------------------------------------------------
 
-  private writeSnapshot(studioId: string, rawClass: RawClass): void {
-    const snapshot: ClassSnapshot = buildSnapshot(rawClass);
+  private writeSnapshot(
+    studioId: string,
+    rawClass: RawClass,
+    now = Date.now()
+  ): void {
+    const snapshot: ClassSnapshot = buildSnapshot(rawClass, now);
     const db = admin.database();
     db.ref(
       `${PATHS.classSnapshot(studioId, rawClass.id)}/${snapshot.snapshotAt}`
@@ -388,6 +413,80 @@ export class Alerter implements DiffDelegate {
         logger.error(`Failed to write snapshot for class ${rawClass.id}:`, err);
         Sentry.captureException(err);
       });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Instructor sellout-speed stats
+  // ---------------------------------------------------------------------------
+
+  private async recordSelloutMilestone(
+    studioId: string,
+    rawClass: RawClass,
+    field: "timeToWaitlistMs" | "timeToFullMs",
+    reachedAt: number
+  ): Promise<void> {
+    const milestone = field === "timeToWaitlistMs" ? "waitlist" : "full";
+    const dedupeKey = `${studioId}:${rawClass.id}:${milestone}`;
+    if (this.recordedSelloutMilestones.has(dedupeKey)) return;
+    this.recordedSelloutMilestones.add(dedupeKey);
+
+    try {
+      const db = admin.database();
+      const firstSnapshot = await db
+        .ref(PATHS.classSnapshot(studioId, rawClass.id))
+        .orderByKey()
+        .limitToFirst(1)
+        .once("value");
+      const firstVal = firstSnapshot.val() as Record<
+        string,
+        ClassSnapshot
+      > | null;
+      if (!firstVal) return;
+      const addedAt = Number(Object.keys(firstVal)[0]);
+      if (!Number.isFinite(addedAt) || reachedAt < addedAt) return;
+      const durationMs = reachedAt - addedAt;
+
+      const updates: Record<string, unknown> = {};
+      for (const instructor of rawClass.instructors) {
+        const instructorId = String(instructor.id);
+        const path = PATHS.selloutRecord(instructorId, rawClass.id);
+        updates[`${path}/classId`] = String(rawClass.id);
+        updates[`${path}/className`] = rawClass.name;
+        updates[`${path}/instructorName`] = instructor.name;
+        updates[`${path}/addedAt`] = addedAt;
+        updates[`${path}/${field}`] = durationMs;
+      }
+      await db.ref().update(updates);
+
+      await Promise.all(
+        rawClass.instructors.map((instructor) =>
+          this.trimSelloutStats(String(instructor.id))
+        )
+      );
+    } catch (err) {
+      logger.error(
+        `Failed to record sellout milestone for class ${rawClass.id}:`,
+        err
+      );
+      Sentry.captureException(err);
+    }
+  }
+
+  private async trimSelloutStats(instructorId: string): Promise<void> {
+    const db = admin.database();
+    const snap = await db.ref(PATHS.selloutStats(instructorId)).once("value");
+    const records = snap.val() as Record<string, SelloutRecord> | null;
+    if (!records) return;
+    const entries = Object.entries(records);
+    const excess = entries.length - MAX_SELLOUT_RECORDS_PER_INSTRUCTOR;
+    if (excess <= 0) return;
+    entries.sort((a, b) => a[1].addedAt - b[1].addedAt);
+    const removals = entries
+      .slice(0, excess)
+      .map(([classId]) =>
+        db.ref(PATHS.selloutRecord(instructorId, classId)).remove()
+      );
+    await Promise.all(removals);
   }
 
   private async cleanupOldSnapshots(): Promise<void> {
