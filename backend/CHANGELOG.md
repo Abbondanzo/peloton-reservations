@@ -1,3 +1,7 @@
+## 0.0.23
+
+- Schedule fetches that fail with a transient server error (e.g. 502 from the Peloton API) are now retried with exponential backoff, up to 3 attempts, before giving up and throwing
+
 ## 0.0.22
 
 - Added per-instructor class sellout-speed tracking, shown on the Stats page. For each instructor, the app now tracks how long each class takes to go from newly added to waitlisted, and separately, how long it takes for the waitlist to fill up. The last 50 classes per instructor are kept, and the Stats page shows the median of each measurement per instructor
