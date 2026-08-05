@@ -10,6 +10,12 @@ import {
 } from "shared";
 import { logger } from "./logger";
 
+const MAX_FETCH_RETRIES = 3;
+const RETRY_BASE_DELAY_MS = 500;
+
+const sleep = (ms: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
 interface Diff {
   old: RawClass;
   new: RawClass;
@@ -88,20 +94,34 @@ export class Schedule {
   }
 
   private async fetchPage(url: string): Promise<RawClassResponse> {
-    const response = await Sentry.startSpan(
-      {
-        name: "peloton.schedule.fetch",
-        op: "http.client",
-        attributes: { "studio.id": this.studioId },
-      },
-      () => fetch(url, { headers: getPelotonHeaders(this.studioId) })
-    );
-    if (!response.ok) {
-      throw new Error(
-        `Peloton API returned ${response.status} for studio ${this.studioId}`
+    for (let attempt = 0; ; attempt++) {
+      const response = await Sentry.startSpan(
+        {
+          name: "peloton.schedule.fetch",
+          op: "http.client",
+          attributes: { "studio.id": this.studioId },
+        },
+        () => fetch(url, { headers: getPelotonHeaders(this.studioId) })
       );
+      if (response.ok) {
+        return response.json();
+      }
+      if (response.status < 500 || attempt >= MAX_FETCH_RETRIES) {
+        throw new Error(
+          `Peloton API returned ${response.status} for studio ${this.studioId}`
+        );
+      }
+      const exponentialDelay = RETRY_BASE_DELAY_MS * 2 ** attempt;
+      const delay = Math.round(
+        exponentialDelay / 2 + Math.random() * (exponentialDelay / 2)
+      );
+      logger.error(
+        `Peloton API returned ${response.status} for studio ${this.studioId}, retrying in ${delay}ms (attempt ${
+          attempt + 1
+        }/${MAX_FETCH_RETRIES})`
+      );
+      await sleep(delay);
     }
-    return response.json();
   }
 
   private compareClasses(
