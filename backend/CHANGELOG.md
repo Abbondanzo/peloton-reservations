@@ -1,6 +1,6 @@
 ## 0.0.23
 
-- Schedule fetches that fail with a transient server error (e.g. 502 from the Peloton API) are now retried with exponential backoff, up to 3 attempts, before giving up and throwing
+- Schedule fetches that fail with a transient server error (e.g. 502 from the Peloton API) are now retried with exponential backoff and jitter, up to 3 attempts, before giving up and throwing
 
 ## 0.0.22
 

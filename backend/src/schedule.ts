@@ -111,7 +111,10 @@ export class Schedule {
           `Peloton API returned ${response.status} for studio ${this.studioId}`
         );
       }
-      const delay = RETRY_BASE_DELAY_MS * 2 ** attempt;
+      const exponentialDelay = RETRY_BASE_DELAY_MS * 2 ** attempt;
+      const delay = Math.round(
+        exponentialDelay / 2 + Math.random() * (exponentialDelay / 2)
+      );
       logger.error(
         `Peloton API returned ${response.status} for studio ${this.studioId}, retrying in ${delay}ms (attempt ${
           attempt + 1
