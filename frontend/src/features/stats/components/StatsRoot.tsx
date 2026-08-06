@@ -421,6 +421,7 @@ const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
   min-width: 480px;
+  background: ${(p) => p.theme.colors.mainSurface};
 `;
 
 const Th = styled.th`
