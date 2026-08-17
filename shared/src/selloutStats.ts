@@ -11,7 +11,12 @@ export interface SelloutRecord {
   instructorName: string;
   /** Unix ms — when the class was first seen (from its earliest classHistory snapshot). */
   addedAt: number;
-  /** Unix ms elapsed from addedAt until the class first went to waitlist, or null if not yet reached. */
+  /**
+   * Unix ms elapsed from addedAt until the class first went to waitlist, or
+   * null if not yet reached. If the class skipped the waitlist bucket
+   * entirely (free -> full between polls), this is an upper-bound estimate
+   * equal to timeToFullMs, since the true waitlist time is unobserved.
+   */
   timeToWaitlistMs: number | null;
   /** Unix ms elapsed from addedAt until the waitlist first became full, or null if not yet reached. */
   timeToFullMs: number | null;

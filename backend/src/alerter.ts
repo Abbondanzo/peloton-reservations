@@ -150,7 +150,15 @@ export class Alerter implements DiffDelegate {
       if (oldStatus !== newStatus) {
         const now = Date.now();
         this.writeSnapshot(studioId, entry.new, now);
-        if (oldStatus === "free" && newStatus === "waitlist") {
+        // A class can skip the waitlist bucket entirely between two polls
+        // (free -> full in one jump) for very popular instructors. When
+        // that happens we still record a timeToWaitlistMs, using the same
+        // timestamp as timeToFullMs — an upper-bound estimate, since the
+        // true waitlist time is somewhere between the previous poll and now.
+        if (
+          oldStatus === "free" &&
+          (newStatus === "waitlist" || newStatus === "full")
+        ) {
           this.recordSelloutMilestone(
             studioId,
             entry.new,
@@ -428,7 +436,6 @@ export class Alerter implements DiffDelegate {
     const milestone = field === "timeToWaitlistMs" ? "waitlist" : "full";
     const dedupeKey = `${studioId}:${rawClass.id}:${milestone}`;
     if (this.recordedSelloutMilestones.has(dedupeKey)) return;
-    this.recordedSelloutMilestones.add(dedupeKey);
 
     try {
       const db = admin.database();
@@ -441,9 +448,20 @@ export class Alerter implements DiffDelegate {
         string,
         ClassSnapshot
       > | null;
-      if (!firstVal) return;
+      if (!firstVal) {
+        logger.error(
+          `No snapshot history found for class ${rawClass.id} while recording ${field}`
+        );
+        return;
+      }
       const addedAt = Number(Object.keys(firstVal)[0]);
-      if (!Number.isFinite(addedAt) || reachedAt < addedAt) return;
+      if (!Number.isFinite(addedAt) || reachedAt < addedAt) {
+        logger.error(
+          `Invalid addedAt (${addedAt}) for class ${rawClass.id} while recording ${field}, reachedAt=${reachedAt}`
+        );
+        return;
+      }
+      this.recordedSelloutMilestones.add(dedupeKey);
       const durationMs = reachedAt - addedAt;
 
       const updates: Record<string, unknown> = {};

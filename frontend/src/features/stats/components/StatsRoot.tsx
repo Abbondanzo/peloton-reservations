@@ -3,7 +3,7 @@ import { useState } from "react";
 import styled from "styled-components";
 import { STUDIOS } from "shared";
 import { NavbarProvider } from "../../navigation/components/NavbarProvider";
-import { border } from "../../theme/constants/styles";
+import { border, focus, hover } from "../../theme/constants/styles";
 import { mediaMobile } from "../../theme/constants/queries";
 import type { DayMetrics } from "../hooks/useMetrics";
 import { useMetrics } from "../hooks/useMetrics";
@@ -426,7 +426,7 @@ const Table = styled.table`
 
 const Th = styled.th`
   text-align: left;
-  padding: 10px 16px;
+  padding: 0;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
@@ -435,6 +435,29 @@ const Th = styled.th`
   background: ${(p) => p.theme.colors.mainSurface};
   border-bottom: 1px solid ${(p) => p.theme.borderColor};
   white-space: nowrap;
+`;
+
+const ThButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 10px 16px;
+  font: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  ${hover}
+  ${focus}
+`;
+
+const SortArrow = styled.span<{ $visible: boolean }>`
+  font-size: 10px;
+  visibility: ${(p) => (p.$visible ? "visible" : "hidden")};
 `;
 
 const Tr = styled.tr`
@@ -469,30 +492,113 @@ function formatMedianCell(
   );
 }
 
+type SortKey = "instructor" | "classCount" | "waitlist" | "full";
+type SortDirection = "asc" | "desc";
+interface SortState {
+  key: SortKey;
+  direction: SortDirection;
+}
+
+const COLUMNS: { key: SortKey; label: string }[] = [
+  { key: "instructor", label: "Instructor" },
+  { key: "classCount", label: "Classes tracked" },
+  { key: "waitlist", label: "Median time to waitlist" },
+  { key: "full", label: "Median time to waitlist full" },
+];
+
+// Nulls always sort last, regardless of direction.
+function compareNullableLast(
+  a: number | null,
+  b: number | null,
+  direction: SortDirection
+): number {
+  if (a === null && b === null) return 0;
+  if (a === null) return 1;
+  if (b === null) return -1;
+  return direction === "asc" ? a - b : b - a;
+}
+
+function compareStats(
+  a: InstructorSelloutStats,
+  b: InstructorSelloutStats,
+  sort: SortState | null
+): number {
+  if (!sort) {
+    // Default: fastest median time-to-waitlist first, nulls last.
+    return compareNullableLast(
+      a.medianTimeToWaitlistMs,
+      b.medianTimeToWaitlistMs,
+      "asc"
+    );
+  }
+  switch (sort.key) {
+    case "instructor":
+      return sort.direction === "asc"
+        ? a.instructorName.localeCompare(b.instructorName)
+        : b.instructorName.localeCompare(a.instructorName);
+    case "classCount":
+      return sort.direction === "asc"
+        ? a.classCount - b.classCount
+        : b.classCount - a.classCount;
+    case "waitlist":
+      return compareNullableLast(
+        a.medianTimeToWaitlistMs,
+        b.medianTimeToWaitlistMs,
+        sort.direction
+      );
+    case "full":
+      return compareNullableLast(
+        a.medianTimeToFullMs,
+        b.medianTimeToFullMs,
+        sort.direction
+      );
+  }
+}
+
 function SelloutStatsTable({ stats }: { stats: InstructorSelloutStats[] }) {
+  const [sort, setSort] = useState<SortState | null>(null);
+
   if (stats.length === 0) {
     return <StatusMessage>No sellout data recorded yet.</StatusMessage>;
   }
 
-  // Fastest median time-to-waitlist first; instructors without any
-  // waitlist data yet are pushed to the bottom.
-  const sorted = [...stats].sort((a, b) => {
-    if (a.medianTimeToWaitlistMs === null && b.medianTimeToWaitlistMs === null)
-      return a.instructorName.localeCompare(b.instructorName);
-    if (a.medianTimeToWaitlistMs === null) return 1;
-    if (b.medianTimeToWaitlistMs === null) return -1;
-    return a.medianTimeToWaitlistMs - b.medianTimeToWaitlistMs;
-  });
+  function handleSort(key: SortKey) {
+    setSort((prev) => {
+      if (!prev || prev.key !== key) return { key, direction: "asc" };
+      if (prev.direction === "asc") return { key, direction: "desc" };
+      return null;
+    });
+  }
+
+  const sorted = [...stats].sort((a, b) => compareStats(a, b, sort));
 
   return (
     <TableScroll>
       <Table>
         <thead>
           <Tr>
-            <Th>Instructor</Th>
-            <Th>Classes tracked</Th>
-            <Th>Median time to waitlist</Th>
-            <Th>Median time to waitlist full</Th>
+            {COLUMNS.map(({ key, label }) => {
+              const active = sort?.key === key;
+              return (
+                <Th
+                  key={key}
+                  aria-sort={
+                    active
+                      ? sort.direction === "asc"
+                        ? "ascending"
+                        : "descending"
+                      : "none"
+                  }
+                >
+                  <ThButton type="button" onClick={() => handleSort(key)}>
+                    {label}
+                    <SortArrow $visible={active}>
+                      {active && sort.direction === "desc" ? "▼" : "▲"}
+                    </SortArrow>
+                  </ThButton>
+                </Th>
+              );
+            })}
           </Tr>
         </thead>
         <tbody>

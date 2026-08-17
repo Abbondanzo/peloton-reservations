@@ -1,3 +1,8 @@
+## 0.0.24
+
+- Fixed a bug where a failed attempt to record a class's sellout-speed milestone (time-to-waitlist or time-to-full) would be permanently skipped instead of retried on the next occurrence, with no error logged — this could silently suppress data on the Stats page
+- Classes that go straight from open to full between polls (skipping the waitlist stage entirely, common for very popular instructors) now still get a time-to-waitlist figure recorded, using the time-to-full value as an upper-bound estimate, instead of leaving it blank
+
 ## 0.0.23
 
 - Schedule fetches that fail with a transient server error (e.g. 502 from the Peloton API) are now retried with exponential backoff and jitter, up to 3 attempts, before giving up and throwing
