@@ -524,12 +524,8 @@ function compareStats(
   sort: SortState | null
 ): number {
   if (!sort) {
-    // Default: fastest median time-to-waitlist first, nulls last.
-    return compareNullableLast(
-      a.medianTimeToWaitlistMs,
-      b.medianTimeToWaitlistMs,
-      "asc"
-    );
+    // Default: instructor name, A-Z.
+    return a.instructorName.localeCompare(b.instructorName);
   }
   switch (sort.key) {
     case "instructor":
