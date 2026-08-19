@@ -18,12 +18,10 @@ function App() {
     const params = new URLSearchParams(window.location.search);
     const classUrl = params.get("classUrl");
     if (!classUrl) return;
-    window.history.replaceState(
-      null,
-      "",
-      window.location.pathname + window.location.hash
-    );
-    window.location.assign(
+    // Use replace (not assign) so this hop doesn't leave a dangling history
+    // entry — without it, pressing back after a notification opens the class
+    // page lands on a blank intermediate entry instead of closing the view.
+    window.location.replace(
       new URL(classUrl, "https://schedule.studio.onepeloton.com").href
     );
   }, []);
