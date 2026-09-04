@@ -71,6 +71,29 @@ Types are defined in `shared/src/alerts.ts` and `frontend/src/features/`. Look t
 - `useId()` in `TextInput`, `aria-describedby`, `aria-expanded`/`aria-haspopup` on popovers
 - `React.memo` on `ClassListItem`, `AlertsListItem`
 
+## Checks
+
+Run these from the repo root. CI runs format, lint, typecheck and test on every PR, so a failure here is a failure there.
+
+| Command               | What it does                                       |
+| --------------------- | -------------------------------------------------- |
+| `pnpm prettier`       | Formats the repo in place                          |
+| `pnpm prettier:check` | Verifies formatting without writing (what CI runs) |
+| `pnpm lint`           | ESLint across the workspace                        |
+| `pnpm typecheck`      | Type-checks every package, test files included     |
+| `pnpm test`           | Vitest across `shared`, `backend` and `frontend`   |
+
+**Always run `pnpm prettier` and `pnpm lint` before committing.** Both were left
+unenforced for a while and drifted; they are CI gates now.
+
+Two things to know:
+
+- `pnpm prettier` rewrites the **whole repo**, not just your changes. If it
+  touches files unrelated to your work, leave those out of your commit.
+- `pnpm typecheck` needs `shared` built first (`pnpm --filter shared build`) —
+  the frontend resolves `shared` through its build output. Tests don't: they
+  alias `shared` to source, so `pnpm test` works from a fresh clone.
+
 ## Backend Versioning
 
 Every PR that contains a backend change (any file under `backend/` or `shared/`) **must** include a version bump and changelog entry as part of the same PR. Do this before committing/pushing the rest of the changes:
