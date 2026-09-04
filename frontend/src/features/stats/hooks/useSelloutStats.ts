@@ -7,11 +7,9 @@ import type { AsyncData } from "../../store/types/AsyncData";
 export interface InstructorSelloutStats {
   instructorId: string;
   instructorName: string;
+  /** Classes whose waitlist we watched fill from empty. */
   classCount: number;
-  medianTimeToWaitlistMs: number | null;
-  waitlistSampleSize: number;
-  medianTimeToFullMs: number | null;
-  fullSampleSize: number;
+  medianTimeToWaitlistFullMs: number;
 }
 
 function median(values: number[]): number | null {
@@ -24,27 +22,26 @@ function median(values: number[]): number | null {
 }
 
 /**
- * A milestone is only a usable sample when it is a positive duration. Older
- * records can carry a zero, written when the backend had no earlier snapshot
- * to measure the class's sellout time from.
+ * Records written before the stats measured waitlist fill time carry the
+ * superseded fields instead, and are ignored rather than mixed in.
  */
-const isMeasuredDuration = (v: unknown): v is number =>
-  typeof v === "number" && Number.isFinite(v) && v > 0;
-
 const isValidRecord = (val: unknown): val is SelloutRecord => {
   if (!val || typeof val !== "object") return false;
   const r = val as Record<string, unknown>;
   return (
     typeof r.classId === "string" &&
     typeof r.instructorName === "string" &&
-    typeof r.addedAt === "number"
+    typeof r.addedAt === "number" &&
+    typeof r.timeToWaitlistFullMs === "number" &&
+    Number.isFinite(r.timeToWaitlistFullMs) &&
+    r.timeToWaitlistFullMs > 0
   );
 };
 
 /**
  * Reads `selloutStats/{instructorId}/{classId}` and rolls each instructor's
- * records (already capped to their last 50 classes by the backend) up into
- * median time-to-waitlist and time-to-full figures.
+ * records (already capped to their last 50 classes by the backend) up into a
+ * median waitlist fill time.
  */
 export function useSelloutStats(): AsyncData<InstructorSelloutStats[]> {
   const [state, setState] = useState<AsyncData<InstructorSelloutStats[]>>({
@@ -71,21 +68,15 @@ export function useSelloutStats(): AsyncData<InstructorSelloutStats[]> {
           ).filter(isValidRecord);
           if (records.length === 0) continue;
 
-          const waitlistTimes = records
-            .map((r) => r.timeToWaitlistMs)
-            .filter(isMeasuredDuration);
-          const fullTimes = records
-            .map((r) => r.timeToFullMs)
-            .filter(isMeasuredDuration);
+          const fillTimes = records.map((r) => r.timeToWaitlistFullMs);
+          const medianFill = median(fillTimes);
+          if (medianFill === null) continue;
 
           result.push({
             instructorId,
             instructorName: records[0].instructorName,
             classCount: records.length,
-            medianTimeToWaitlistMs: median(waitlistTimes),
-            waitlistSampleSize: waitlistTimes.length,
-            medianTimeToFullMs: median(fullTimes),
-            fullSampleSize: fullTimes.length,
+            medianTimeToWaitlistFullMs: medianFill,
           });
         }
 

@@ -1,23 +1,20 @@
 /**
- * Per-class sellout-speed record for a single instructor. Written by the
- * backend when a class first reaches "waitlist" (free -> waitlist) and/or
- * "full" (waitlist -> full, or free -> full when the waitlist is skipped).
- * Stored at `selloutStats/{instructorId}/{classId}`, capped to the most
- * recent 50 classes per instructor.
+ * Per-class waitlist fill record for a single instructor. Written by the
+ * backend when a class's waitlist fills up, and only for classes we first saw
+ * with an empty waitlist — those are the ones we watched fill from the start,
+ * so the elapsed time means something. Classes are already at capacity by the
+ * time they reach the schedule feed, so how long the seats took to go is not
+ * observable; how long the waitlist took to fill is.
+ *
+ * Stored at `selloutStats/{instructorId}/{classId}`, capped to the most recent
+ * 50 classes per instructor.
  */
 export interface SelloutRecord {
   classId: string;
   className: string | null;
   instructorName: string;
-  /** Unix ms — when the class was first seen (from its earliest classHistory snapshot). */
+  /** Unix ms — when the class was first seen, with its waitlist still empty. */
   addedAt: number;
-  /**
-   * Unix ms elapsed from addedAt until the class first went to waitlist, or
-   * null if not yet reached. If the class skipped the waitlist bucket
-   * entirely (free -> full between polls), this is an upper-bound estimate
-   * equal to timeToFullMs, since the true waitlist time is unobserved.
-   */
-  timeToWaitlistMs: number | null;
-  /** Unix ms elapsed from addedAt until the waitlist first became full, or null if not yet reached. */
-  timeToFullMs: number | null;
+  /** Unix ms elapsed from addedAt until the waitlist first filled up. */
+  timeToWaitlistFullMs: number;
 }

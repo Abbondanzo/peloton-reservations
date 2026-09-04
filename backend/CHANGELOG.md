@@ -1,10 +1,11 @@
 ## 0.0.25
 
-- Fixed "Median time to waitlist" on the Stats page never filling in. Sellout milestones were only recorded when the previous poll happened to catch a class in a bookable state, which is rare: popular classes are usually already sold out when they first appear on the schedule, and a class that frees up on a cancellation jumps straight back to a full waitlist without passing through the waitlist stage. Both milestones are now derived from everything the app has observed about a class, so a class it watched fill up is measured whether or not it caught the exact poll where that happened
-- Sellout times are only recorded when the app actually saw the class in an earlier state — a class that was already sold out when it first appeared has no measurable time-to-waitlist, and is now left out instead of being recorded as an instant sellout
-- A class that empties out on a cancellation and re-fills is no longer mistaken for a class selling out for the first time, and never overwrites the time already recorded for it
-- The snapshots that define a class's sellout milestones are now kept until the class has taken place, instead of being deleted after a week — previously the class's first sighting was usually gone by the time it sold out, leaving nothing to measure against. Snapshots for classes that have already happened are now dropped entirely
-- Instructor stats no longer discard the sellout time for a class the moment it is recorded, which could happen to a long-scheduled class once an instructor was at the 50-class cap
+- Replaced "Median time to waitlist" on the Stats page, which never had any data and never could. Studio classes reach the schedule feed with their seats already taken — across a full week of history, not one class was ever seen with a spot open — so the time a class takes to sell out cannot be observed by polling. The page now reports how long an instructor's classes take to fill their waitlist, which is measurable
+- Waitlist fill times only count classes first seen with an empty waitlist. A class already part-way through filling when it was found would otherwise report a far shorter time and drag the median down
+- A class whose waitlist drops a spot and fills again keeps its original fill time instead of overwriting it with the shorter one, including after a restart
+- Fixed classes being marked full once 10 people were waiting, even when the class allowed a bigger waitlist. The class's own waitlist capacity is now used, so bookable status, alerts, and stats stay correct for classes that hold more
+- Snapshots that a class's fill time is measured from are kept until the class has taken place, instead of being deleted after a week — previously the class's first sighting was usually gone by the time its waitlist filled. Snapshots for classes that have already happened are now dropped entirely
+- Instructor stats no longer discard the fill time for a class the moment it is recorded, which could happen to a long-scheduled class once an instructor was at the 50-class cap
 - Class status changes are now logged as they happen
 
 ## 0.0.24
