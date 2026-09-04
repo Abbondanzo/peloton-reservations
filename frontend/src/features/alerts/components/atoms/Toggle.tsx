@@ -12,7 +12,9 @@ const Track = styled.div<{ $checked: boolean }>`
   height: 22px;
   border-radius: 11px;
   background-color: ${(props) =>
-    props.$checked ? props.theme.colors.accent : props.theme.colors.secondarySurface};
+    props.$checked
+      ? props.theme.colors.accent
+      : props.theme.colors.secondarySurface};
   border: 1px solid
     ${(props) =>
       props.$checked ? props.theme.colors.accent : props.theme.borderColor};

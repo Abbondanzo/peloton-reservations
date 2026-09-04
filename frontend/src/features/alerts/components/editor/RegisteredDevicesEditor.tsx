@@ -138,42 +138,44 @@ interface DeviceItemProps {
   onDelete: (token: string) => void;
 }
 
-const DeviceItem = memo(({ deviceToken, device, isCurrentDevice, onDelete }: DeviceItemProps) => {
-  const formattedDate = useMemo(() => {
-    const date = new Date(device.timestamp);
-    const isThisYear = date.getFullYear() === new Date().getFullYear();
-    const formatter = new Intl.DateTimeFormat(undefined, {
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-      ...(isThisYear ? {} : { year: "numeric" }),
-    });
-    return formatter.format(device.timestamp);
-  }, [device.timestamp]);
+const DeviceItem = memo(
+  ({ deviceToken, device, isCurrentDevice, onDelete }: DeviceItemProps) => {
+    const formattedDate = useMemo(() => {
+      const date = new Date(device.timestamp);
+      const isThisYear = date.getFullYear() === new Date().getFullYear();
+      const formatter = new Intl.DateTimeFormat(undefined, {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        ...(isThisYear ? {} : { year: "numeric" }),
+      });
+      return formatter.format(device.timestamp);
+    }, [device.timestamp]);
 
-  const friendlyName = parseUserAgent(device.userAgent);
+    const friendlyName = parseUserAgent(device.userAgent);
 
-  return (
-    <ItemWrapper>
-      <DeviceIcon>{getDeviceIcon(device.userAgent)}</DeviceIcon>
-      <DeviceInfo>
-        <DeviceName>
-          {friendlyName}
-          {isCurrentDevice && <CurrentBadge>This device</CurrentBadge>}
-        </DeviceName>
-        <DeviceTimestamp>Last active {formattedDate}</DeviceTimestamp>
-      </DeviceInfo>
-      <RemoveButton
-        type="button"
-        onClick={() => onDelete(deviceToken)}
-        aria-label={`Remove ${friendlyName}`}
-      >
-        Remove
-      </RemoveButton>
-    </ItemWrapper>
-  );
-});
+    return (
+      <ItemWrapper>
+        <DeviceIcon>{getDeviceIcon(device.userAgent)}</DeviceIcon>
+        <DeviceInfo>
+          <DeviceName>
+            {friendlyName}
+            {isCurrentDevice && <CurrentBadge>This device</CurrentBadge>}
+          </DeviceName>
+          <DeviceTimestamp>Last active {formattedDate}</DeviceTimestamp>
+        </DeviceInfo>
+        <RemoveButton
+          type="button"
+          onClick={() => onDelete(deviceToken)}
+          aria-label={`Remove ${friendlyName}`}
+        >
+          Remove
+        </RemoveButton>
+      </ItemWrapper>
+    );
+  }
+);
 
 interface DevicesListProps {
   devices: [string, RegisteredDevice][];
@@ -184,11 +186,14 @@ const RegisteredDevicesList = ({ devices }: DevicesListProps) => {
   const currentDevice = messaging.token;
 
   const userId = useAppSelector(selectUserId);
-  const onDelete = useCallback((deviceToken: string) => {
-    if (userId) {
-      deleteToken(userId, deviceToken).catch(console.error);
-    }
-  }, [userId]);
+  const onDelete = useCallback(
+    (deviceToken: string) => {
+      if (userId) {
+        deleteToken(userId, deviceToken).catch(console.error);
+      }
+    },
+    [userId]
+  );
 
   if (devices.length === 0) {
     return (

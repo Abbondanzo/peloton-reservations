@@ -48,7 +48,10 @@ export const RegisteredDevicesProvider = ({ children, userId }: Props) => {
       },
       (error) => {
         dispatch(
-          setRegisteredDevicesFailed({ userId, error: { message: error.message } })
+          setRegisteredDevicesFailed({
+            userId,
+            error: { message: error.message },
+          })
         );
       }
     );

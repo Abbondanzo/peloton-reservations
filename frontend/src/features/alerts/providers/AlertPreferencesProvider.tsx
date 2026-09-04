@@ -48,7 +48,10 @@ export const AlertPreferencesProvider = ({ children, userId }: Props) => {
       },
       (error) => {
         dispatch(
-          setAlertPreferencesFailed({ userId, error: { message: error.message } })
+          setAlertPreferencesFailed({
+            userId,
+            error: { message: error.message },
+          })
         );
       }
     );
