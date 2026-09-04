@@ -1,11 +1,14 @@
 {
   "name": "backend",
   "private": true,
-  "version": "0.0.24",
+  "version": "0.0.25",
   "description": "Backend comparison service for sending notifications",
   "scripts": {
     "build": "tsc",
-    "dev": "ts-node src/index.ts"
+    "dev": "ts-node src/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p tsconfig.test.json"
   },
   "dependencies": {
     "@sentry/node": "^10.48.0",
@@ -16,6 +19,7 @@
   "devDependencies": {
     "firebase": "12.2.1",
     "ts-node": "10.9.2",
-    "typescript": "5.9.2"
+    "typescript": "5.9.2",
+    "vitest": "^3.2.7"
   }
 }

@@ -10,9 +10,12 @@
     "lib": ["dom", "es6"],
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "shared/testing": ["../shared/src/testing/fixtures.ts"]
+    }
   },
-  "exclude": ["node_modules", "build"],
+  "exclude": ["node_modules", "build", "src/**/*.test.ts"],
   "include": ["src/**/*.ts"],
   "files": ["src/index.ts"]
 }
