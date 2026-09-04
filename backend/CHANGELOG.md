@@ -1,3 +1,7 @@
+## 0.0.26
+
+- No behavioral changes. The backend build now compiles the shared package itself instead of relying on a separate step being run first
+
 ## 0.0.25
 
 - No behavioral changes. Added an automated test suite covering the alert matching rules, the schedule diffing and retry logic, and the notification queue's debounce, delay and delivery behavior
