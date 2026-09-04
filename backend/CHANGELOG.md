@@ -1,8 +1,11 @@
 ## 0.0.25
 
-- Fixed "Median time to waitlist" on the Stats page never filling in. A class's sellout time is measured from the first time the class was seen on the schedule, but that first sighting was being deleted after a week — so by the time a popular class actually filled up, there was nothing left to measure against. An upcoming class's first sighting is now kept until the class has taken place, and everything recorded for a class is dropped once it has
-- Sellout times are no longer measured against a snapshot taken at the very same moment the class filled up, which reported a sellout time of zero. When there is genuinely nothing earlier to measure from, the class is skipped instead of being recorded as an instant sellout
-- A class that empties out and fills again — or fills again after the service restarts — no longer overwrites the sellout time already recorded for it
+- Fixed "Median time to waitlist" on the Stats page never filling in. Sellout milestones were only recorded when the previous poll happened to catch a class in a bookable state, which is rare: popular classes are usually already sold out when they first appear on the schedule, and a class that frees up on a cancellation jumps straight back to a full waitlist without passing through the waitlist stage. Both milestones are now derived from everything the app has observed about a class, so a class it watched fill up is measured whether or not it caught the exact poll where that happened
+- Sellout times are only recorded when the app actually saw the class in an earlier state — a class that was already sold out when it first appeared has no measurable time-to-waitlist, and is now left out instead of being recorded as an instant sellout
+- A class that empties out on a cancellation and re-fills is no longer mistaken for a class selling out for the first time, and never overwrites the time already recorded for it
+- The snapshots that define a class's sellout milestones are now kept until the class has taken place, instead of being deleted after a week — previously the class's first sighting was usually gone by the time it sold out, leaving nothing to measure against. Snapshots for classes that have already happened are now dropped entirely
+- Instructor stats no longer discard the sellout time for a class the moment it is recorded, which could happen to a long-scheduled class once an instructor was at the 50-class cap
+- Class status changes are now logged as they happen
 
 ## 0.0.24
 
