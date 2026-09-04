@@ -85,16 +85,17 @@ describe("seeding from an existing alert", () => {
     expect(result.current.selectedStudioId).toBe("7248663");
   });
 
-  it("drops the seeded filters when the alert's studio is not the stored one", () => {
-    // Known rough edge: the studio-sync effect sees the store still holding the
-    // previously stored studio on first render and treats that as a studio
-    // change, so an alert opened for a different studio loses its filters.
+  it("keeps the seeded filters when the alert's studio is not the stored one", () => {
+    // The store starts on the stored studio and only switches to the alert's
+    // once the mount effect runs. That sync must not read as a studio change,
+    // or the alert loses the filters it was saved with.
     setStoredStudioId(DEFAULT_STUDIO_ID);
 
     const { result } = renderEditorState(existing("7248663"));
 
-    expect(result.current.selectedInstructors).toEqual([]);
-    expect(result.current.selectedDisciplines).toEqual([]);
+    expect(result.current.selectedInstructors).toEqual(["1"]);
+    expect(result.current.selectedDisciplines).toEqual(["5"]);
+    expect(result.current.selectedStudioId).toBe("7248663");
   });
 });
 
@@ -123,42 +124,55 @@ describe("editing", () => {
 });
 
 describe("changing studio", () => {
+  const editing = (studioId = DEFAULT_STUDIO_ID) =>
+    renderEditorState({ studioId });
+
+  it("selects the new studio", () => {
+    const { result } = editing();
+
+    act(() => result.current.setSelectedStudioId("7248663"));
+
+    expect(result.current.selectedStudioId).toBe("7248663");
+  });
+
   it("clears filters that were set, since ids do not carry across studios", () => {
-    const { store, result } = renderEditorState({
-      studioId: DEFAULT_STUDIO_ID,
-    });
+    const { result } = editing();
     act(() => result.current.setSelectedInstructors(["1"]));
     act(() => result.current.setSelectedDisciplines(["5"]));
 
-    act(() => {
-      store.dispatch(setStudioId("7248663"));
-    });
+    act(() => result.current.setSelectedStudioId("7248663"));
 
     expect(result.current.selectedInstructors).toEqual([]);
     expect(result.current.selectedDisciplines).toEqual([]);
   });
 
   it("leaves 'any instructor' and 'any discipline' alone", () => {
-    const { store, result } = renderEditorState({
-      studioId: DEFAULT_STUDIO_ID,
-    });
+    const { result } = editing();
 
-    act(() => {
-      store.dispatch(setStudioId("7248663"));
-    });
+    act(() => result.current.setSelectedStudioId("7248663"));
 
     expect(result.current.selectedInstructors).toBeNull();
     expect(result.current.selectedDisciplines).toBeNull();
   });
 
   it("keeps filters when the studio is re-selected unchanged", () => {
-    const { store, result } = renderEditorState({
-      studioId: DEFAULT_STUDIO_ID,
-    });
+    const { result } = editing();
+    act(() => result.current.setSelectedInstructors(["1"]));
+
+    act(() => result.current.setSelectedStudioId(DEFAULT_STUDIO_ID));
+
+    expect(result.current.selectedInstructors).toEqual(["1"]);
+  });
+
+  it("keeps filters when the store's studio changes on its own", () => {
+    // Only the user picking a studio in the editor resets the filters. A bare
+    // dispatch is exactly what the mount-time sync looks like, and reacting to
+    // it is what used to wipe an alert's saved filters on open.
+    const { store, result } = editing();
     act(() => result.current.setSelectedInstructors(["1"]));
 
     act(() => {
-      store.dispatch(setStudioId(DEFAULT_STUDIO_ID));
+      store.dispatch(setStudioId("7248663"));
     });
 
     expect(result.current.selectedInstructors).toEqual(["1"]);
