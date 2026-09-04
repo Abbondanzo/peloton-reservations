@@ -23,6 +23,14 @@ function median(values: number[]): number | null {
     : sorted[mid];
 }
 
+/**
+ * A milestone is only a usable sample when it is a positive duration. Older
+ * records can carry a zero, written when the backend had no earlier snapshot
+ * to measure the class's sellout time from.
+ */
+const isMeasuredDuration = (v: unknown): v is number =>
+  typeof v === "number" && Number.isFinite(v) && v > 0;
+
 const isValidRecord = (val: unknown): val is SelloutRecord => {
   if (!val || typeof val !== "object") return false;
   const r = val as Record<string, unknown>;
@@ -65,10 +73,10 @@ export function useSelloutStats(): AsyncData<InstructorSelloutStats[]> {
 
           const waitlistTimes = records
             .map((r) => r.timeToWaitlistMs)
-            .filter((v): v is number => v !== null && v !== undefined);
+            .filter(isMeasuredDuration);
           const fullTimes = records
             .map((r) => r.timeToFullMs)
-            .filter((v): v is number => v !== null && v !== undefined);
+            .filter(isMeasuredDuration);
 
           result.push({
             instructorId,

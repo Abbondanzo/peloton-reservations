@@ -1,7 +1,7 @@
 import { onValue, ref } from "firebase/database";
 import { useEffect, useState } from "react";
 import type { ClassSnapshot } from "shared";
-import { PATHS } from "shared";
+import { CLASS_HISTORY_RETENTION_MS, PATHS } from "shared";
 import { database } from "../../firebase/constants/database";
 import type { AsyncData } from "../../store/types/AsyncData";
 
@@ -25,7 +25,12 @@ const isValidSnapshot = (val: unknown): val is ClassSnapshot => {
   );
 };
 
-/** Returns all snapshots for a studio, flattened and sorted by snapshotAt. */
+/**
+ * Returns a studio's snapshots from the retention window, flattened and sorted
+ * by snapshotAt. Snapshots older than the window are each class's retained
+ * "added at" anchor, kept for sellout-speed stats — they are not a record of
+ * what the alerter saw that day, so simulations ignore them.
+ */
 export const useClassHistory = (
   studioId: string | null
 ): AsyncData<ClassHistoryEntry[]> => {
@@ -60,11 +65,12 @@ export const useClassHistory = (
           return;
         }
 
+        const cutoff = Date.now() - CLASS_HISTORY_RETENTION_MS;
         const entries: ClassHistoryEntry[] = [];
         for (const [classId, snapshots] of Object.entries(raw)) {
           if (!snapshots || typeof snapshots !== "object") continue;
           for (const snap of Object.values(snapshots)) {
-            if (isValidSnapshot(snap)) {
+            if (isValidSnapshot(snap) && snap.snapshotAt >= cutoff) {
               entries.push({ ...snap, classId });
             }
           }

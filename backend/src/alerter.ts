@@ -7,6 +7,7 @@ import {
   AlertPreferences,
   type ChangeType,
   type ClassSnapshot,
+  CLASS_HISTORY_RETENTION_MS,
   PATHS,
   RawClass,
   type SelloutRecord,
@@ -44,8 +45,6 @@ function buildWaitlistAlertLink(classData: RawClass, studioId: string): string {
 
 /** How often to flush the pending-notification queue. */
 const PENDING_CHECK_INTERVAL_MS = 30 * 1000;
-/** How long to retain class history snapshots. */
-const HISTORY_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
 /** How often to clean up old class history snapshots. */
 const HISTORY_CLEANUP_INTERVAL_MS = 60 * 60 * 1000;
 /** How many recent classes' sellout-speed records to retain per instructor. */
@@ -427,6 +426,33 @@ export class Alerter implements DiffDelegate {
   // Instructor sellout-speed stats
   // ---------------------------------------------------------------------------
 
+  /**
+   * Resolves the timestamp a class was first seen at — the earliest snapshot
+   * written strictly before `before`. The snapshot written for the status
+   * change we are currently reacting to is deliberately excluded: anchoring on
+   * it would report a zero-length sellout time for any class whose real first
+   * snapshot is missing. Returns null when we have no earlier snapshot, i.e.
+   * the class was already on the schedule before we started tracking it.
+   */
+  private async getClassAddedAt(
+    studioId: string,
+    classId: number,
+    before: number
+  ): Promise<number | null> {
+    const snapshot = await admin
+      .database()
+      .ref(PATHS.classSnapshot(studioId, classId))
+      .orderByKey()
+      .endAt(String(before - 1))
+      .limitToFirst(1)
+      .once("value");
+    const val = snapshot.val() as Record<string, ClassSnapshot> | null;
+    if (!val) return null;
+    const addedAt = Number(Object.keys(val)[0]);
+    if (!Number.isFinite(addedAt) || addedAt >= before) return null;
+    return addedAt;
+  }
+
   private async recordSelloutMilestone(
     studioId: string,
     rawClass: RawClass,
@@ -439,48 +465,48 @@ export class Alerter implements DiffDelegate {
 
     try {
       const db = admin.database();
-      const firstSnapshot = await db
-        .ref(PATHS.classSnapshot(studioId, rawClass.id))
-        .orderByKey()
-        .limitToFirst(1)
-        .once("value");
-      const firstVal = firstSnapshot.val() as Record<
-        string,
-        ClassSnapshot
-      > | null;
-      if (!firstVal) {
-        logger.error(
-          `No snapshot history found for class ${rawClass.id} while recording ${field}`
+      const addedAt = await this.getClassAddedAt(
+        studioId,
+        rawClass.id,
+        reachedAt
+      );
+      if (addedAt === null) {
+        logger.log(
+          `Skipping ${field} for class ${rawClass.id}: no snapshot recorded before ${reachedAt}`
         );
         return;
       }
-      const addedAt = Number(Object.keys(firstVal)[0]);
-      if (!Number.isFinite(addedAt) || reachedAt < addedAt) {
-        logger.error(
-          `Invalid addedAt (${addedAt}) for class ${rawClass.id} while recording ${field}, reachedAt=${reachedAt}`
-        );
-        return;
-      }
-      this.recordedSelloutMilestones.add(dedupeKey);
       const durationMs = reachedAt - addedAt;
 
+      // Skip instructors that already have this milestone stored. The
+      // in-memory dedupe set is lost on restart, and classes can drop back to
+      // free and re-fill, so without this check a later crossing would
+      // overwrite the original (correct) measurement.
       const updates: Record<string, unknown> = {};
       for (const instructor of rawClass.instructors) {
         const instructorId = String(instructor.id);
         const path = PATHS.selloutRecord(instructorId, rawClass.id);
+        const existing = await db.ref(`${path}/${field}`).once("value");
+        const existingValue = existing.val() as unknown;
+        if (typeof existingValue === "number" && existingValue > 0) continue;
         updates[`${path}/classId`] = String(rawClass.id);
         updates[`${path}/className`] = rawClass.name;
         updates[`${path}/instructorName`] = instructor.name;
         updates[`${path}/addedAt`] = addedAt;
         updates[`${path}/${field}`] = durationMs;
       }
-      await db.ref().update(updates);
 
-      await Promise.all(
-        rawClass.instructors.map((instructor) =>
-          this.trimSelloutStats(String(instructor.id))
-        )
-      );
+      if (Object.keys(updates).length > 0) {
+        await db.ref().update(updates);
+        await Promise.all(
+          rawClass.instructors.map((instructor) =>
+            this.trimSelloutStats(String(instructor.id))
+          )
+        );
+      }
+      // Only dedupe once the write has landed, so a failed attempt is retried
+      // the next time the class crosses this milestone.
+      this.recordedSelloutMilestones.add(dedupeKey);
     } catch (err) {
       logger.error(
         `Failed to record sellout milestone for class ${rawClass.id}:`,
@@ -507,24 +533,47 @@ export class Alerter implements DiffDelegate {
     await Promise.all(removals);
   }
 
+  /**
+   * Trims class history. A class's earliest snapshot is its "added at" anchor —
+   * the only thing sellout-speed stats can measure from — so it is kept for as
+   * long as the class is relevant, even once it ages past the retention window.
+   * Once the class itself has happened (its start time is older than the
+   * retention window) the whole node is dropped.
+   */
   private async cleanupOldSnapshots(): Promise<void> {
-    const cutoff = Date.now() - HISTORY_RETENTION_MS;
+    const cutoff = Date.now() - CLASS_HISTORY_RETENTION_MS;
     const db = admin.database();
     for (const studioId of Object.keys(STUDIOS)) {
       try {
         const snap = await db.ref(PATHS.classHistory(studioId)).once("value");
         const history = snap.val() as Record<
           string,
-          Record<string, unknown>
+          Record<string, ClassSnapshot>
         > | null;
         if (!history) continue;
         const removals: Promise<void>[] = [];
+        let purgedClasses = 0;
         for (const [classId, snapshots] of Object.entries(history)) {
           if (!snapshots || typeof snapshots !== "object") continue;
-          for (const timestampStr of Object.keys(snapshots)) {
-            const ts = Number(timestampStr);
-            if (!Number.isFinite(ts)) continue;
-            if (ts < cutoff) {
+          const timestamps = Object.keys(snapshots)
+            .filter((key) => Number.isFinite(Number(key)))
+            .sort((a, b) => Number(a) - Number(b));
+          if (timestamps.length === 0) continue;
+
+          const latest = snapshots[timestamps[timestamps.length - 1]];
+          const startsAt = Date.parse(latest?.starts_at ?? "");
+          if (Number.isFinite(startsAt) && startsAt < cutoff) {
+            // The class has already taken place — nothing left to anchor.
+            purgedClasses++;
+            removals.push(
+              db.ref(PATHS.classSnapshot(studioId, classId)).remove()
+            );
+            continue;
+          }
+
+          // Skip index 0: that snapshot is the class's added-at anchor.
+          for (const timestampStr of timestamps.slice(1)) {
+            if (Number(timestampStr) < cutoff) {
               removals.push(
                 db
                   .ref(
@@ -538,7 +587,7 @@ export class Alerter implements DiffDelegate {
         if (removals.length > 0) {
           await Promise.all(removals);
           logger.log(
-            `Removed ${removals.length} expired snapshots for studio ${studioId}`
+            `Removed ${removals.length} expired snapshot entries for studio ${studioId} (${purgedClasses} past classes purged)`
           );
         }
       } catch (err) {

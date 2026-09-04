@@ -1,3 +1,9 @@
+## 0.0.25
+
+- Fixed "Median time to waitlist" on the Stats page never filling in. A class's sellout time is measured from the first time the class was seen on the schedule, but that first sighting was being deleted after a week — so by the time a popular class actually filled up, there was nothing left to measure against. An upcoming class's first sighting is now kept until the class has taken place, and everything recorded for a class is dropped once it has
+- Sellout times are no longer measured against a snapshot taken at the very same moment the class filled up, which reported a sellout time of zero. When there is genuinely nothing earlier to measure from, the class is skipped instead of being recorded as an instant sellout
+- A class that empties out and fills again — or fills again after the service restarts — no longer overwrites the sellout time already recorded for it
+
 ## 0.0.24
 
 - Fixed a bug where a failed attempt to record a class's sellout-speed milestone (time-to-waitlist or time-to-full) would be permanently skipped instead of retried on the next occurrence, with no error logged — this could silently suppress data on the Stats page

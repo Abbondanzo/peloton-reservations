@@ -4,6 +4,13 @@ import type { RawClass } from "./classApi";
 import { getBookableStatus } from "./classStatus";
 import { STUDIOS } from "./studios";
 
+/**
+ * How long class history snapshots are retained. The backend trims anything
+ * older, except each class's earliest snapshot, which is kept as the class's
+ * "added at" anchor for sellout-speed stats until the class has taken place.
+ */
+export const CLASS_HISTORY_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
+
 export interface SnapshotInstructor {
   id: string;
   name: string;

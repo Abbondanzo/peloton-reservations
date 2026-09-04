@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "private": true,
-  "version": "0.0.24",
+  "version": "0.0.25",
   "description": "Backend comparison service for sending notifications",
   "scripts": {
     "build": "tsc",
