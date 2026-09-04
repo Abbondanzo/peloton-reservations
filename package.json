@@ -11,8 +11,10 @@
   "homepage": "https://github.com/Abbondanzo/peloton-reservations#readme",
   "scripts": {
     "prettier": "prettier --write .",
-    "test": "pnpm -r --no-bail run test",
-    "typecheck": "pnpm -r --no-bail run typecheck"
+    "prettier:check": "prettier --check .",
+    "lint": "pnpm -r --no-bail run lint",
+    "typecheck": "pnpm -r --no-bail run typecheck",
+    "test": "pnpm -r --no-bail run test"
   },
   "dependencies": {
     "typescript": "5.9.2"

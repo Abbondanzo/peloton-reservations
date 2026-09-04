@@ -32,8 +32,19 @@ jobs:
         run: pnpm run build
         working-directory: ./shared
 
+      # The checks below each run even when an earlier one fails, so a stray
+      # formatting nit still reports the lint, typecheck and test results.
+      - name: Format
+        run: pnpm run prettier:check
+
+      - name: Lint
+        if: ${{ !cancelled() }}
+        run: pnpm run lint
+
       - name: Typecheck
+        if: ${{ !cancelled() }}
         run: pnpm run typecheck
 
       - name: Test
+        if: ${{ !cancelled() }}
         run: pnpm run test
