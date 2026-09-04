@@ -1,3 +1,7 @@
+## 0.0.25
+
+- No behavioral changes. Added an automated test suite covering the alert matching rules, the schedule diffing and retry logic, and the notification queue's debounce, delay and delivery behavior
+
 ## 0.0.24
 
 - Fixed a bug where a failed attempt to record a class's sellout-speed milestone (time-to-waitlist or time-to-full) would be permanently skipped instead of retried on the next occurrence, with no error logged — this could silently suppress data on the Stats page

@@ -9,6 +9,10 @@
 
     /* Bundler mode */
     "moduleResolution": "bundler",
+    /* Test-only fixtures shared with the backend; not part of shared's build output. */
+    "paths": {
+      "shared/testing": ["../shared/src/testing/fixtures.ts"]
+    },
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",

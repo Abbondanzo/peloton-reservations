@@ -10,7 +10,9 @@
   },
   "homepage": "https://github.com/Abbondanzo/peloton-reservations#readme",
   "scripts": {
-    "prettier": "prettier --write ."
+    "prettier": "prettier --write .",
+    "test": "pnpm -r --no-bail run test",
+    "typecheck": "pnpm -r --no-bail run typecheck"
   },
   "dependencies": {
     "typescript": "5.9.2"
