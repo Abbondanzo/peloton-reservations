@@ -1,3 +1,13 @@
+## 0.0.27
+
+- Replaced "Median time to waitlist" on the Stats page, which never had any data and never could. Studio classes reach the schedule feed with their seats already taken — across a full week of history, not one class was ever seen with a spot open — so the time a class takes to sell out cannot be observed by polling. The page now reports how long an instructor's classes take to fill their waitlist, which is measurable
+- New waitlist fill times only count classes first seen with an empty waitlist. A class already part-way through filling when it was found would otherwise report a far shorter time and drag the median down. Times already recorded are kept as they are
+- A class whose waitlist drops a spot and fills again keeps its original fill time instead of overwriting it with the shorter one, including after a restart
+- Fixed classes being marked full once 10 people were waiting, even when the class allowed a bigger waitlist. The class's own waitlist capacity is now used, so bookable status, alerts, and stats stay correct for classes that hold more
+- Snapshots that a class's fill time is measured from are kept until the class has taken place, instead of being deleted after a week — previously the class's first sighting was usually gone by the time its waitlist filled. Snapshots for classes that have already happened are now dropped entirely
+- Instructor stats no longer discard the fill time for a class the moment it is recorded, which could happen to a long-scheduled class once an instructor was at the 50-class cap
+- Class status changes are now logged as they happen
+
 ## 0.0.26
 
 - No behavioral changes. The backend build now compiles the shared package itself instead of relying on a separate step being run first

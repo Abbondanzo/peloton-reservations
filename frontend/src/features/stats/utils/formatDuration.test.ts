@@ -20,14 +20,20 @@ describe("formatDuration", () => {
     expect(formatDuration(DAY + 3 * HOUR + 30 * MINUTE)).toBe("1d 3h");
   });
 
-  it("rounds to the nearest minute", () => {
-    expect(formatDuration(29_000)).toBe("0m");
-    expect(formatDuration(31_000)).toBe("1m");
-    expect(formatDuration(90_000)).toBe("2m");
+  it("reports sub-minute durations in seconds", () => {
+    // A waitlist can fill inside a single poll, so these are real values.
+    expect(formatDuration(29_000)).toBe("29s");
+    expect(formatDuration(31_000)).toBe("31s");
+    expect(formatDuration(59_999)).toBe("60s");
   });
 
-  it("renders zero as zero minutes", () => {
-    expect(formatDuration(0)).toBe("0m");
+  it("rounds to the nearest minute once past a minute", () => {
+    expect(formatDuration(90_000)).toBe("2m");
+    expect(formatDuration(MINUTE + 29_000)).toBe("1m");
+  });
+
+  it("renders zero as zero seconds", () => {
+    expect(formatDuration(0)).toBe("0s");
   });
 
   it("rolls 60 rounded minutes up into an hour", () => {

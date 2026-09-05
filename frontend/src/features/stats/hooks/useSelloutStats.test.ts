@@ -33,7 +33,6 @@ const record = (overrides: Record<string, unknown> = {}) => ({
   className: "45 min Ride",
   instructorName: "Alex",
   addedAt: 1700000000000,
-  timeToWaitlistMs: 10 * MINUTE,
   timeToFullMs: 20 * MINUTE,
   ...overrides,
 });
@@ -51,14 +50,14 @@ describe("useSelloutStats", () => {
     expect(result.current).toEqual({ state: "loading" });
   });
 
-  it("rolls an instructor's records up into medians", () => {
+  it("rolls an instructor's records up into a median fill time", () => {
     const { result, rerender } = renderHook(() => useSelloutStats());
 
     handlers().emit({
       "1": {
-        c1: record({ classId: "c1", timeToWaitlistMs: 10 * MINUTE }),
-        c2: record({ classId: "c2", timeToWaitlistMs: 30 * MINUTE }),
-        c3: record({ classId: "c3", timeToWaitlistMs: 20 * MINUTE }),
+        c1: record({ classId: "c1", timeToFullMs: 10 * MINUTE }),
+        c2: record({ classId: "c2", timeToFullMs: 30 * MINUTE }),
+        c3: record({ classId: "c3", timeToFullMs: 20 * MINUTE }),
       },
     });
     rerender();
@@ -70,10 +69,7 @@ describe("useSelloutStats", () => {
           instructorId: "1",
           instructorName: "Alex",
           classCount: 3,
-          medianTimeToWaitlistMs: 20 * MINUTE,
-          waitlistSampleSize: 3,
           medianTimeToFullMs: 20 * MINUTE,
-          fullSampleSize: 3,
         },
       ],
     });
@@ -84,47 +80,34 @@ describe("useSelloutStats", () => {
 
     handlers().emit({
       "1": {
-        c1: record({ timeToWaitlistMs: 10 * MINUTE }),
-        c2: record({ timeToWaitlistMs: 20 * MINUTE }),
+        c1: record({ timeToFullMs: 10 * MINUTE }),
+        c2: record({ timeToFullMs: 20 * MINUTE }),
       },
     });
     rerender();
 
     expect(
       result.current.state === "fulfilled" &&
-        result.current.data[0].medianTimeToWaitlistMs
+        result.current.data[0].medianTimeToFullMs
     ).toBe(15 * MINUTE);
   });
 
-  it("reports a null median when no class reached that milestone", () => {
+  it("drops an instructor whose classes have no fill time", () => {
     const { result, rerender } = renderHook(() => useSelloutStats());
 
-    handlers().emit({
-      "1": { c1: record({ timeToWaitlistMs: null, timeToFullMs: null }) },
-    });
+    handlers().emit({ "1": { c1: record({ timeToFullMs: null }) } });
     rerender();
 
-    expect(
-      result.current.state === "fulfilled" && result.current.data[0]
-    ).toMatchObject({
-      medianTimeToWaitlistMs: null,
-      waitlistSampleSize: 0,
-      medianTimeToFullMs: null,
-      fullSampleSize: 0,
-      classCount: 1,
-    });
+    expect(result.current).toEqual({ state: "fulfilled", data: [] });
   });
 
-  it("counts only the classes that reached a milestone in its sample size", () => {
+  it("counts only the classes with a measured fill time", () => {
     const { result, rerender } = renderHook(() => useSelloutStats());
 
     handlers().emit({
       "1": {
-        c1: record({ timeToWaitlistMs: 10 * MINUTE, timeToFullMs: null }),
-        c2: record({
-          timeToWaitlistMs: 20 * MINUTE,
-          timeToFullMs: 40 * MINUTE,
-        }),
+        c1: record({ timeToFullMs: 0 }),
+        c2: record({ timeToFullMs: 40 * MINUTE }),
       },
     });
     rerender();
@@ -132,9 +115,7 @@ describe("useSelloutStats", () => {
     expect(
       result.current.state === "fulfilled" && result.current.data[0]
     ).toMatchObject({
-      classCount: 2,
-      waitlistSampleSize: 2,
-      fullSampleSize: 1,
+      classCount: 1,
       medianTimeToFullMs: 40 * MINUTE,
     });
   });

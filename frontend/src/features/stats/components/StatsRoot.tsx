@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import { useState } from "react";
 import styled from "styled-components";
 import { STUDIOS } from "shared";
@@ -74,6 +73,12 @@ const TotalValue = styled.div`
   font-size: 24px;
   font-weight: 700;
   color: ${(p) => p.theme.colors.main};
+`;
+
+const SectionNote = styled.p`
+  color: ${(p) => p.theme.colors.secondary};
+  font-size: 12px;
+  margin: -8px 0 16px;
 `;
 
 const StatusMessage = styled.p`
@@ -473,26 +478,7 @@ const Td = styled.td`
   white-space: nowrap;
 `;
 
-const SampleSize = styled.span`
-  color: ${(p) => p.theme.colors.secondary};
-  font-size: 11px;
-  margin-left: 4px;
-`;
-
-function formatMedianCell(
-  medianMs: number | null,
-  sampleSize: number
-): ReactNode {
-  if (medianMs === null) return <SampleSize>—</SampleSize>;
-  return (
-    <>
-      {formatDuration(medianMs)}
-      <SampleSize>(n={sampleSize})</SampleSize>
-    </>
-  );
-}
-
-type SortKey = "instructor" | "classCount" | "waitlist" | "full";
+type SortKey = "instructor" | "classCount" | "fill";
 type SortDirection = "asc" | "desc";
 interface SortState {
   key: SortKey;
@@ -501,22 +487,9 @@ interface SortState {
 
 const COLUMNS: { key: SortKey; label: string }[] = [
   { key: "instructor", label: "Instructor" },
-  { key: "classCount", label: "Classes tracked" },
-  { key: "waitlist", label: "Median time to waitlist" },
-  { key: "full", label: "Median time to waitlist full" },
+  { key: "classCount", label: "Classes measured" },
+  { key: "fill", label: "Median time to fill waitlist" },
 ];
-
-// Nulls always sort last, regardless of direction.
-function compareNullableLast(
-  a: number | null,
-  b: number | null,
-  direction: SortDirection
-): number {
-  if (a === null && b === null) return 0;
-  if (a === null) return 1;
-  if (b === null) return -1;
-  return direction === "asc" ? a - b : b - a;
-}
 
 function compareStats(
   a: InstructorSelloutStats,
@@ -536,18 +509,10 @@ function compareStats(
       return sort.direction === "asc"
         ? a.classCount - b.classCount
         : b.classCount - a.classCount;
-    case "waitlist":
-      return compareNullableLast(
-        a.medianTimeToWaitlistMs,
-        b.medianTimeToWaitlistMs,
-        sort.direction
-      );
-    case "full":
-      return compareNullableLast(
-        a.medianTimeToFullMs,
-        b.medianTimeToFullMs,
-        sort.direction
-      );
+    case "fill":
+      return sort.direction === "asc"
+        ? a.medianTimeToFullMs - b.medianTimeToFullMs
+        : b.medianTimeToFullMs - a.medianTimeToFullMs;
   }
 }
 
@@ -555,7 +520,7 @@ function SelloutStatsTable({ stats }: { stats: InstructorSelloutStats[] }) {
   const [sort, setSort] = useState<SortState | null>(null);
 
   if (stats.length === 0) {
-    return <StatusMessage>No sellout data recorded yet.</StatusMessage>;
+    return <StatusMessage>No waitlist fill times recorded yet.</StatusMessage>;
   }
 
   function handleSort(key: SortKey) {
@@ -602,15 +567,7 @@ function SelloutStatsTable({ stats }: { stats: InstructorSelloutStats[] }) {
             <Tr key={s.instructorId}>
               <Td>{s.instructorName}</Td>
               <Td>{s.classCount}</Td>
-              <Td>
-                {formatMedianCell(
-                  s.medianTimeToWaitlistMs,
-                  s.waitlistSampleSize
-                )}
-              </Td>
-              <Td>
-                {formatMedianCell(s.medianTimeToFullMs, s.fullSampleSize)}
-              </Td>
+              <Td>{formatDuration(s.medianTimeToFullMs)}</Td>
             </Tr>
           ))}
         </tbody>
@@ -741,12 +698,17 @@ export const StatsRoot = () => {
         </Section>
 
         <Section>
-          <SectionTitle>Class sellout speed by instructor</SectionTitle>
+          <SectionTitle>Waitlist fill speed by instructor</SectionTitle>
+          <SectionNote>
+            Studio classes reach the schedule with their seats already gone, so
+            only the waitlist can be timed. Counts classes first seen with an
+            empty waitlist, measured until that waitlist filled.
+          </SectionNote>
           {selloutStats.state === "idle" || selloutStats.state === "loading" ? (
             <StatusMessage>Loading…</StatusMessage>
           ) : selloutStats.state === "failed" ? (
             <StatusMessage>
-              Failed to load sellout stats:{" "}
+              Failed to load waitlist stats:{" "}
               {selloutStats.error.message ?? "unknown error"}
             </StatusMessage>
           ) : (

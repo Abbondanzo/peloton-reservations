@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   WAITLIST_MAX,
   getBookableStatus,
+  getWaitlistMax,
   isFree,
   isWaitlistFull,
 } from "./classStatus";
@@ -27,7 +28,57 @@ describe("isFree", () => {
   });
 });
 
+describe("getWaitlistMax", () => {
+  const offeringType = buildRawClass().offering_type;
+
+  it("prefers the class's own override", () => {
+    expect(
+      getWaitlistMax(
+        buildRawClass({
+          waitlist_max_override: 25,
+          offering_type: { ...offeringType, waitlist_max: 10 },
+        })
+      )
+    ).toBe(25);
+  });
+
+  it("falls back to the offering type's cap when there is no override", () => {
+    expect(
+      getWaitlistMax(
+        buildRawClass({
+          waitlist_max_override: 0,
+          offering_type: { ...offeringType, waitlist_max: 15 },
+        })
+      )
+    ).toBe(15);
+  });
+
+  it("falls back to the default when neither is usable", () => {
+    expect(
+      getWaitlistMax(
+        buildRawClass({
+          waitlist_max_override: 0,
+          offering_type: { ...offeringType, waitlist_max: 0 },
+        })
+      )
+    ).toBe(WAITLIST_MAX);
+  });
+});
+
 describe("isWaitlistFull", () => {
+  it("uses the class's own cap rather than the default", () => {
+    const offeringType = buildRawClass().offering_type;
+    const roomyWaitlist = buildRawClass({
+      occupancy: 60,
+      max_occupancy: 60,
+      waiting_count: 12,
+      offering_type: { ...offeringType, waitlist_max: 15 },
+    });
+
+    expect(isWaitlistFull(roomyWaitlist)).toBe(false);
+    expect(getBookableStatus(roomyWaitlist)).toBe("waitlist");
+  });
+
   it("is false below the waitlist cap", () => {
     expect(
       isWaitlistFull(buildRawClass({ waiting_count: WAITLIST_MAX - 1 }))

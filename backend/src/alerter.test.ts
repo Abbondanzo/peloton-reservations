@@ -13,19 +13,23 @@ const USER_ID = "user-1";
  */
 const refCalls: string[] = [];
 let snapshotValue: unknown = null;
+/** Per-path overrides for `once`, for paths other than the class history. */
+let storedValues: Record<string, unknown> = {};
 const set = vi.fn();
 const remove = vi.fn();
 const update = vi.fn();
 const sendEachForMulticast = vi.fn();
 
-const makeRef = () => {
+const makeRef = (path: string) => {
   const node = {
     set,
     remove,
     update,
     orderByKey: () => node,
     limitToFirst: () => node,
-    once: async () => ({ val: () => snapshotValue }),
+    once: async () => ({
+      val: () => (path in storedValues ? storedValues[path] : snapshotValue),
+    }),
   };
   return node;
 };
@@ -38,7 +42,7 @@ vi.mock("firebase-admin", () => ({
       () => ({
         ref: (path?: string) => {
           refCalls.push(path ?? "");
-          return makeRef();
+          return makeRef(path ?? "");
         },
       }),
       { ServerValue: { increment: (n: number) => n } }
@@ -96,6 +100,7 @@ const pending = () => [...internals(alerter).pendingNotifications.values()];
 beforeEach(() => {
   refCalls.length = 0;
   snapshotValue = null;
+  storedValues = {};
   set.mockResolvedValue(undefined);
   remove.mockResolvedValue(undefined);
   update.mockResolvedValue(undefined);
@@ -574,20 +579,33 @@ describe("FCM delivery", () => {
   });
 });
 
-describe("sellout milestones", () => {
+describe("waitlist fill times", () => {
   let classAddedAt: number;
 
   beforeEach(() => {
     classAddedAt = Date.now() - 90 * 60_000;
-    snapshotValue = { [String(classAddedAt)]: { snapshotAt: classAddedAt } };
+    // The class was found with its waitlist still empty, so the fill is timed
+    // from here.
+    snapshotValue = {
+      [String(classAddedAt)]: {
+        snapshotAt: classAddedAt,
+        status: "waitlist",
+        waitingCount: 0,
+      },
+    };
   });
 
-  it("records time-to-waitlist for every instructor on the class", async () => {
+  const fills = () => ({
+    old: buildRawClass(WAITLISTED),
+    new: buildRawClass(FULL),
+  });
+
+  it("records the fill time for every instructor on the class", async () => {
     alerter.handleChange(STUDIO_ID, [
       {
-        old: buildRawClass(FREE),
+        old: buildRawClass(WAITLISTED),
         new: buildRawClass({
-          ...WAITLISTED,
+          ...FULL,
           instructors: [
             buildInstructor({ id: 1, name: "Alex" }),
             buildInstructor({ id: 2, name: "Robin" }),
@@ -598,45 +616,35 @@ describe("sellout milestones", () => {
     await vi.waitFor(() => expect(update).toHaveBeenCalled());
 
     expect(update.mock.calls[0][0]).toMatchObject({
-      "selloutStats/1/100/timeToWaitlistMs": 90 * 60_000,
+      "selloutStats/1/100/timeToFullMs": 90 * 60_000,
       "selloutStats/1/100/instructorName": "Alex",
-      "selloutStats/2/100/timeToWaitlistMs": 90 * 60_000,
+      "selloutStats/2/100/timeToFullMs": 90 * 60_000,
       "selloutStats/2/100/instructorName": "Robin",
       "selloutStats/1/100/addedAt": classAddedAt,
     });
   });
 
-  it("records both milestones when a class jumps free to full in one poll", async () => {
+  it("times a waitlist that fills in one poll from the first sighting", async () => {
     alerter.handleChange(STUDIO_ID, [
       { old: buildRawClass(FREE), new: buildRawClass(FULL) },
     ]);
-    await vi.waitFor(() => expect(update).toHaveBeenCalledTimes(2));
+    await vi.waitFor(() => expect(update).toHaveBeenCalled());
 
-    const written = Object.assign({}, ...update.mock.calls.map((c) => c[0]));
-    expect(written["selloutStats/1/100/timeToWaitlistMs"]).toBe(90 * 60_000);
-    expect(written["selloutStats/1/100/timeToFullMs"]).toBe(90 * 60_000);
+    expect(update.mock.calls[0][0]).toMatchObject({
+      "selloutStats/1/100/timeToFullMs": 90 * 60_000,
+    });
   });
 
-  it("records each milestone only once per class", async () => {
-    const change = {
-      old: buildRawClass(FREE),
-      new: buildRawClass(WAITLISTED),
+  it("skips a class first seen with people already waiting", async () => {
+    snapshotValue = {
+      [String(classAddedAt)]: {
+        snapshotAt: classAddedAt,
+        status: "waitlist",
+        waitingCount: 6,
+      },
     };
-    alerter.handleChange(STUDIO_ID, [change]);
-    await vi.waitFor(() => expect(update).toHaveBeenCalledOnce());
 
-    alerter.handleChange(STUDIO_ID, [change]);
-    await Promise.resolve();
-
-    expect(update).toHaveBeenCalledOnce();
-  });
-
-  it("skips the write when the class has no snapshot history", async () => {
-    snapshotValue = null;
-
-    alerter.handleChange(STUDIO_ID, [
-      { old: buildRawClass(FREE), new: buildRawClass(WAITLISTED) },
-    ]);
+    alerter.handleChange(STUDIO_ID, [fills()]);
     await vi.waitFor(() =>
       expect(refCalls).toContain("classHistory/7248695/100")
     );
@@ -644,12 +652,48 @@ describe("sellout milestones", () => {
     expect(update).not.toHaveBeenCalled();
   });
 
-  it("skips the write when the first snapshot is newer than the milestone", async () => {
-    snapshotValue = { [String(Date.now() + 60_000)]: {} };
+  it("records a class only once", async () => {
+    alerter.handleChange(STUDIO_ID, [fills()]);
+    await vi.waitFor(() => expect(update).toHaveBeenCalledOnce());
 
-    alerter.handleChange(STUDIO_ID, [
-      { old: buildRawClass(FREE), new: buildRawClass(WAITLISTED) },
-    ]);
+    alerter.handleChange(STUDIO_ID, [fills()]);
+    await Promise.resolve();
+
+    expect(update).toHaveBeenCalledOnce();
+  });
+
+  it("keeps a fill time already stored for the class", async () => {
+    storedValues["selloutStats/1/100/timeToFullMs"] = 12 * 60_000;
+
+    alerter.handleChange(STUDIO_ID, [fills()]);
+    await vi.waitFor(() =>
+      expect(refCalls).toContain("selloutStats/1/100/timeToFullMs")
+    );
+
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("skips the write when the class has no snapshot history", async () => {
+    snapshotValue = null;
+
+    alerter.handleChange(STUDIO_ID, [fills()]);
+    await vi.waitFor(() =>
+      expect(refCalls).toContain("classHistory/7248695/100")
+    );
+
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("ignores snapshots newer than the crossing it is timing", async () => {
+    snapshotValue = {
+      [String(Date.now() + 60_000)]: {
+        snapshotAt: Date.now() + 60_000,
+        status: "waitlist",
+        waitingCount: 0,
+      },
+    };
+
+    alerter.handleChange(STUDIO_ID, [fills()]);
     await vi.waitFor(() =>
       expect(refCalls).toContain("classHistory/7248695/100")
     );
