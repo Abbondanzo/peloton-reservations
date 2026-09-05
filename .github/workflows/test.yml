@@ -28,10 +28,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build shared project
-        run: pnpm run build
-        working-directory: ./shared
-
       # The checks below each run even when an earlier one fails, so a stray
       # formatting nit still reports the lint, typecheck and test results.
       - name: Format

@@ -9,8 +9,9 @@
 
     /* Bundler mode */
     "moduleResolution": "bundler",
-    /* Test-only fixtures shared with the backend; not part of shared's build output. */
+    /* Resolve the shared package from source, so nothing has to build it first. */
     "paths": {
+      "shared": ["../shared/src/index.ts"],
       "shared/testing": ["../shared/src/testing/fixtures.ts"]
     },
     "allowImportingTsExtensions": true,

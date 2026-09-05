@@ -90,9 +90,11 @@ Two things to know:
 
 - `pnpm prettier` rewrites the **whole repo**, not just your changes. If it
   touches files unrelated to your work, leave those out of your commit.
-- `pnpm typecheck` needs `shared` built first (`pnpm --filter shared build`) —
-  the frontend resolves `shared` through its build output. Tests don't: they
-  alias `shared` to source, so `pnpm test` works from a fresh clone.
+- Nothing needs `shared` built first. Typecheck, lint and test all resolve
+  `shared` from its source, so they work from a fresh clone. The only thing
+  that produces `shared/build` is `pnpm --filter backend build`, which runs
+  it as its first step because the compiled backend requires it at runtime.
+  The frontend bundles `shared` from source and never needs it.
 
 ## Backend Versioning
 
