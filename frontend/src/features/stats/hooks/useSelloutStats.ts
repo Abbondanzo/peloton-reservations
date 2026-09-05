@@ -22,8 +22,9 @@ function median(values: number[]): number | null {
 }
 
 /**
- * Records written before the stats measured waitlist fill time carry the
- * superseded fields instead, and are ignored rather than mixed in.
+ * Records predate the empty-waitlist rule, so some were measured from a class
+ * caught part-way through filling and read shorter than the real fill. They
+ * are kept — they age out of the per-instructor cap on their own.
  */
 const isValidRecord = (val: unknown): val is SelloutRecord => {
   if (!val || typeof val !== "object") return false;
@@ -32,9 +33,9 @@ const isValidRecord = (val: unknown): val is SelloutRecord => {
     typeof r.classId === "string" &&
     typeof r.instructorName === "string" &&
     typeof r.addedAt === "number" &&
-    typeof r.timeToWaitlistFullMs === "number" &&
-    Number.isFinite(r.timeToWaitlistFullMs) &&
-    r.timeToWaitlistFullMs > 0
+    typeof r.timeToFullMs === "number" &&
+    Number.isFinite(r.timeToFullMs) &&
+    r.timeToFullMs > 0
   );
 };
 
@@ -68,7 +69,7 @@ export function useSelloutStats(): AsyncData<InstructorSelloutStats[]> {
           ).filter(isValidRecord);
           if (records.length === 0) continue;
 
-          const fillTimes = records.map((r) => r.timeToWaitlistFullMs);
+          const fillTimes = records.map((r) => r.timeToFullMs);
           const medianFill = median(fillTimes);
           if (medianFill === null) continue;
 

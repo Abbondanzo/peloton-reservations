@@ -471,12 +471,12 @@ export class Alerter implements DiffDelegate {
    */
   private deriveWaitlistFill(
     timeline: ClassObservation[]
-  ): { addedAt: number; timeToWaitlistFullMs: number } | null {
+  ): { addedAt: number; timeToFullMs: number } | null {
     const first = timeline[0];
     if (first.waitingCount !== 0) return null;
     const full = timeline.find((entry) => entry.status === "full");
     if (!full || full.at <= first.at) return null;
-    return { addedAt: first.at, timeToWaitlistFullMs: full.at - first.at };
+    return { addedAt: first.at, timeToFullMs: full.at - first.at };
   }
 
   private async recordWaitlistFill(
@@ -505,18 +505,14 @@ export class Alerter implements DiffDelegate {
         const instructorId = String(instructor.id);
         const path = PATHS.selloutRecord(instructorId, rawClass.id);
         const stored = (
-          await db.ref(`${path}/timeToWaitlistFullMs`).once("value")
+          await db.ref(`${path}/timeToFullMs`).once("value")
         ).val() as unknown;
         if (typeof stored === "number" && stored > 0) continue;
         updates[`${path}/classId`] = String(rawClass.id);
         updates[`${path}/className`] = rawClass.name;
         updates[`${path}/instructorName`] = instructor.name;
         updates[`${path}/addedAt`] = fill.addedAt;
-        updates[`${path}/timeToWaitlistFullMs`] = fill.timeToWaitlistFullMs;
-        // Clear the milestones this replaces, which were measured against
-        // classes we only caught part-way through filling.
-        updates[`${path}/timeToWaitlistMs`] = null;
-        updates[`${path}/timeToFullMs`] = null;
+        updates[`${path}/timeToFullMs`] = fill.timeToFullMs;
       }
 
       if (Object.keys(updates).length > 0) {
@@ -527,7 +523,7 @@ export class Alerter implements DiffDelegate {
           )
         );
         logger.log(
-          `Waitlist for class ${rawClass.id} filled in ${fill.timeToWaitlistFullMs}ms`
+          `Waitlist for class ${rawClass.id} filled in ${fill.timeToFullMs}ms`
         );
       }
       // Only dedupe once the write has landed, so a failed attempt is retried

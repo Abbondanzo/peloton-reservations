@@ -16,5 +16,5 @@ export interface SelloutRecord {
   /** Unix ms — when the class was first seen, with its waitlist still empty. */
   addedAt: number;
   /** Unix ms elapsed from addedAt until the waitlist first filled up. */
-  timeToWaitlistFullMs: number;
+  timeToFullMs: number;
 }
