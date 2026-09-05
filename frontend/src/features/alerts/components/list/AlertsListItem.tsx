@@ -1,4 +1,12 @@
-import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { type Alert, STUDIOS } from "shared";
@@ -131,7 +139,6 @@ const Actions = styled.div`
     align-self: flex-end;
   `}
 `;
-
 
 const OverflowContainer = styled.div`
   position: relative;
@@ -338,7 +345,7 @@ export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
       document.removeEventListener("keydown", handleKey);
       document.removeEventListener("click", handleClick, true);
     };
-  }, [menuOpen]);
+  }, [menuOpen, closeMenu]);
   const { data: allInstructors } = useGetInstructorsQuery(alert.studioId);
   const { data: allDisciplines } = useGetDisciplinesQuery(alert.studioId);
 
@@ -444,7 +451,12 @@ export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
               aria-haspopup="menu"
               onClick={() => setMenuOpen((o) => !o)}
             >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+              >
                 <circle cx="8" cy="3" r="1.5" />
                 <circle cx="8" cy="8" r="1.5" />
                 <circle cx="8" cy="13" r="1.5" />
@@ -498,7 +510,9 @@ export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
                   {pendingDelete ? (
                     <li>
                       <DeleteConfirm>
-                        <DeleteConfirmText>Delete this alert?</DeleteConfirmText>
+                        <DeleteConfirmText>
+                          Delete this alert?
+                        </DeleteConfirmText>
                         <DeleteConfirmButtons>
                           <DeleteConfirmCancel
                             type="button"
@@ -510,7 +524,7 @@ export const AlertsListItem = memo(({ alert, onDuplicate, onEdit }: Props) => {
                             type="button"
                             onClick={() => {
                               closeMenu();
-                              userId && deleteAlert(userId, alert.id);
+                              if (userId) deleteAlert(userId, alert.id);
                             }}
                           >
                             Delete

@@ -19,5 +19,24 @@ export default tseslint.config([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // The slices name deliberately-unused reducer parameters `_state`.
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
+    },
+  },
+  {
+    // Tests and their helpers export fixtures and render utilities alongside
+    // any components they wrap; fast refresh does not apply to them.
+    files: ["**/*.test.{ts,tsx}", "src/test/**/*.{ts,tsx}"],
+    rules: {
+      "react-refresh/only-export-components": "off",
+    },
   },
 ]);

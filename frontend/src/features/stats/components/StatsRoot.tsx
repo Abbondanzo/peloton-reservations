@@ -511,8 +511,8 @@ function compareStats(
         : b.classCount - a.classCount;
     case "fill":
       return sort.direction === "asc"
-        ? a.medianTimeToWaitlistFullMs - b.medianTimeToWaitlistFullMs
-        : b.medianTimeToWaitlistFullMs - a.medianTimeToWaitlistFullMs;
+        ? a.medianTimeToFullMs - b.medianTimeToFullMs
+        : b.medianTimeToFullMs - a.medianTimeToFullMs;
   }
 }
 
@@ -567,7 +567,7 @@ function SelloutStatsTable({ stats }: { stats: InstructorSelloutStats[] }) {
             <Tr key={s.instructorId}>
               <Td>{s.instructorName}</Td>
               <Td>{s.classCount}</Td>
-              <Td>{formatDuration(s.medianTimeToWaitlistFullMs)}</Td>
+              <Td>{formatDuration(s.medianTimeToFullMs)}</Td>
             </Tr>
           ))}
         </tbody>

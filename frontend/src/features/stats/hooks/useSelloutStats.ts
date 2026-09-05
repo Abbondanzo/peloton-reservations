@@ -9,7 +9,7 @@ export interface InstructorSelloutStats {
   instructorName: string;
   /** Classes whose waitlist we watched fill from empty. */
   classCount: number;
-  medianTimeToWaitlistFullMs: number;
+  medianTimeToFullMs: number;
 }
 
 function median(values: number[]): number | null {
@@ -77,7 +77,7 @@ export function useSelloutStats(): AsyncData<InstructorSelloutStats[]> {
             instructorId,
             instructorName: records[0].instructorName,
             classCount: records.length,
-            medianTimeToWaitlistFullMs: medianFill,
+            medianTimeToFullMs: medianFill,
           });
         }
 

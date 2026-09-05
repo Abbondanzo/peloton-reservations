@@ -16,8 +16,8 @@ RUN --mount=type=cache,target=/pnpm/store pnpm install --frozen-lockfile
 COPY shared/ ./shared/
 COPY backend/ ./backend/
 
-# Build shared types then backend
-RUN pnpm --filter=shared run build
+# The backend build script builds shared first, since the compiled backend
+# requires shared/build at runtime.
 RUN pnpm --filter=backend run build
 
 # Create a self-contained production deployment (prod deps only, no devDeps)

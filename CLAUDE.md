@@ -1,6 +1,7 @@
 # Peloton Reservations — Project Notes
 
 ## Stack
+
 - **Frontend**: React + TypeScript + Vite + styled-components
 - **State**: Redux Toolkit + RTK Query for Peloton API
 - **Backend**: Firebase (auth, realtime database), Node.js
@@ -9,7 +10,9 @@
 - **PWA**: vite-plugin-pwa, service worker for push notifications
 
 ## Theme
+
 Theming is done via styled-components' `DefaultTheme`. The theme object and its type are defined in:
+
 - [frontend/src/features/theme/constants/theme.ts](frontend/src/features/theme/constants/theme.ts) — theme values
 - [frontend/src/features/theme/types/styled.d.ts](frontend/src/features/theme/types/styled.d.ts) — `DefaultTheme` interface
 
@@ -18,7 +21,9 @@ Token names: `colors.accent`, `colors.main`, `colors.secondary`, `colors.mainSur
 Dark mode is a near-term goal — always use theme tokens instead of hard-coded values. Media helpers: `mediaMobile` and `mediaTablet` from `theme/constants/queries.ts`. Shared style helpers: `border`, `hover`, `focus` from `theme/constants/styles.ts`.
 
 ## Key Data Models
+
 Types are defined in `shared/src/alerts.ts` and `frontend/src/features/`. Look them up there rather than relying on inline definitions here. Key types to be aware of:
+
 - `Alert`, `TimeRange`, `BookableStatus`, `AlertPreferences` — see [shared/src/alerts.ts](shared/src/alerts.ts)
 - `RegisteredDevice` — see [frontend/src/features/messaging/types/RegisteredDevice.ts](frontend/src/features/messaging/types/RegisteredDevice.ts)
 - `AsyncData<T>` — see [frontend/src/features/store/types/AsyncData.ts](frontend/src/features/store/types/AsyncData.ts)
@@ -26,17 +31,20 @@ Types are defined in `shared/src/alerts.ts` and `frontend/src/features/`. Look t
 - Studios are keyed by ID — `"7248695"` (New York), `"7248663"` (London) — see [shared/src/studios.ts](shared/src/studios.ts)
 
 ## Firebase DB Paths
+
 - `alerts/${userId}/${alertId}` — alert data
 - `alertPreferences/${userId}` — notification preferences
 - `messagingTokens/${userId}/${token}` — device registrations
 
 ## Architecture Patterns
+
 - Context + Provider pattern for Firebase realtime data (AlertsProvider, AlertPreferencesProvider, RegisteredDevicesProvider)
 - RTK Query for Peloton API calls: `useGetClassesQuery`, `useGetDisciplinesQuery`, `useGetInstructorsQuery`
 - Redux slices for local UI state (filters, session, studioSelector)
 - Studio ID stored in Redux + localStorage via `studioStorage.ts`
 
 ## Routes
+
 - `/class-list` — main class listing
 - `/alerts` — alerts list, preferences, devices
 - `/alerts/edit` — alert editor (receives alert via `location.state`)
@@ -44,11 +52,13 @@ Types are defined in `shared/src/alerts.ts` and `frontend/src/features/`. Look t
 - `/about` — about page
 
 ## Alert Editor (4-step wizard)
+
 - Files: `editor/AlertEditor.tsx`, `StepIndicator.tsx`, `OptionCard.tsx`, `CheckOption.tsx`, `StepBasics.tsx`, `StepFilters.tsx`, `StepSchedule.tsx`, `StepReview.tsx`
 - Card wrapper removed from `AlertsEditorRoot.tsx`, card styling moved into editor's `Wrapper`
 - Studio change resets instructor/discipline filters via `useRef` tracking
 
 ## Alerts List Page (sectioned layout)
+
 - `AlertsRoot.tsx` — unified Section components instead of loose Cards
 - `AsyncAlertsList.tsx` — header with count + "+ New alert" button, empty state CTA
 - `AlertsListItem.tsx` — studio name title, status badge with tooltips, day dots, styled action buttons
@@ -56,9 +66,35 @@ Types are defined in `shared/src/alerts.ts` and `frontend/src/features/`. Look t
 - `AlertPreferencesEditor.tsx` — inline form with save feedback
 
 ## Accessibility
+
 - Semantic buttons (`ResetButton`, `CloseButton`), keyboard handlers (`ListItem`), dialog roles (`Popover`, `MobileSidebar`)
 - `useId()` in `TextInput`, `aria-describedby`, `aria-expanded`/`aria-haspopup` on popovers
 - `React.memo` on `ClassListItem`, `AlertsListItem`
+
+## Checks
+
+Run these from the repo root. CI runs format, lint, typecheck and test on every PR, so a failure here is a failure there.
+
+| Command               | What it does                                       |
+| --------------------- | -------------------------------------------------- |
+| `pnpm prettier`       | Formats the repo in place                          |
+| `pnpm prettier:check` | Verifies formatting without writing (what CI runs) |
+| `pnpm lint`           | ESLint across the workspace                        |
+| `pnpm typecheck`      | Type-checks every package, test files included     |
+| `pnpm test`           | Vitest across `shared`, `backend` and `frontend`   |
+
+**Always run `pnpm prettier` and `pnpm lint` before committing.** Both were left
+unenforced for a while and drifted; they are CI gates now.
+
+Two things to know:
+
+- `pnpm prettier` rewrites the **whole repo**, not just your changes. If it
+  touches files unrelated to your work, leave those out of your commit.
+- Nothing needs `shared` built first. Typecheck, lint and test all resolve
+  `shared` from its source, so they work from a fresh clone. The only thing
+  that produces `shared/build` is `pnpm --filter backend build`, which runs
+  it as its first step because the compiled backend requires it at runtime.
+  The frontend bundles `shared` from source and never needs it.
 
 ## Backend Versioning
 
@@ -69,9 +105,10 @@ Every PR that contains a backend change (any file under `backend/` or `shared/`)
    - `backend/config.yaml` — `version:` field
    - `backend/CHANGELOG.md` — prepend a new `## 0.0.x` section describing the change
 
-The changelog entry should be written in plain English, one bullet per logical change, describing *what changed behaviorally* for the user (not a list of files touched, type names, or method names). Only include user-facing or behavioral changes — omit internal build fixes, type corrections, and refactors that don't affect runtime behavior.
+The changelog entry should be written in plain English, one bullet per logical change, describing _what changed behaviorally_ for the user (not a list of files touched, type names, or method names). Only include user-facing or behavioral changes — omit internal build fixes, type corrections, and refactors that don't affect runtime behavior.
 
 ## Git & PR Conventions
+
 Both commit messages and PR titles must use the same semantic prefix format: `[feat]`, `[fix]`, `[chore]`, `[refactor]`, `[docs]`, `[test]`, `[style]`
 
 - Commit example: `[fix] Fix navbar overlapping sticky alert simulation day headers`
@@ -92,7 +129,7 @@ When writing an edited document that has optional fields (`name?`, `watchedClass
 ```ts
 const data: Record<string, unknown> = {
   ...alert,
-  name: alert.name ?? null,           // null → Firebase deletes the key
+  name: alert.name ?? null, // null → Firebase deletes the key
   watchedClassIds: alert.watchedClassIds ?? null,
 };
 await update(ref(db, path), data);
@@ -101,5 +138,6 @@ await update(ref(db, path), data);
 See `editAlert.ts` for the canonical implementation of this pattern.
 
 ## Gotchas
+
 - Vite `preserveSymlinks: true` + pnpm causes duplicate React — fixed with `resolve.dedupe: ["react", "react-dom"]` in vite.config.ts
 - DisciplineIcon color matching: exact match first, then `.includes()` fallback (because "Outdoor Run" is substring of "Outdoor Run/Walk")

@@ -180,14 +180,22 @@ const SelectedCount = styled.span`
 // Filtering
 // ---------------------------------------------------------------------------
 
-function localMinuteOfDay(isoTimestamp: string, timezone: string): { day: number; minute: number } | null {
+function localMinuteOfDay(
+  isoTimestamp: string,
+  timezone: string
+): { day: number; minute: number } | null {
   try {
     const date = new Date(isoTimestamp);
     const utcDate = new Date(date.toLocaleString("en-US", { timeZone: "UTC" }));
-    const tzDate = new Date(date.toLocaleString("en-US", { timeZone: timezone }));
+    const tzDate = new Date(
+      date.toLocaleString("en-US", { timeZone: timezone })
+    );
     const offset = utcDate.getTime() - tzDate.getTime();
     date.setTime(date.getTime() - offset);
-    return { day: date.getDay(), minute: date.getHours() * 60 + date.getMinutes() };
+    return {
+      day: date.getDay(),
+      minute: date.getHours() * 60 + date.getMinutes(),
+    };
   } catch {
     return null;
   }
@@ -249,82 +257,78 @@ interface ClassPickerProps {
   onToggle: (id: string) => void;
 }
 
-const ClassPicker = memo(({
-  studioId,
-  instructors,
-  disciplines,
-  timeRanges,
-  selectedIds,
-  onToggle,
-}: ClassPickerProps) => {
-  const query = useGetClassesQuery(studioId);
-  const timezone = STUDIOS[studioId]?.timezone ?? "UTC";
-
-  if (query.isLoading) {
-    return <StateText>Loading classes…</StateText>;
-  }
-  if (query.error) {
-    return (
-      <StateText>
-        Couldn&apos;t load classes.{" "}
-        <RetryButton type="button" onClick={query.refetch}>
-          Try again
-        </RetryButton>
-      </StateText>
-    );
-  }
-
-  const filtered = filterClasses(
-    query.currentData ?? [],
+const ClassPicker = memo(
+  ({
+    studioId,
     instructors,
     disciplines,
     timeRanges,
-    studioId
-  );
+    selectedIds,
+    onToggle,
+  }: ClassPickerProps) => {
+    const query = useGetClassesQuery(studioId);
+    const timezone = STUDIOS[studioId]?.timezone ?? "UTC";
 
-  if (filtered.length === 0) {
+    if (query.isLoading) {
+      return <StateText>Loading classes…</StateText>;
+    }
+    if (query.error) {
+      return (
+        <StateText>
+          Couldn&apos;t load classes.{" "}
+          <RetryButton type="button" onClick={query.refetch}>
+            Try again
+          </RetryButton>
+        </StateText>
+      );
+    }
+
+    const filtered = filterClasses(
+      query.currentData ?? [],
+      instructors,
+      disciplines,
+      timeRanges,
+      studioId
+    );
+
+    if (filtered.length === 0) {
+      return <StateText>No upcoming classes match your filters.</StateText>;
+    }
+
     return (
-      <StateText>No upcoming classes match your filters.</StateText>
+      <ClassList role="group" aria-label="Classes">
+        {filtered.map((cls) => {
+          const checked = selectedIds.includes(cls.id);
+          const timeLabel = formatClassTime(cls.start, timezone);
+          const meta = [cls.instructor.name, cls.discipline.name]
+            .filter(Boolean)
+            .join(" · ");
+          const statusLabel =
+            cls.status === "free"
+              ? "Open"
+              : cls.status === "waitlist"
+                ? "Waitlist"
+                : "Full";
+          return (
+            <ClassRow key={cls.id} $checked={checked} htmlFor={`cls-${cls.id}`}>
+              <ClassCheckbox
+                type="checkbox"
+                id={`cls-${cls.id}`}
+                checked={checked}
+                onChange={() => onToggle(cls.id)}
+              />
+              <ClassInfo>
+                <ClassTime>{timeLabel}</ClassTime>
+                {meta && <ClassMeta>{meta}</ClassMeta>}
+              </ClassInfo>
+              <StatusBadge $status={cls.status}>{statusLabel}</StatusBadge>
+            </ClassRow>
+          );
+        })}
+      </ClassList>
     );
   }
-
-  return (
-    <ClassList role="group" aria-label="Classes">
-      {filtered.map((cls) => {
-        const checked = selectedIds.includes(cls.id);
-        const timeLabel = formatClassTime(cls.start, timezone);
-        const meta = [cls.instructor.name, cls.discipline.name]
-          .filter(Boolean)
-          .join(" · ");
-        const statusLabel =
-          cls.status === "free"
-            ? "Open"
-            : cls.status === "waitlist"
-              ? "Waitlist"
-              : "Full";
-        return (
-          <ClassRow
-            key={cls.id}
-            $checked={checked}
-            htmlFor={`cls-${cls.id}`}
-          >
-            <ClassCheckbox
-              type="checkbox"
-              id={`cls-${cls.id}`}
-              checked={checked}
-              onChange={() => onToggle(cls.id)}
-            />
-            <ClassInfo>
-              <ClassTime>{timeLabel}</ClassTime>
-              {meta && <ClassMeta>{meta}</ClassMeta>}
-            </ClassInfo>
-            <StatusBadge $status={cls.status}>{statusLabel}</StatusBadge>
-          </ClassRow>
-        );
-      })}
-    </ClassList>
-  );
-});
+);
 
 // ---------------------------------------------------------------------------
 // StepWaitlist
@@ -368,8 +372,8 @@ export const StepWaitlist = ({
         <Legend>Waitlist position alerts</Legend>
         <Description>
           Get a push notification whenever the waitlist count changes for a
-          matching class. Tap the notification to open a prompt reminding you
-          to check your email for the 2-hour acceptance window.
+          matching class. Tap the notification to open a prompt reminding you to
+          check your email for the 2-hour acceptance window.
         </Description>
         <OptionsStack>
           <OptionCard

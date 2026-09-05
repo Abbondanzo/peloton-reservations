@@ -1,4 +1,5 @@
 import react from "@vitejs/plugin-react";
+import { fileURLToPath } from "node:url";
 import { defineConfig, loadEnv } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
@@ -96,12 +97,16 @@ export default ({ mode }: { mode: string }) => {
         },
       }),
     ],
-    optimizeDeps: {
-      include: ["shared"],
-    },
     resolve: {
       preserveSymlinks: true,
       dedupe: ["react", "react-dom"],
+      // Bundle the shared package from source. It needs no prior build, edits
+      // to it are picked up immediately, and stack traces point at real source.
+      alias: {
+        shared: fileURLToPath(
+          new URL("./../shared/src/index.ts", import.meta.url)
+        ),
+      },
     },
   });
 };
