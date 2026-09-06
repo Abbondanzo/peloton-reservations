@@ -442,7 +442,7 @@ const RowFade = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  height: 48px;
+  height: 32px;
   pointer-events: none;
   background: linear-gradient(
     to bottom,
