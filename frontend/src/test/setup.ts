@@ -12,6 +12,9 @@ vi.mock("@sentry/react", () => ({
   ErrorBoundary: ({ children }: { children: unknown }) => children,
 }));
 
+// jsdom implements no layout, so it leaves scrollIntoView undefined.
+Element.prototype.scrollIntoView = vi.fn();
+
 afterEach(() => {
   cleanup();
   window.localStorage.clear();
