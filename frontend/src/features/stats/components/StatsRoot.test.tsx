@@ -44,24 +44,26 @@ describe("StatsRoot waitlist table", () => {
     useMetrics.mockReturnValue({ state: "loaded", data: DAYS });
   });
 
-  it("shows every instructor when there are ten or fewer", () => {
-    useSelloutStats.mockReturnValue({ state: "loaded", data: instructors(10) });
+  it("shows every instructor when only the peek row would be hidden", () => {
+    useSelloutStats.mockReturnValue({ state: "loaded", data: instructors(11) });
 
     renderWithTheme(<StatsRoot />);
 
-    expect(screen.getByText("Instructor 09")).toBeInTheDocument();
+    expect(screen.getByText("Instructor 10")).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /more instructor/ })
     ).not.toBeInTheDocument();
   });
 
-  it("collapses to ten rows and expands on request", async () => {
+  it("collapses to ten rows plus a peek row and expands on request", async () => {
     useSelloutStats.mockReturnValue({ state: "loaded", data: instructors(13) });
 
     renderWithTheme(<StatsRoot />);
 
+    // Ten readable rows, then the row the fade covers.
     expect(screen.getByText("Instructor 09")).toBeInTheDocument();
-    expect(screen.queryByText("Instructor 10")).not.toBeInTheDocument();
+    expect(screen.getByText("Instructor 10")).toBeInTheDocument();
+    expect(screen.queryByText("Instructor 11")).not.toBeInTheDocument();
 
     const expand = screen.getByRole("button", {
       name: "Show 3 more instructors",
@@ -79,6 +81,6 @@ describe("StatsRoot waitlist table", () => {
 
     await userEvent.click(collapse);
 
-    expect(screen.queryByText("Instructor 10")).not.toBeInTheDocument();
+    expect(screen.queryByText("Instructor 11")).not.toBeInTheDocument();
   });
 });

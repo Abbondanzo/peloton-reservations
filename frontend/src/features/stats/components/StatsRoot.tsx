@@ -418,8 +418,10 @@ function LineChart({
 // Sellout speed table
 // ---------------------------------------------------------------------------
 
-// Rows shown before the table has to be expanded.
+// Rows shown in full before the table has to be expanded, plus one row left
+// under the fade so the list visibly continues past the last readable row.
 const COLLAPSED_ROW_COUNT = 10;
+const PEEK_ROW_COUNT = 1;
 
 const TableFrame = styled.div`
   ${border}
@@ -442,12 +444,13 @@ const RowFade = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  height: 32px;
+  /* Tall enough to swallow the peek row while clearing the one above it. */
+  height: 56px;
   pointer-events: none;
   background: linear-gradient(
     to bottom,
     transparent,
-    ${(p) => p.theme.colors.mainSurface}
+    ${(p) => p.theme.colors.mainSurface} 75%
   );
 `;
 
@@ -591,9 +594,13 @@ function SelloutStatsTable({ stats }: { stats: InstructorSelloutStats[] }) {
   }
 
   const sorted = [...stats].sort((a, b) => compareStats(a, b, sort));
-  const collapsible = sorted.length > COLLAPSED_ROW_COUNT;
+  // Collapsing is only worth it when more than the peek row would be hidden.
+  const collapsible = sorted.length > COLLAPSED_ROW_COUNT + PEEK_ROW_COUNT;
   const collapsed = collapsible && !expanded;
-  const visible = collapsed ? sorted.slice(0, COLLAPSED_ROW_COUNT) : sorted;
+  const visible = collapsed
+    ? sorted.slice(0, COLLAPSED_ROW_COUNT + PEEK_ROW_COUNT)
+    : sorted;
+  // The peek row counts as hidden — the fade leaves it unreadable.
   const hiddenCount = sorted.length - COLLAPSED_ROW_COUNT;
 
   return (
