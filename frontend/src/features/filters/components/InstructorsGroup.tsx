@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from "react";
 import { InstructorIcon } from "../../class-list/components/InstructorIcon";
 import { selectStudioId } from "../../class-list/selectors/selectStudioId";
 import { useGetInstructorsQuery } from "../../class-list/services/pelotonApi";
@@ -13,6 +14,7 @@ import {
   FilterStateText,
 } from "./atoms/FilterCheckList";
 import { FilterGroupHeader } from "./atoms/FilterGroupHeader";
+import { FilterSearchInput } from "./atoms/FilterSearchInput";
 
 interface InstructorsGroupItemProps {
   instructor: Instructor;
@@ -41,6 +43,19 @@ const InstructorsGroupContent = () => {
   const studioId = useAppSelector(selectStudioId);
   const { currentData, isLoading, error } = useGetInstructorsQuery(studioId);
   const { selectedInstructors, toggleInstructor } = useInstructorFilters();
+  const [search, setSearch] = useState("");
+
+  // A studio swap brings a different roster, so a stale query would hide it.
+  useEffect(() => setSearch(""), [studioId]);
+
+  const query = search.trim().toLowerCase();
+  const matches = useMemo(
+    () =>
+      (currentData ?? []).filter((instructor) =>
+        instructor.name.toLowerCase().includes(query)
+      ),
+    [currentData, query]
+  );
 
   if (error && !isLoading) {
     return <FilterStateText>Failed to load instructors</FilterStateText>;
@@ -51,16 +66,32 @@ const InstructorsGroupContent = () => {
   }
 
   return (
-    <FilterItemList>
-      {currentData.map((instructor, index) => (
-        <InstructorsGroupItem
-          key={index}
-          instructor={instructor}
-          checked={selectedInstructors.includes(instructor.id)}
-          onClick={() => toggleInstructor(instructor.id)}
+    <>
+      {currentData.length > 0 && (
+        <FilterSearchInput
+          label="Search instructors"
+          placeholder="Search instructors"
+          value={search}
+          onChange={setSearch}
         />
-      ))}
-    </FilterItemList>
+      )}
+      {matches.length === 0 ? (
+        <FilterStateText>
+          No instructors match “{search.trim()}”
+        </FilterStateText>
+      ) : (
+        <FilterItemList>
+          {matches.map((instructor) => (
+            <InstructorsGroupItem
+              key={instructor.id}
+              instructor={instructor}
+              checked={selectedInstructors.includes(instructor.id)}
+              onClick={() => toggleInstructor(instructor.id)}
+            />
+          ))}
+        </FilterItemList>
+      )}
+    </>
   );
 };
 
