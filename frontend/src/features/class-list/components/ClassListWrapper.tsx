@@ -2,7 +2,12 @@ import styled from "styled-components";
 import { useAppSelector } from "../../store/hooks/useStore";
 import { mediaMobile } from "../../theme/constants/queries";
 import { selectStudioId } from "../selectors/selectStudioId";
-import { getErrorMessage, useGetClassesQuery } from "../services/pelotonApi";
+import {
+  RATE_LIMIT_MESSAGE,
+  getErrorMessage,
+  isRateLimitError,
+  useGetClassesQuery,
+} from "../services/pelotonApi";
 import { ClassList } from "./ClassList";
 
 const StateCard = styled.div`
@@ -33,12 +38,35 @@ const ErrorDetail = styled.code`
   color: ${(p) => p.theme.colors.secondary};
 `;
 
+const RetryButton = styled.button`
+  border: none;
+  background: none;
+  color: ${(p) => p.theme.colors.accent};
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  text-decoration: underline;
+  padding: 0;
+  margin-top: 8px;
+`;
+
 export const ClassListWrapper = () => {
   const studioId = useAppSelector(selectStudioId);
-  const { currentData, isLoading, error, fulfilledTimeStamp } =
+  const { currentData, isLoading, error, fulfilledTimeStamp, refetch } =
     useGetClassesQuery(studioId, { refetchOnMountOrArgChange: true });
 
   if (error && !isLoading) {
+    if (isRateLimitError(error)) {
+      return (
+        <StateCard>
+          <ErrorText>Too many requests</ErrorText>
+          <StateText>{RATE_LIMIT_MESSAGE}</StateText>
+          <RetryButton type="button" onClick={refetch}>
+            Try again
+          </RetryButton>
+        </StateCard>
+      );
+    }
     return (
       <StateCard>
         <ErrorText>Failed to load classes</ErrorText>
