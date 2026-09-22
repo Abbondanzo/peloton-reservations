@@ -14,6 +14,9 @@
 
 # misc
 .DS_Store
+
+# Local Claude Code settings (never commit)
+.claude/
 .env.local
 .env.development.local
 .env.test.local
