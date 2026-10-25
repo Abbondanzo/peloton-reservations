@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { type Alert, DEFAULT_STUDIO_ID, type TimeRange } from "shared";
 import { getStoredStudioId } from "../../../class-list/operators/studioStorage";
 import { selectStudioId } from "../../../class-list/selectors/selectStudioId";
@@ -10,6 +10,7 @@ import { DEFAULT_TIME_RANGE } from "../../constants/timeRanges";
 
 export interface AlertEditorState {
   selectedStudioId: string;
+  setSelectedStudioId: (studioId: string) => void;
   name: string;
   setName: (name: string) => void;
   selectedInstructors: Optional<string[]>;
@@ -60,21 +61,29 @@ export const useAlertEditorState = (
     alertToEdit.watchedClassIds ?? null
   );
 
-  const lastStudioRef = useRef<string | undefined>(alertToEdit.studioId);
-  useEffect(() => {
-    if (
-      selectedStudioId &&
-      lastStudioRef.current &&
-      selectedStudioId !== lastStudioRef.current
-    ) {
+  /**
+   * Changes the studio the alert targets. Instructor and discipline ids are
+   * scoped to a studio, so any selection made against the old one is dropped.
+   *
+   * This is driven by the user picking a studio rather than by watching
+   * `selectedStudioId`: the effect above dispatches the alert's own studio on
+   * mount, and a watcher cannot tell that sync apart from a real change — it
+   * used to read the mount-time sync as a studio switch and wipe the filters
+   * the alert was seeded with.
+   */
+  const setSelectedStudioId = useCallback(
+    (studioId: string) => {
+      if (studioId === selectedStudioId) return;
+      dispatch(setStudioId(studioId));
       setSelectedInstructors((cur) => (cur ? [] : cur));
       setSelectedDisciplines((cur) => (cur ? [] : cur));
-    }
-    lastStudioRef.current = selectedStudioId;
-  }, [selectedStudioId]);
+    },
+    [dispatch, selectedStudioId]
+  );
 
   return {
     selectedStudioId,
+    setSelectedStudioId,
     name,
     setName,
     selectedInstructors,

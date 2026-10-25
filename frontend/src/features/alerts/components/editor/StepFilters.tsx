@@ -155,9 +155,7 @@ export const StepFilters = ({
     const valid = new Set(
       disciplinesQuery.currentData.map((d) => String(d.id))
     );
-    const filtered = initial
-      .filter((id) => valid.has(String(id)))
-      .map(String);
+    const filtered = initial.filter((id) => valid.has(String(id))).map(String);
     if (filtered.length < initial.length) {
       setSelectedDisciplines(filtered);
       initialDisciplines.current = filtered;
@@ -280,42 +278,40 @@ interface InstructorsListProps {
   onToggle: (id: string) => void;
 }
 
-const InstructorsList = memo(({
-  query,
-  selectedIds,
-  onToggle,
-}: InstructorsListProps) => {
-  if (query.isLoading) {
-    return <LoadingText>Loading instructors…</LoadingText>;
-  }
-  if (query.error) {
+const InstructorsList = memo(
+  ({ query, selectedIds, onToggle }: InstructorsListProps) => {
+    if (query.isLoading) {
+      return <LoadingText>Loading instructors…</LoadingText>;
+    }
+    if (query.error) {
+      return (
+        <ErrorText>
+          Couldn't load instructors.{" "}
+          <RetryButton type="button" onClick={query.refetch}>
+            Try again
+          </RetryButton>
+        </ErrorText>
+      );
+    }
+    if (!query.currentData || query.currentData.length === 0) {
+      return <LoadingText>No instructors found for this studio.</LoadingText>;
+    }
     return (
-      <ErrorText>
-        Couldn't load instructors.{" "}
-        <RetryButton type="button" onClick={query.refetch}>
-          Try again
-        </RetryButton>
-      </ErrorText>
+      <Grid role="group" aria-label="Instructors">
+        {query.currentData.map((instructor: Instructor) => (
+          <CheckOption
+            key={instructor.id}
+            value={instructor.id}
+            checked={selectedIds.includes(instructor.id)}
+            onChange={() => onToggle(instructor.id)}
+            label={instructor.name}
+            icon={<InstructorIcon instructor={instructor} size={28} />}
+          />
+        ))}
+      </Grid>
     );
   }
-  if (!query.currentData || query.currentData.length === 0) {
-    return <LoadingText>No instructors found for this studio.</LoadingText>;
-  }
-  return (
-    <Grid role="group" aria-label="Instructors">
-      {query.currentData.map((instructor: Instructor) => (
-        <CheckOption
-          key={instructor.id}
-          value={instructor.id}
-          checked={selectedIds.includes(instructor.id)}
-          onChange={() => onToggle(instructor.id)}
-          label={instructor.name}
-          icon={<InstructorIcon instructor={instructor} size={28} />}
-        />
-      ))}
-    </Grid>
-  );
-});
+);
 
 interface DisciplinesListProps {
   query: ReturnType<typeof useGetDisciplinesQuery>;
@@ -323,39 +319,37 @@ interface DisciplinesListProps {
   onToggle: (id: string) => void;
 }
 
-const DisciplinesList = memo(({
-  query,
-  selectedIds,
-  onToggle,
-}: DisciplinesListProps) => {
-  if (query.isLoading) {
-    return <LoadingText>Loading disciplines…</LoadingText>;
-  }
-  if (query.error) {
+const DisciplinesList = memo(
+  ({ query, selectedIds, onToggle }: DisciplinesListProps) => {
+    if (query.isLoading) {
+      return <LoadingText>Loading disciplines…</LoadingText>;
+    }
+    if (query.error) {
+      return (
+        <ErrorText>
+          Couldn't load disciplines.{" "}
+          <RetryButton type="button" onClick={query.refetch}>
+            Try again
+          </RetryButton>
+        </ErrorText>
+      );
+    }
+    if (!query.currentData || query.currentData.length === 0) {
+      return <LoadingText>No disciplines found for this studio.</LoadingText>;
+    }
     return (
-      <ErrorText>
-        Couldn't load disciplines.{" "}
-        <RetryButton type="button" onClick={query.refetch}>
-          Try again
-        </RetryButton>
-      </ErrorText>
+      <Grid role="group" aria-label="Disciplines">
+        {query.currentData.map((discipline: Discipline) => (
+          <CheckOption
+            key={discipline.id}
+            value={discipline.id}
+            checked={selectedIds.includes(discipline.id)}
+            onChange={() => onToggle(discipline.id)}
+            label={discipline.name}
+            icon={<DisciplineIcon discipline={discipline} size={24} />}
+          />
+        ))}
+      </Grid>
     );
   }
-  if (!query.currentData || query.currentData.length === 0) {
-    return <LoadingText>No disciplines found for this studio.</LoadingText>;
-  }
-  return (
-    <Grid role="group" aria-label="Disciplines">
-      {query.currentData.map((discipline: Discipline) => (
-        <CheckOption
-          key={discipline.id}
-          value={discipline.id}
-          checked={selectedIds.includes(discipline.id)}
-          onChange={() => onToggle(discipline.id)}
-          label={discipline.name}
-          icon={<DisciplineIcon discipline={discipline} size={24} />}
-        />
-      ))}
-    </Grid>
-  );
-});
+);

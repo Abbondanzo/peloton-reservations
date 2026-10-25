@@ -1,7 +1,7 @@
-import type { ReactNode } from "react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import styled from "styled-components";
 import { STUDIOS } from "shared";
+import { NAV_HEIGHT } from "../../navigation/constants/height";
 import { NavbarProvider } from "../../navigation/components/NavbarProvider";
 import { border, focus, hover } from "../../theme/constants/styles";
 import { mediaMobile } from "../../theme/constants/queries";
@@ -74,6 +74,12 @@ const TotalValue = styled.div`
   font-size: 24px;
   font-weight: 700;
   color: ${(p) => p.theme.colors.main};
+`;
+
+const SectionNote = styled.p`
+  color: ${(p) => p.theme.colors.secondary};
+  font-size: 12px;
+  margin: -8px 0 16px;
 `;
 
 const StatusMessage = styled.p`
@@ -412,9 +418,59 @@ function LineChart({
 // Sellout speed table
 // ---------------------------------------------------------------------------
 
+// Rows shown in full before the table has to be expanded, plus one row left
+// under the fade so the list visibly continues past the last readable row.
+const COLLAPSED_ROW_COUNT = 10;
+const PEEK_ROW_COUNT = 1;
+
+const TableFrame = styled.div`
+  ${border}
+  /* Clips the fade and the toggle button to the rounded corners. */
+  overflow: hidden;
+  /* Keeps the table clear of the sticky navbar when collapsing scrolls it back. */
+  scroll-margin-top: ${NAV_HEIGHT + 16}px;
+`;
+
+const TableViewport = styled.div`
+  position: relative;
+`;
+
 const TableScroll = styled.div`
   overflow-x: auto;
-  ${border}
+`;
+
+const RowFade = styled.div`
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* Tall enough to swallow the peek row while clearing the one above it. */
+  height: 56px;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    ${(p) => p.theme.colors.mainSurface} 75%
+  );
+`;
+
+const ToggleButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 16px;
+  font: inherit;
+  font-size: 12px;
+  color: ${(p) => p.theme.colors.secondary};
+  background: ${(p) => p.theme.colors.mainSurface};
+  border: none;
+  border-top: 1px solid ${(p) => p.theme.borderColor};
+  cursor: pointer;
+
+  ${hover}
+  ${focus}
 `;
 
 const Table = styled.table`
@@ -473,26 +529,7 @@ const Td = styled.td`
   white-space: nowrap;
 `;
 
-const SampleSize = styled.span`
-  color: ${(p) => p.theme.colors.secondary};
-  font-size: 11px;
-  margin-left: 4px;
-`;
-
-function formatMedianCell(
-  medianMs: number | null,
-  sampleSize: number
-): ReactNode {
-  if (medianMs === null) return <SampleSize>—</SampleSize>;
-  return (
-    <>
-      {formatDuration(medianMs)}
-      <SampleSize>(n={sampleSize})</SampleSize>
-    </>
-  );
-}
-
-type SortKey = "instructor" | "classCount" | "waitlist" | "full";
+type SortKey = "instructor" | "classCount" | "fill";
 type SortDirection = "asc" | "desc";
 interface SortState {
   key: SortKey;
@@ -501,22 +538,9 @@ interface SortState {
 
 const COLUMNS: { key: SortKey; label: string }[] = [
   { key: "instructor", label: "Instructor" },
-  { key: "classCount", label: "Classes tracked" },
-  { key: "waitlist", label: "Median time to waitlist" },
-  { key: "full", label: "Median time to waitlist full" },
+  { key: "classCount", label: "Classes measured" },
+  { key: "fill", label: "Median time to fill waitlist" },
 ];
-
-// Nulls always sort last, regardless of direction.
-function compareNullableLast(
-  a: number | null,
-  b: number | null,
-  direction: SortDirection
-): number {
-  if (a === null && b === null) return 0;
-  if (a === null) return 1;
-  if (b === null) return -1;
-  return direction === "asc" ? a - b : b - a;
-}
 
 function compareStats(
   a: InstructorSelloutStats,
@@ -536,26 +560,20 @@ function compareStats(
       return sort.direction === "asc"
         ? a.classCount - b.classCount
         : b.classCount - a.classCount;
-    case "waitlist":
-      return compareNullableLast(
-        a.medianTimeToWaitlistMs,
-        b.medianTimeToWaitlistMs,
-        sort.direction
-      );
-    case "full":
-      return compareNullableLast(
-        a.medianTimeToFullMs,
-        b.medianTimeToFullMs,
-        sort.direction
-      );
+    case "fill":
+      return sort.direction === "asc"
+        ? a.medianTimeToFullMs - b.medianTimeToFullMs
+        : b.medianTimeToFullMs - a.medianTimeToFullMs;
   }
 }
 
 function SelloutStatsTable({ stats }: { stats: InstructorSelloutStats[] }) {
   const [sort, setSort] = useState<SortState | null>(null);
+  const [expanded, setExpanded] = useState(false);
+  const frameRef = useRef<HTMLDivElement>(null);
 
   if (stats.length === 0) {
-    return <StatusMessage>No sellout data recorded yet.</StatusMessage>;
+    return <StatusMessage>No waitlist fill times recorded yet.</StatusMessage>;
   }
 
   function handleSort(key: SortKey) {
@@ -566,56 +584,82 @@ function SelloutStatsTable({ stats }: { stats: InstructorSelloutStats[] }) {
     });
   }
 
+  function handleToggle() {
+    // Collapsing a scrolled-past table would leave the viewport below it.
+    const frame = frameRef.current;
+    if (expanded && frame && frame.getBoundingClientRect().top < NAV_HEIGHT) {
+      frame.scrollIntoView({ block: "start" });
+    }
+    setExpanded(!expanded);
+  }
+
   const sorted = [...stats].sort((a, b) => compareStats(a, b, sort));
+  // Collapsing is only worth it when more than the peek row would be hidden.
+  const collapsible = sorted.length > COLLAPSED_ROW_COUNT + PEEK_ROW_COUNT;
+  const collapsed = collapsible && !expanded;
+  const visible = collapsed
+    ? sorted.slice(0, COLLAPSED_ROW_COUNT + PEEK_ROW_COUNT)
+    : sorted;
+  // The peek row counts as hidden — the fade leaves it unreadable.
+  const hiddenCount = sorted.length - COLLAPSED_ROW_COUNT;
 
   return (
-    <TableScroll>
-      <Table>
-        <thead>
-          <Tr>
-            {COLUMNS.map(({ key, label }) => {
-              const active = sort?.key === key;
-              return (
-                <Th
-                  key={key}
-                  aria-sort={
-                    active
-                      ? sort.direction === "asc"
-                        ? "ascending"
-                        : "descending"
-                      : "none"
-                  }
-                >
-                  <ThButton type="button" onClick={() => handleSort(key)}>
-                    {label}
-                    <SortArrow $visible={active}>
-                      {active && sort.direction === "desc" ? "▼" : "▲"}
-                    </SortArrow>
-                  </ThButton>
-                </Th>
-              );
-            })}
-          </Tr>
-        </thead>
-        <tbody>
-          {sorted.map((s) => (
-            <Tr key={s.instructorId}>
-              <Td>{s.instructorName}</Td>
-              <Td>{s.classCount}</Td>
-              <Td>
-                {formatMedianCell(
-                  s.medianTimeToWaitlistMs,
-                  s.waitlistSampleSize
-                )}
-              </Td>
-              <Td>
-                {formatMedianCell(s.medianTimeToFullMs, s.fullSampleSize)}
-              </Td>
-            </Tr>
-          ))}
-        </tbody>
-      </Table>
-    </TableScroll>
+    <TableFrame ref={frameRef}>
+      <TableViewport>
+        <TableScroll>
+          <Table>
+            <thead>
+              <Tr>
+                {COLUMNS.map(({ key, label }) => {
+                  const active = sort?.key === key;
+                  return (
+                    <Th
+                      key={key}
+                      aria-sort={
+                        active
+                          ? sort.direction === "asc"
+                            ? "ascending"
+                            : "descending"
+                          : "none"
+                      }
+                    >
+                      <ThButton type="button" onClick={() => handleSort(key)}>
+                        {label}
+                        <SortArrow $visible={active}>
+                          {active && sort.direction === "desc" ? "▼" : "▲"}
+                        </SortArrow>
+                      </ThButton>
+                    </Th>
+                  );
+                })}
+              </Tr>
+            </thead>
+            <tbody>
+              {visible.map((s) => (
+                <Tr key={s.instructorId}>
+                  <Td>{s.instructorName}</Td>
+                  <Td>{s.classCount}</Td>
+                  <Td>{formatDuration(s.medianTimeToFullMs)}</Td>
+                </Tr>
+              ))}
+            </tbody>
+          </Table>
+        </TableScroll>
+        {collapsed && <RowFade />}
+      </TableViewport>
+      {collapsible && (
+        <ToggleButton
+          type="button"
+          onClick={handleToggle}
+          aria-expanded={expanded}
+        >
+          <span aria-hidden="true">{expanded ? "▴" : "▾"}</span>
+          {expanded
+            ? "Show fewer instructors"
+            : `Show ${hiddenCount} more instructor${hiddenCount === 1 ? "" : "s"}`}
+        </ToggleButton>
+      )}
+    </TableFrame>
   );
 }
 
@@ -741,12 +785,17 @@ export const StatsRoot = () => {
         </Section>
 
         <Section>
-          <SectionTitle>Class sellout speed by instructor</SectionTitle>
+          <SectionTitle>Waitlist fill speed by instructor</SectionTitle>
+          <SectionNote>
+            Studio classes reach the schedule with their seats already gone, so
+            only the waitlist can be timed. Counts classes first seen with an
+            empty waitlist, measured until that waitlist filled.
+          </SectionNote>
           {selloutStats.state === "idle" || selloutStats.state === "loading" ? (
             <StatusMessage>Loading…</StatusMessage>
           ) : selloutStats.state === "failed" ? (
             <StatusMessage>
-              Failed to load sellout stats:{" "}
+              Failed to load waitlist stats:{" "}
               {selloutStats.error.message ?? "unknown error"}
             </StatusMessage>
           ) : (

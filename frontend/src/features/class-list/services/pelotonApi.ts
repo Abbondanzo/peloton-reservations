@@ -47,6 +47,23 @@ const EXPAND = [
   "suggested_booking_action",
 ];
 
+/**
+ * Raised when Peloton answers a class page request with a non-OK status. It
+ * carries the status through so callers can tell a rate limit apart from a
+ * generic failure.
+ */
+class PelotonResponseError extends Error {
+  readonly status: number;
+  readonly body: string;
+
+  constructor(status: number, body: string) {
+    super(`${status}: ${body}`);
+    this.name = "PelotonResponseError";
+    this.status = status;
+    this.body = body;
+  }
+}
+
 export const pelotonApi = createApi({
   reducerPath: "pelotonApi",
   baseQuery: fetchBaseQuery({
@@ -67,7 +84,10 @@ export const pelotonApi = createApi({
             async (pageUrl) => {
               const response = await fetch(pageUrl, { headers });
               if (!response.ok) {
-                throw new Error(`${response.status}: ${await response.text()}`);
+                throw new PelotonResponseError(
+                  response.status,
+                  await response.text()
+                );
               }
               return response.json() as Promise<RawClassResponse>;
             },
@@ -75,6 +95,14 @@ export const pelotonApi = createApi({
           );
           return { data: mapClasses({ results } as RawClassResponse) };
         } catch (e) {
+          if (e instanceof PelotonResponseError) {
+            return {
+              error: {
+                status: e.status,
+                data: e.body,
+              } as FetchBaseQueryError,
+            };
+          }
           return {
             error: {
               status: "FETCH_ERROR",
@@ -123,9 +151,34 @@ export const {
   useGetInstructorsQuery,
 } = pelotonApi;
 
+const RATE_LIMIT_STATUS = 429;
+
+export const RATE_LIMIT_MESSAGE =
+  "Peloton is receiving too many requests right now. Please wait a moment and try again.";
+
+export const isRateLimitError = (
+  error: FetchBaseQueryError | SerializedError
+): boolean => {
+  if (!("status" in error)) {
+    return false;
+  }
+  if (error.status === RATE_LIMIT_STATUS) {
+    return true;
+  }
+  // A 429 whose body is not JSON surfaces as a parsing error that keeps the
+  // original status.
+  return (
+    error.status === "PARSING_ERROR" &&
+    error.originalStatus === RATE_LIMIT_STATUS
+  );
+};
+
 export const getErrorMessage = (
   error: FetchBaseQueryError | SerializedError
 ) => {
+  if (isRateLimitError(error)) {
+    return RATE_LIMIT_MESSAGE;
+  }
   if ("error" in error && typeof error.error === "string") {
     return error.error;
   }

@@ -2,9 +2,8 @@ import { useCallback, useState } from "react";
 import { type Alert } from "shared";
 import styled from "styled-components";
 import { captureException } from "@sentry/react";
-import { setStudioId } from "../../../class-list/slices/studioSlice";
 import { selectUserId } from "../../../session/selectors/selectUserId";
-import { useAppDispatch, useAppSelector } from "../../../store/hooks/useStore";
+import { useAppSelector } from "../../../store/hooks/useStore";
 import { mediaMobile } from "../../../theme/constants/queries";
 import { addAlert } from "../../firebase/addAlert";
 import { editAlert } from "../../firebase/editAlert";
@@ -124,7 +123,6 @@ interface Props {
 }
 
 export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
-  const dispatch = useAppDispatch();
   const userId = useAppSelector(selectUserId);
 
   const [currentStep, setCurrentStep] = useState(0);
@@ -133,6 +131,7 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
 
   const {
     selectedStudioId,
+    setSelectedStudioId,
     name,
     setName,
     selectedInstructors,
@@ -233,7 +232,7 @@ export const AlertEditor = ({ alertToEdit, onSave, onCancel }: Props) => {
             name={name}
             onNameChange={setName}
             studioId={selectedStudioId}
-            onStudioChange={(id) => dispatch(setStudioId(id))}
+            onStudioChange={setSelectedStudioId}
             maxStatus={maxStatus}
             onStatusChange={setMaxStatus}
           />

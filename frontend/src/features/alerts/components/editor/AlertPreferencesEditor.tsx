@@ -198,7 +198,9 @@ const Editor = ({ alertPreferences }: EditorProps) => {
           id="pause-all-toggle"
           checked={!pauseAll}
           onChange={handleTogglePauseAll}
-          aria-label={pauseAll ? "Resume all notifications" : "Pause all notifications"}
+          aria-label={
+            pauseAll ? "Resume all notifications" : "Pause all notifications"
+          }
         />
       </PauseRow>
       <Form onSubmit={handleSubmit}>

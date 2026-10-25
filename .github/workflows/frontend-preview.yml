@@ -43,11 +43,6 @@ jobs:
         if: github.event.action != 'closed'
         run: pnpm install --frozen-lockfile
 
-      - name: Build shared project
-        if: github.event.action != 'closed'
-        run: pnpm run build
-        working-directory: ./shared
-
       - name: Build project
         if: github.event.action != 'closed'
         run: pnpm run build

@@ -7,11 +7,9 @@ import type { AsyncData } from "../../store/types/AsyncData";
 export interface InstructorSelloutStats {
   instructorId: string;
   instructorName: string;
+  /** Classes whose waitlist we watched fill from empty. */
   classCount: number;
-  medianTimeToWaitlistMs: number | null;
-  waitlistSampleSize: number;
-  medianTimeToFullMs: number | null;
-  fullSampleSize: number;
+  medianTimeToFullMs: number;
 }
 
 function median(values: number[]): number | null {
@@ -23,20 +21,28 @@ function median(values: number[]): number | null {
     : sorted[mid];
 }
 
+/**
+ * Records predate the empty-waitlist rule, so some were measured from a class
+ * caught part-way through filling and read shorter than the real fill. They
+ * are kept — they age out of the per-instructor cap on their own.
+ */
 const isValidRecord = (val: unknown): val is SelloutRecord => {
   if (!val || typeof val !== "object") return false;
   const r = val as Record<string, unknown>;
   return (
     typeof r.classId === "string" &&
     typeof r.instructorName === "string" &&
-    typeof r.addedAt === "number"
+    typeof r.addedAt === "number" &&
+    typeof r.timeToFullMs === "number" &&
+    Number.isFinite(r.timeToFullMs) &&
+    r.timeToFullMs > 0
   );
 };
 
 /**
  * Reads `selloutStats/{instructorId}/{classId}` and rolls each instructor's
- * records (already capped to their last 50 classes by the backend) up into
- * median time-to-waitlist and time-to-full figures.
+ * records (already capped to their last 50 classes by the backend) up into a
+ * median waitlist fill time.
  */
 export function useSelloutStats(): AsyncData<InstructorSelloutStats[]> {
   const [state, setState] = useState<AsyncData<InstructorSelloutStats[]>>({
@@ -63,21 +69,15 @@ export function useSelloutStats(): AsyncData<InstructorSelloutStats[]> {
           ).filter(isValidRecord);
           if (records.length === 0) continue;
 
-          const waitlistTimes = records
-            .map((r) => r.timeToWaitlistMs)
-            .filter((v): v is number => v !== null && v !== undefined);
-          const fullTimes = records
-            .map((r) => r.timeToFullMs)
-            .filter((v): v is number => v !== null && v !== undefined);
+          const fillTimes = records.map((r) => r.timeToFullMs);
+          const medianFill = median(fillTimes);
+          if (medianFill === null) continue;
 
           result.push({
             instructorId,
             instructorName: records[0].instructorName,
             classCount: records.length,
-            medianTimeToWaitlistMs: median(waitlistTimes),
-            waitlistSampleSize: waitlistTimes.length,
-            medianTimeToFullMs: median(fullTimes),
-            fullSampleSize: fullTimes.length,
+            medianTimeToFullMs: medianFill,
           });
         }
 

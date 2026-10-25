@@ -9,6 +9,11 @@
 
     /* Bundler mode */
     "moduleResolution": "bundler",
+    /* Resolve the shared package from source, so nothing has to build it first. */
+    "paths": {
+      "shared": ["../shared/src/index.ts"],
+      "shared/testing": ["../shared/src/testing/fixtures.ts"]
+    },
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",

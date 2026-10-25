@@ -5,8 +5,10 @@ import path from "path";
 import {
   Alert,
   AlertPreferences,
+  type BookableStatus,
   type ChangeType,
   type ClassSnapshot,
+  CLASS_HISTORY_RETENTION_MS,
   PATHS,
   RawClass,
   type SelloutRecord,
@@ -22,6 +24,13 @@ import { DiffDelegate } from "./manager";
 import { Metrics } from "./metrics";
 
 type StudioGroup = { [key: string]: Alert[] };
+
+/** A class as observed at one point in time. */
+interface ClassObservation {
+  at: number;
+  status: BookableStatus;
+  waitingCount: number;
+}
 
 // Trailing slash stripped so we can append "/?classUrl=..." cleanly.
 const FRONTEND_URL = (process.env.FRONTEND_URL ?? "").replace(/\/$/, "");
@@ -44,8 +53,6 @@ function buildWaitlistAlertLink(classData: RawClass, studioId: string): string {
 
 /** How often to flush the pending-notification queue. */
 const PENDING_CHECK_INTERVAL_MS = 30 * 1000;
-/** How long to retain class history snapshots. */
-const HISTORY_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
 /** How often to clean up old class history snapshots. */
 const HISTORY_CLEANUP_INTERVAL_MS = 60 * 60 * 1000;
 /** How many recent classes' sellout-speed records to retain per instructor. */
@@ -75,8 +82,8 @@ export class Alerter implements DiffDelegate {
   /** key: `${userId}:${classId}:${changeType}` */
   private readonly pendingNotifications: Map<string, PendingNotification>;
 
-  /** key: `${studioId}:${classId}:${"waitlist" | "full"}` — dedupes sellout-speed writes */
-  private readonly recordedSelloutMilestones: Set<string>;
+  /** key: `${studioId}:${classId}` — dedupes waitlist-fill writes */
+  private readonly recordedWaitlistFills: Set<string>;
 
   constructor() {
     this.alertGroups = {};
@@ -85,7 +92,7 @@ export class Alerter implements DiffDelegate {
     this.lastNotifiedAt = {};
     this.messagingTokens = {};
     this.pendingNotifications = new Map();
-    this.recordedSelloutMilestones = new Set();
+    this.recordedWaitlistFills = new Set();
   }
 
   async initialize() {
@@ -149,25 +156,19 @@ export class Alerter implements DiffDelegate {
       const newStatus = getBookableStatus(entry.new);
       if (oldStatus !== newStatus) {
         const now = Date.now();
+        logger.log(
+          `Class ${entry.new.id} (${studioId}) ${oldStatus} -> ${newStatus}`
+        );
         this.writeSnapshot(studioId, entry.new, now);
-        // A class can skip the waitlist bucket entirely between two polls
-        // (free -> full in one jump) for very popular instructors. When
-        // that happens we still record a timeToWaitlistMs, using the same
-        // timestamp as timeToFullMs — an upper-bound estimate, since the
-        // true waitlist time is somewhere between the previous poll and now.
-        if (
-          oldStatus === "free" &&
-          (newStatus === "waitlist" || newStatus === "full")
-        ) {
-          this.recordSelloutMilestone(
-            studioId,
-            entry.new,
-            "timeToWaitlistMs",
-            now
-          );
-        }
+        // Measured from the class's whole timeline rather than this one
+        // transition, so a waitlist that fills between two polls is still
+        // captured.
         if (newStatus === "full") {
-          this.recordSelloutMilestone(studioId, entry.new, "timeToFullMs", now);
+          this.recordWaitlistFill(studioId, entry.new, {
+            at: now,
+            status: newStatus,
+            waitingCount: entry.new.waiting_count,
+          });
         }
       }
       if (!this.alertGroups[studioId]) continue;
@@ -427,70 +428,126 @@ export class Alerter implements DiffDelegate {
   // Instructor sellout-speed stats
   // ---------------------------------------------------------------------------
 
-  private async recordSelloutMilestone(
+  /**
+   * Reads a class's observed timeline: every snapshot we have for it, oldest
+   * first, with the caller's current observation merged in. Snapshots are only
+   * written when a class is added and when its status changes, so this is the
+   * full record of the crossings we saw.
+   */
+  private async getClassTimeline(
+    studioId: string,
+    classId: number,
+    current: ClassObservation
+  ): Promise<ClassObservation[]> {
+    const snap = await admin
+      .database()
+      .ref(PATHS.classSnapshot(studioId, classId))
+      .once("value");
+    const val = (snap.val() ?? {}) as Record<string, ClassSnapshot>;
+    const timeline = [current];
+    for (const [key, snapshot] of Object.entries(val)) {
+      const at = Number(key);
+      if (!Number.isFinite(at) || at >= current.at) continue;
+      if (!snapshot || typeof snapshot !== "object") continue;
+      if (typeof snapshot.waitingCount !== "number") continue;
+      const status = snapshot.status;
+      if (status !== "free" && status !== "waitlist" && status !== "full")
+        continue;
+      timeline.push({ at, status, waitingCount: snapshot.waitingCount });
+    }
+    return timeline.sort((a, b) => a.at - b.at);
+  }
+
+  /**
+   * How long a class's waitlist took to fill, or null when that is not
+   * measurable.
+   *
+   * Studio classes reach the schedule feed with their seats already gone, so
+   * the time it took to sell them cannot be observed by polling — but a class
+   * caught while its waitlist is still empty can be watched filling up from
+   * the start. A class first seen with people already waiting was found
+   * part-way through, and timing the remainder would understate it, so it is
+   * left out rather than averaged in.
+   */
+  private deriveWaitlistFill(
+    timeline: ClassObservation[]
+  ): { addedAt: number; timeToFullMs: number } | null {
+    const first = timeline[0];
+    if (first.waitingCount !== 0) return null;
+    const full = timeline.find((entry) => entry.status === "full");
+    if (!full || full.at <= first.at) return null;
+    return { addedAt: first.at, timeToFullMs: full.at - first.at };
+  }
+
+  private async recordWaitlistFill(
     studioId: string,
     rawClass: RawClass,
-    field: "timeToWaitlistMs" | "timeToFullMs",
-    reachedAt: number
+    current: ClassObservation
   ): Promise<void> {
-    const milestone = field === "timeToWaitlistMs" ? "waitlist" : "full";
-    const dedupeKey = `${studioId}:${rawClass.id}:${milestone}`;
-    if (this.recordedSelloutMilestones.has(dedupeKey)) return;
+    const dedupeKey = `${studioId}:${rawClass.id}`;
+    if (this.recordedWaitlistFills.has(dedupeKey)) return;
 
     try {
       const db = admin.database();
-      const firstSnapshot = await db
-        .ref(PATHS.classSnapshot(studioId, rawClass.id))
-        .orderByKey()
-        .limitToFirst(1)
-        .once("value");
-      const firstVal = firstSnapshot.val() as Record<
-        string,
-        ClassSnapshot
-      > | null;
-      if (!firstVal) {
-        logger.error(
-          `No snapshot history found for class ${rawClass.id} while recording ${field}`
-        );
-        return;
-      }
-      const addedAt = Number(Object.keys(firstVal)[0]);
-      if (!Number.isFinite(addedAt) || reachedAt < addedAt) {
-        logger.error(
-          `Invalid addedAt (${addedAt}) for class ${rawClass.id} while recording ${field}, reachedAt=${reachedAt}`
-        );
-        return;
-      }
-      this.recordedSelloutMilestones.add(dedupeKey);
-      const durationMs = reachedAt - addedAt;
+      const timeline = await this.getClassTimeline(
+        studioId,
+        rawClass.id,
+        current
+      );
+      const fill = this.deriveWaitlistFill(timeline);
+      if (!fill) return;
 
+      // Never replace a stored measurement: the in-memory dedupe set is lost on
+      // restart, and a class whose waitlist drops a spot and fills again would
+      // otherwise overwrite the original fill time with a much shorter one.
       const updates: Record<string, unknown> = {};
       for (const instructor of rawClass.instructors) {
         const instructorId = String(instructor.id);
         const path = PATHS.selloutRecord(instructorId, rawClass.id);
+        const stored = (
+          await db.ref(`${path}/timeToFullMs`).once("value")
+        ).val() as unknown;
+        if (typeof stored === "number" && stored > 0) continue;
         updates[`${path}/classId`] = String(rawClass.id);
         updates[`${path}/className`] = rawClass.name;
         updates[`${path}/instructorName`] = instructor.name;
-        updates[`${path}/addedAt`] = addedAt;
-        updates[`${path}/${field}`] = durationMs;
+        updates[`${path}/addedAt`] = fill.addedAt;
+        updates[`${path}/timeToFullMs`] = fill.timeToFullMs;
       }
-      await db.ref().update(updates);
 
-      await Promise.all(
-        rawClass.instructors.map((instructor) =>
-          this.trimSelloutStats(String(instructor.id))
-        )
-      );
+      if (Object.keys(updates).length > 0) {
+        await db.ref().update(updates);
+        await Promise.all(
+          rawClass.instructors.map((instructor) =>
+            this.trimSelloutStats(String(instructor.id), String(rawClass.id))
+          )
+        );
+        logger.log(
+          `Waitlist for class ${rawClass.id} filled in ${fill.timeToFullMs}ms`
+        );
+      }
+      // Only dedupe once the write has landed, so a failed attempt is retried
+      // the next time the class changes status.
+      this.recordedWaitlistFills.add(dedupeKey);
     } catch (err) {
       logger.error(
-        `Failed to record sellout milestone for class ${rawClass.id}:`,
+        `Failed to record waitlist fill for class ${rawClass.id}:`,
         err
       );
       Sentry.captureException(err);
     }
   }
 
-  private async trimSelloutStats(instructorId: string): Promise<void> {
+  /**
+   * Caps an instructor at the most recent classes. `keepClassId` is the record
+   * just written: it is exempt, since a class that has been on the schedule a
+   * long time can be the oldest by `addedAt` the moment it sells out, and
+   * trimming it would throw away the measurement we just took.
+   */
+  private async trimSelloutStats(
+    instructorId: string,
+    keepClassId?: string
+  ): Promise<void> {
     const db = admin.database();
     const snap = await db.ref(PATHS.selloutStats(instructorId)).once("value");
     const records = snap.val() as Record<string, SelloutRecord> | null;
@@ -500,6 +557,7 @@ export class Alerter implements DiffDelegate {
     if (excess <= 0) return;
     entries.sort((a, b) => a[1].addedAt - b[1].addedAt);
     const removals = entries
+      .filter(([classId]) => classId !== keepClassId)
       .slice(0, excess)
       .map(([classId]) =>
         db.ref(PATHS.selloutRecord(instructorId, classId)).remove()
@@ -507,24 +565,51 @@ export class Alerter implements DiffDelegate {
     await Promise.all(removals);
   }
 
+  /**
+   * Trims class history. Two snapshots per class define its waitlist fill
+   * time — the first sighting and the first full-waitlist sighting — so those
+   * are kept for as long as the class is relevant, even once they age past the
+   * retention window. Once the class itself has happened, the whole node is
+   * dropped.
+   */
   private async cleanupOldSnapshots(): Promise<void> {
-    const cutoff = Date.now() - HISTORY_RETENTION_MS;
+    const cutoff = Date.now() - CLASS_HISTORY_RETENTION_MS;
     const db = admin.database();
     for (const studioId of Object.keys(STUDIOS)) {
       try {
         const snap = await db.ref(PATHS.classHistory(studioId)).once("value");
         const history = snap.val() as Record<
           string,
-          Record<string, unknown>
+          Record<string, ClassSnapshot>
         > | null;
         if (!history) continue;
         const removals: Promise<void>[] = [];
+        let purgedClasses = 0;
         for (const [classId, snapshots] of Object.entries(history)) {
           if (!snapshots || typeof snapshots !== "object") continue;
-          for (const timestampStr of Object.keys(snapshots)) {
-            const ts = Number(timestampStr);
-            if (!Number.isFinite(ts)) continue;
-            if (ts < cutoff) {
+          const timestamps = Object.keys(snapshots)
+            .filter((key) => Number.isFinite(Number(key)))
+            .sort((a, b) => Number(a) - Number(b));
+          if (timestamps.length === 0) continue;
+
+          const latest = snapshots[timestamps[timestamps.length - 1]];
+          const startsAt = Date.parse(latest?.starts_at ?? "");
+          if (Number.isFinite(startsAt) && startsAt < cutoff) {
+            // The class has already taken place — nothing left to measure.
+            purgedClasses++;
+            removals.push(
+              db.ref(PATHS.classSnapshot(studioId, classId)).remove()
+            );
+            continue;
+          }
+
+          const keep = new Set([
+            timestamps[0],
+            timestamps.find((ts) => snapshots[ts]?.status === "full"),
+          ]);
+          for (const timestampStr of timestamps) {
+            if (keep.has(timestampStr)) continue;
+            if (Number(timestampStr) < cutoff) {
               removals.push(
                 db
                   .ref(
@@ -538,7 +623,7 @@ export class Alerter implements DiffDelegate {
         if (removals.length > 0) {
           await Promise.all(removals);
           logger.log(
-            `Removed ${removals.length} expired snapshots for studio ${studioId}`
+            `Removed ${removals.length} expired snapshot entries for studio ${studioId} (${purgedClasses} past classes purged)`
           );
         }
       } catch (err) {
